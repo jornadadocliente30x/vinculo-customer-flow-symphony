@@ -2,13 +2,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Users, 
-  MessageSquare, 
-  Target, 
-  Bot, 
-  BarChart3, 
-  FileText, 
-  Settings,
   Zap
 } from 'lucide-react';
 import {
@@ -27,51 +20,6 @@ const menuItems = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard
-  },
-  {
-    title: 'Leads',
-    href: '/dashboard/leads',
-    icon: Users
-  },
-  {
-    title: 'Chat',
-    href: '/dashboard/chat',
-    icon: MessageSquare
-  },
-  {
-    title: 'Contatos',
-    href: '/dashboard/contacts',
-    icon: Target
-  },
-  {
-    title: 'Automação',
-    href: '/dashboard/automation',
-    icon: Bot
-  },
-  {
-    title: 'Templates',
-    href: '/dashboard/templates',
-    icon: FileText
-  },
-  {
-    title: 'Campanhas',
-    href: '/dashboard/campaigns',
-    icon: Target
-  },
-  {
-    title: 'Analytics',
-    href: '/dashboard/analytics',
-    icon: BarChart3
-  },
-  {
-    title: 'Relatórios',
-    href: '/dashboard/reports',
-    icon: FileText
-  },
-  {
-    title: 'Configurações',
-    href: '/dashboard/settings',
-    icon: Settings
   }
 ];
 
@@ -100,10 +48,11 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={location.pathname === item.href}
+                    className="h-12 text-base"
                   >
                     <Link to={item.href}>
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
+                      <item.icon className="w-5 h-5" />
+                      <span className="text-base font-medium">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
