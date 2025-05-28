@@ -2,7 +2,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Zap
+  Users,
+  Zap,
+  MessageSquare,
+  BarChart3,
+  Settings
 } from 'lucide-react';
 import {
   Sidebar,
@@ -20,6 +24,36 @@ const menuItems = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard
+  },
+  {
+    title: 'Leads',
+    href: '/dashboard/leads',
+    icon: Users
+  },
+  {
+    title: 'Funil de Automação',
+    href: '/dashboard/automations',
+    icon: Zap
+  },
+  {
+    title: 'Conversas',
+    href: '/dashboard/messages',
+    icon: MessageSquare
+  },
+  {
+    title: 'Templates',
+    href: '/dashboard/templates',
+    icon: MessageSquare
+  },
+  {
+    title: 'Analytics',
+    href: '/dashboard/analytics',
+    icon: BarChart3
+  },
+  {
+    title: 'Configurações',
+    href: '/dashboard/settings',
+    icon: Settings
   }
 ];
 

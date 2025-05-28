@@ -44,7 +44,15 @@ const App = () => (
             </ProtectedRoute>
           } />
 
-          {/* Redirect /dashboard/* to /dashboard */}
+          {/* Temporary redirects for new menu items - will redirect to main dashboard until pages are created */}
+          <Route path="/dashboard/leads" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard/automations" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard/messages" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard/templates" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard/analytics" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard/settings" element={<Navigate to="/dashboard" replace />} />
+
+          {/* Redirect any other /dashboard/* to /dashboard */}
           <Route path="/dashboard/*" element={<Navigate to="/dashboard" replace />} />
           
           {/* Catch-all route */}
