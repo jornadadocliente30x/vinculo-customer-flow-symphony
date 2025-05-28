@@ -16,11 +16,13 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isHydrated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (token: string, password: string) => Promise<boolean>;
+  setHydrated: () => void;
 }
 
 interface RegisterData {
@@ -56,8 +58,15 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      isHydrated: false,
+
+      setHydrated: () => {
+        console.log('AuthStore hydrated');
+        set({ isHydrated: true });
+      },
 
       login: async (email: string, password: string) => {
+        console.log('Login attempt for:', email);
         set({ isLoading: true });
         
         // Simulate API call
@@ -66,15 +75,22 @@ export const useAuthStore = create<AuthState>()(
         const user = mockUsers.find(u => u.email === email);
         
         if (user && password === '123456') {
-          set({ user, isAuthenticated: true, isLoading: false });
+          console.log('Login successful for user:', user.name);
+          set({ 
+            user, 
+            isAuthenticated: true, 
+            isLoading: false 
+          });
           return true;
         }
         
+        console.log('Login failed');
         set({ isLoading: false });
         return false;
       },
 
       register: async (data: RegisterData) => {
+        console.log('Register attempt for:', data.email);
         set({ isLoading: true });
         
         // Simulate API call
@@ -90,12 +106,21 @@ export const useAuthStore = create<AuthState>()(
         };
         
         mockUsers.push(newUser);
-        set({ user: newUser, isAuthenticated: true, isLoading: false });
+        console.log('Registration successful for user:', newUser.name);
+        set({ 
+          user: newUser, 
+          isAuthenticated: true, 
+          isLoading: false 
+        });
         return true;
       },
 
       logout: () => {
-        set({ user: null, isAuthenticated: false });
+        console.log('User logged out');
+        set({ 
+          user: null, 
+          isAuthenticated: false 
+        });
       },
 
       forgotPassword: async (email: string) => {
@@ -124,6 +149,10 @@ export const useAuthStore = create<AuthState>()(
         user: state.user, 
         isAuthenticated: state.isAuthenticated 
       }),
+      onRehydrateStorage: () => (state) => {
+        console.log('Rehydrating auth store:', state);
+        state?.setHydrated();
+      },
     }
   )
 );
