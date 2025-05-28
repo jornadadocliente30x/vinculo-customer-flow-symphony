@@ -1,73 +1,186 @@
-# Welcome to your Lovable project
 
-## Project info
+# Vinculo - Plataforma SaaS de Automação de Vendas
 
-**URL**: https://lovable.dev/projects/5f0c6ba9-d8a9-4ba8-8b05-31cc3fd7f31b
+Uma plataforma completa de gestão da jornada do cliente com foco em automação de comunicação e análise de resultados para PMEs brasileiras.
 
-## How can I edit this code?
+## 🚀 Tecnologias
 
-There are several ways of editing your application.
+- **Frontend**: React 18 + TypeScript
+- **Styling**: Tailwind CSS + Shadcn/UI
+- **Build**: Vite
+- **Routing**: React Router DOM
+- **State Management**: TanStack Query + Zustand (preparado)
+- **Forms**: React Hook Form + Zod (preparado)
+- **Icons**: Lucide React
 
-**Use Lovable**
+## 🏗️ Arquitetura
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5f0c6ba9-d8a9-4ba8-8b05-31cc3fd7f31b) and start prompting.
+O projeto segue os princípios de Clean Architecture e Domain-Driven Design:
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/         # Componentes reutilizáveis
+│   ├── ui/            # Componentes base (Shadcn/UI)
+│   ├── forms/         # Formulários específicos
+│   └── charts/        # Componentes de gráficos
+├── pages/             # Páginas da aplicação
+├── hooks/             # Custom React hooks
+├── lib/               # Configurações e utilitários
+├── types/             # Definições TypeScript
+├── utils/             # Funções utilitárias
+└── services/          # Camada de serviços (API)
 ```
 
-**Edit a file directly in GitHub**
+## 🌟 Funcionalidades
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### ✅ Implementado (Fase 1)
+- [x] Landing page responsiva e otimizada
+- [x] Navegação com menu mobile
+- [x] Seções: Hero, Features, Pricing, Contact, Footer
+- [x] Formulário de contato funcional
+- [x] Design system baseado em Shadcn/UI
+- [x] Tipos TypeScript bem definidos
+- [x] Estrutura base para expansão
 
-**Use GitHub Codespaces**
+### 🔄 Em Desenvolvimento (Fase 2)
+- [ ] Sistema de autenticação (NextAuth.js/Clerk)
+- [ ] Dashboard administrativo
+- [ ] CRM com Kanban de leads
+- [ ] Chat integrado (WhatsApp-like)
+- [ ] Sistema de templates
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 📋 Planejado (Fase 3)
+- [ ] Funis de automação visual
+- [ ] Analytics avançado
+- [ ] Integração WhatsApp Business API
+- [ ] Sistema de pagamentos
+- [ ] Multi-tenancy
 
-## What technologies are used for this project?
+## 🎯 Módulos Principais
 
-This project is built with:
+### 1. CRM & Gestão de Leads
+- Kanban visual para pipeline de vendas
+- Perfil completo de leads
+- Sistema de tags e filtros
+- Log de atividades em tempo real
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 2. Automação de Comunicação
+- WhatsApp Business API
+- Templates personalizáveis
+- Sequências automatizadas
+- Agendamento de mensagens
 
-## How can I deploy this project?
+### 3. Analytics & Relatórios
+- Dashboard com métricas de vendas
+- Funil de conversão
+- ROI por campanha
+- Relatórios personalizáveis
 
-Simply open [Lovable](https://lovable.dev/projects/5f0c6ba9-d8a9-4ba8-8b05-31cc3fd7f31b) and click on Share -> Publish.
+## 🚀 Como usar
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+# Instalar dependências
+npm install
 
-Yes, you can!
+# Executar em desenvolvimento
+npm run dev
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Build para produção
+npm run build
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Preview da build
+npm run preview
+```
+
+## 📱 Responsividade
+
+O projeto é totalmente responsivo e otimizado para:
+- 📱 Mobile (320px+)
+- 📟 Tablet (768px+)
+- 🖥️ Desktop (1024px+)
+- 🖥️ Large Desktop (1440px+)
+
+## 🎨 Design System
+
+Baseado no Shadcn/UI com:
+- Paleta de cores: Azul/Roxo gradiente
+- Tipografia: Inter (system font)
+- Componentes acessíveis (WCAG 2.1)
+- Dark mode preparado
+
+## 🔧 Configuração de Desenvolvimento
+
+### Variáveis de Ambiente (futuro)
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=...
+WHATSAPP_API_TOKEN=...
+```
+
+### Ferramentas Recomendadas
+- VS Code com extensões: TypeScript, Tailwind CSS, ES7+ React
+- ESLint + Prettier (configurado)
+- Husky para pre-commit hooks (preparado)
+
+## 📊 Performance
+
+- Lighthouse Score: 90+ (meta)
+- Core Web Vitals otimizados
+- Code splitting por rotas
+- Lazy loading de componentes
+- Imagens otimizadas
+
+## 🧪 Testes (preparado)
+
+Estrutura preparada para:
+- Unit tests: Jest + Testing Library
+- E2E tests: Playwright
+- Coverage mínimo: 80%
+
+## 🚀 Deploy
+
+Otimizado para deploy em:
+- ✅ Vercel (recomendado)
+- ✅ Netlify
+- ✅ AWS S3 + CloudFront
+- 🔄 Docker (preparado)
+
+## 📈 Roadmap
+
+### Sprint 1-2: Foundation ✅
+- [x] Setup do projeto
+- [x] Landing page
+- [x] Design system
+
+### Sprint 3-4: Core Features 🔄
+- [ ] Autenticação
+- [ ] Dashboard
+- [ ] CRM básico
+
+### Sprint 5-6: Automation 📋
+- [ ] Funis de automação
+- [ ] WhatsApp integration
+- [ ] Analytics
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
+
+## 📞 Suporte
+
+- 📧 Email: contato@vinculo.com.br
+- 💬 WhatsApp: (11) 99999-9999
+- 🌐 Website: https://vinculo.com.br
+
+---
+
+Desenvolvido com ❤️ para PMEs brasileiras
