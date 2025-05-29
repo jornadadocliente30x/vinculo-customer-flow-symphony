@@ -50,7 +50,7 @@ const menuItems: MenuItem[] = [
   },
   {
     title: 'Conversas',
-    href: '/dashboard/messages',
+    href: '/dashboard/messages/whatsapp',
     icon: MessageSquare
   }
 ];
