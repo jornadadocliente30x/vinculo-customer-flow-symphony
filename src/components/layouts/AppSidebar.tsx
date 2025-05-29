@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { 
   LayoutDashboard, 
   Users,
-  Zap,
+  Bot,
   MessageSquare,
   BarChart3,
   Settings,
@@ -13,7 +13,6 @@ import {
   UserPlus,
   Target,
   FileText,
-  Bot,
   Calendar,
   Clock,
   Mail,
@@ -62,15 +61,9 @@ const menuItems: MenuItem[] = [
     ]
   },
   {
-    title: 'Funil de Automação',
-    href: '/dashboard/automations',
-    icon: Zap,
-    submenu: [
-      { title: 'Campanhas', href: '/dashboard/automations/campaigns', icon: Target },
-      { title: 'Sequências', href: '/dashboard/automations/sequences', icon: Bot },
-      { title: 'Disparos', href: '/dashboard/automations/triggers', icon: Zap },
-      { title: 'Agendamentos', href: '/dashboard/automations/schedule', icon: Calendar }
-    ]
+    title: 'Automação',
+    href: '/dashboard/automations/agents',
+    icon: Bot
   },
   {
     title: 'Conversas',
@@ -129,7 +122,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-gray-100 p-6 bg-gradient-to-r from-brand-50 to-purple-50">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-brand">
-            <Zap className="w-6 h-6 text-white" />
+            <Bot className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
             Vinculo

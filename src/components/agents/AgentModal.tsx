@@ -43,11 +43,11 @@ const daysOfWeek = [
 ];
 
 const defaultJourneySteps: PatientJourneyStep[] = [
-  { id: 'step1', title: 'Assimilação', description: '' },
-  { id: 'step2', title: 'Utilização', description: '' },
-  { id: 'step3', title: 'Adoção', description: '' },
-  { id: 'step4', title: 'Expansão', description: '' },
-  { id: 'step5', title: 'Evangelismo', description: '' },
+  { id: 'step1', title: 'Assimilação', description: '', files: [] },
+  { id: 'step2', title: 'Utilização', description: '', files: [] },
+  { id: 'step3', title: 'Adoção', description: '', files: [] },
+  { id: 'step4', title: 'Expansão', description: '', files: [] },
+  { id: 'step5', title: 'Evangelismo', description: '', files: [] },
 ];
 
 export function AgentModal({ isOpen, onClose, onSave, agent }: AgentModalProps) {
@@ -115,10 +115,34 @@ export function AgentModal({ isOpen, onClose, onSave, agent }: AgentModalProps) 
     }
   };
 
+  const handleStepFileUpload = (stepId: string, files: FileList | null) => {
+    if (files) {
+      setFormData(prev => ({
+        ...prev,
+        patientJourney: prev.patientJourney.map(step =>
+          step.id === stepId 
+            ? { ...step, files: [...(step.files || []), ...Array.from(files)] }
+            : step
+        )
+      }));
+    }
+  };
+
   const removeFile = (index: number) => {
     setFormData(prev => ({
       ...prev,
       files: prev.files.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removeStepFile = (stepId: string, fileIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      patientJourney: prev.patientJourney.map(step =>
+        step.id === stepId 
+          ? { ...step, files: (step.files || []).filter((_, i) => i !== fileIndex) }
+          : step
+      )
     }));
   };
 
@@ -324,13 +348,58 @@ export function AgentModal({ isOpen, onClose, onSave, agent }: AgentModalProps) 
                       {step.title}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-4">
                     <Textarea
                       value={step.description}
                       onChange={(e) => handleJourneyStepChange(step.id, 'description', e.target.value)}
                       placeholder={`Descreva a mensagem para a etapa ${step.title}...`}
                       rows={3}
                     />
+
+                    <div className="space-y-2">
+                      <Label>Upload de Arquivos para esta Etapa</Label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+                          onChange={(e) => handleStepFileUpload(step.id, e.target.files)}
+                          className="hidden"
+                          id={`step-file-upload-${step.id}`}
+                        />
+                        <label
+                          htmlFor={`step-file-upload-${step.id}`}
+                          className="flex flex-col items-center justify-center cursor-pointer"
+                        >
+                          <Upload className="w-6 h-6 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-600">
+                            Clique para adicionar arquivos nesta etapa
+                          </span>
+                        </label>
+                      </div>
+
+                      {step.files && step.files.length > 0 && (
+                        <div className="space-y-2">
+                          <Label>Arquivos Anexados nesta Etapa:</Label>
+                          {step.files.map((file, fileIndex) => (
+                            <div key={fileIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                              <div className="flex items-center space-x-2">
+                                {getFileIcon(file)}
+                                <span className="text-sm">{file.name}</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeStepFile(step.id, fileIndex)}
+                                className="h-6 w-6 p-0"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
