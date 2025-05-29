@@ -1,12 +1,23 @@
 
 import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { 
   LayoutDashboard, 
   Users,
   Zap,
   MessageSquare,
   BarChart3,
-  Settings
+  Settings,
+  ChevronRight,
+  ChevronDown,
+  UserPlus,
+  Target,
+  FileText,
+  Bot,
+  Calendar,
+  Clock,
+  Mail,
+  Book
 } from 'lucide-react';
 import {
   Sidebar,
@@ -18,8 +29,20 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
-const menuItems = [
+interface MenuItem {
+  title: string;
+  href: string;
+  icon: React.ElementType;
+  submenu?: {
+    title: string;
+    href: string;
+    icon: React.ElementType;
+  }[];
+}
+
+const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
     href: '/dashboard',
@@ -28,22 +51,46 @@ const menuItems = [
   {
     title: 'Leads',
     href: '/dashboard/leads',
-    icon: Users
+    icon: Users,
+    submenu: [
+      { title: 'Gestão', href: '/dashboard/leads/manage', icon: Users },
+      { title: 'Importar', href: '/dashboard/leads/import', icon: UserPlus },
+      { title: 'Funil', href: '/dashboard/leads/funnel', icon: Target },
+      { title: 'Relatórios', href: '/dashboard/leads/reports', icon: FileText }
+    ]
   },
   {
     title: 'Funil de Automação',
     href: '/dashboard/automations',
-    icon: Zap
+    icon: Zap,
+    submenu: [
+      { title: 'Campanhas', href: '/dashboard/automations/campaigns', icon: Target },
+      { title: 'Sequências', href: '/dashboard/automations/sequences', icon: Bot },
+      { title: 'Disparos', href: '/dashboard/automations/triggers', icon: Zap },
+      { title: 'Agendamentos', href: '/dashboard/automations/schedule', icon: Calendar }
+    ]
   },
   {
     title: 'Conversas',
     href: '/dashboard/messages',
-    icon: MessageSquare
+    icon: MessageSquare,
+    submenu: [
+      { title: 'WhatsApp', href: '/dashboard/messages/whatsapp', icon: MessageSquare },
+      { title: 'Atendimento', href: '/dashboard/messages/support', icon: Clock },
+      { title: 'Histórico', href: '/dashboard/messages/history', icon: FileText },
+      { title: 'Templates', href: '/dashboard/messages/templates', icon: Book }
+    ]
   },
   {
     title: 'Templates',
     href: '/dashboard/templates',
-    icon: MessageSquare
+    icon: MessageSquare,
+    submenu: [
+      { title: 'Mensagens', href: '/dashboard/templates/messages', icon: MessageSquare },
+      { title: 'E-mail', href: '/dashboard/templates/email', icon: Mail },
+      { title: 'Sequências', href: '/dashboard/templates/sequences', icon: Bot },
+      { title: 'Biblioteca', href: '/dashboard/templates/library', icon: Book }
+    ]
   },
   {
     title: 'Analytics',
@@ -59,36 +106,96 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  const toggleExpanded = (title: string) => {
+    setExpandedItems(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title)
+        : [...prev, title]
+    );
+  };
+
+  const isActive = (href: string) => location.pathname === href;
+  const isParentActive = (item: MenuItem) => {
+    if (isActive(item.href)) return true;
+    return item.submenu?.some(sub => isActive(sub.href)) || false;
+  };
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b border-gray-200 p-6">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
+    <Sidebar className="border-r border-gray-100">
+      <SidebarHeader className="border-b border-gray-100 p-6 bg-gradient-to-r from-brand-50 to-purple-50">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-brand">
+            <Zap className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
             Vinculo
           </span>
         </div>
       </SidebarHeader>
       
-      <SidebarContent>
+      <SidebarContent className="bg-gray-50/30">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1 p-4">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={location.pathname === item.href}
-                    className="h-12 text-base"
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="w-5 h-5" />
-                      <span className="text-base font-medium">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  <div className="space-y-1">
+                    <SidebarMenuButton 
+                      asChild={!item.submenu}
+                      isActive={isParentActive(item)}
+                      className={cn(
+                        "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden",
+                        isParentActive(item) 
+                          ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" 
+                          : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                      )}
+                      onClick={item.submenu ? () => toggleExpanded(item.title) : undefined}
+                    >
+                      {item.submenu ? (
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center">
+                            <item.icon className="w-5 h-5 mr-3" />
+                            <span className="font-medium">{item.title}</span>
+                          </div>
+                          {expandedItems.includes(item.title) ? (
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 transition-transform duration-200" />
+                          )}
+                        </div>
+                      ) : (
+                        <Link to={item.href} className="flex items-center w-full">
+                          <item.icon className="w-5 h-5 mr-3" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      )}
+                    </SidebarMenuButton>
+
+                    {item.submenu && expandedItems.includes(item.title) && (
+                      <div className="ml-4 mt-2 space-y-1 animate-fade-in">
+                        {item.submenu.map((subItem) => (
+                          <SidebarMenuButton
+                            key={subItem.href}
+                            asChild
+                            isActive={isActive(subItem.href)}
+                            className={cn(
+                              "h-10 text-sm rounded-lg transition-all duration-200",
+                              isActive(subItem.href)
+                                ? "bg-gradient-to-r from-brand-100 to-purple-100 text-brand-700 border-l-2 border-brand-500"
+                                : "hover:bg-white hover:shadow-soft text-gray-600 hover:text-gray-800"
+                            )}
+                          >
+                            <Link to={subItem.href} className="flex items-center">
+                              <subItem.icon className="w-4 h-4 mr-3" />
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
