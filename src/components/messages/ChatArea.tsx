@@ -5,23 +5,46 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
+import { TransferContactModal } from './TransferContactModal';
+import { NewContactModal } from './NewContactModal';
+import { TagsModal } from './TagsModal';
 import { ChatMessage, Conversation } from '@/types/messages';
-import { MoreVertical, Phone, VideoIcon, Search } from 'lucide-react';
+import { 
+  MoreVertical, 
+  Phone, 
+  VideoIcon, 
+  Search, 
+  Transfer, 
+  UserPlus,
+  CheckCircle,
+  XCircle 
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ChatAreaProps {
   conversation: Conversation | null;
   messages: ChatMessage[];
   onSendMessage: (content: string, type: 'text' | 'audio') => void;
   onAttachFile: (file: File, type: 'image' | 'video' | 'document') => void;
+  onUpdateConversation: (id: string, updates: Partial<Conversation>) => void;
 }
 
 export function ChatArea({ 
   conversation, 
   messages, 
   onSendMessage, 
-  onAttachFile 
+  onAttachFile,
+  onUpdateConversation 
 }: ChatAreaProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isNewContactModalOpen, setIsNewContactModalOpen] = useState(false);
+  const [isContactTagsModalOpen, setIsContactTagsModalOpen] = useState(false);
 
   useEffect(() => {
     // Auto scroll to bottom when new messages arrive
@@ -47,6 +70,24 @@ export function ChatArea({
       </div>
     );
   }
+
+  const handleFinishConversation = () => {
+    onUpdateConversation(conversation.id, { 
+      category: conversation.category === 'atendimento' ? 'finalizados' : 'atendimento' 
+    });
+  };
+
+  const handleTransferContact = (userId: string) => {
+    console.log('Transferring contact to user:', userId);
+    // Here you would implement the transfer logic
+  };
+
+  const handleNewContact = (contactData: any) => {
+    console.log('Creating new contact:', contactData);
+    // Here you would implement the contact creation logic
+  };
+
+  const isFinished = conversation.category === 'finalizados';
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50">
@@ -84,9 +125,61 @@ export function ChatArea({
             <Button variant="ghost" size="sm">
               <VideoIcon className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="sm">
-              <MoreVertical className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setIsTransferModalOpen(true)}
+            >
+              <Transfer className="h-5 w-5" />
             </Button>
+            
+            {/* Finish/Start Button */}
+            <Button
+              variant={isFinished ? "default" : "destructive"}
+              size="sm"
+              onClick={handleFinishConversation}
+              className="px-3"
+            >
+              {isFinished ? (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                  Iniciar
+                </>
+              ) : (
+                <>
+                  <XCircle className="w-4 h-4 mr-1" />
+                  Finalizar
+                </>
+              )}
+            </Button>
+
+            {/* New Contact Button */}
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsNewContactModalOpen(true)}
+              className="px-3"
+            >
+              <UserPlus className="w-4 h-4 mr-1" />
+              Novo
+            </Button>
+
+            {/* More Options */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white border shadow-lg">
+                <DropdownMenuItem onClick={() => console.log('Edit contact')}>
+                  Editar Contato
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsContactTagsModalOpen(true)}>
+                  Criar Tags
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -116,6 +209,29 @@ export function ChatArea({
       <MessageInput 
         onSendMessage={onSendMessage}
         onAttachFile={onAttachFile}
+      />
+
+      {/* Modals */}
+      <TransferContactModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        conversationId={conversation.id}
+        contactName={conversation.contactName}
+        onTransfer={handleTransferContact}
+      />
+
+      <NewContactModal
+        isOpen={isNewContactModalOpen}
+        onClose={() => setIsNewContactModalOpen(false)}
+        onSaveContact={handleNewContact}
+      />
+
+      <TagsModal
+        isOpen={isContactTagsModalOpen}
+        onClose={() => setIsContactTagsModalOpen(false)}
+        conversationId={conversation.id}
+        currentTags={conversation.tags || []}
+        onUpdateTags={(tags) => onUpdateConversation(conversation.id, { tags })}
       />
     </div>
   );

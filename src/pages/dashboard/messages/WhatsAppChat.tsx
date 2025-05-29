@@ -5,17 +5,18 @@ import { ConversationSidebar } from '@/components/messages/ConversationSidebar';
 import { ChatArea } from '@/components/messages/ChatArea';
 import { ScheduleMessageModal } from '@/components/messages/ScheduleMessageModal';
 import { mockConversations, mockMessages } from '@/data/mockConversations';
-import { ChatMessage, ScheduledMessage } from '@/types/messages';
+import { ChatMessage, ScheduledMessage, Conversation } from '@/types/messages';
 import { useToast } from '@/hooks/use-toast';
 
 export default function WhatsAppChat() {
+  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduleConversationId, setScheduleConversationId] = useState<string>('');
   const { toast } = useToast();
 
-  const selectedConversation = mockConversations.find(
+  const selectedConversation = conversations.find(
     conv => conv.id === selectedConversationId
   );
 
@@ -84,14 +85,28 @@ export default function WhatsAppChat() {
     });
   };
 
+  const handleUpdateConversation = (id: string, updates: Partial<Conversation>) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === id ? { ...conv, ...updates } : conv
+      )
+    );
+
+    toast({
+      title: "Conversa atualizada",
+      description: "As alterações foram salvas com sucesso",
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="h-[calc(100vh-120px)] flex bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <ConversationSidebar
-          conversations={mockConversations}
+          conversations={conversations}
           selectedConversationId={selectedConversationId}
           onSelectConversation={setSelectedConversationId}
           onScheduleMessage={handleScheduleMessage}
+          onUpdateConversation={handleUpdateConversation}
         />
 
         <ChatArea
@@ -99,6 +114,7 @@ export default function WhatsAppChat() {
           messages={conversationMessages}
           onSendMessage={handleSendMessage}
           onAttachFile={handleAttachFile}
+          onUpdateConversation={handleUpdateConversation}
         />
       </div>
 
