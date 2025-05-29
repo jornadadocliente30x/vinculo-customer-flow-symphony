@@ -19,6 +19,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
 import WhatsAppChat from "./pages/dashboard/messages/WhatsAppChat";
+import AgentsPage from "./pages/dashboard/agents/AgentsPage";
 
 const queryClient = new QueryClient();
 
@@ -56,9 +57,15 @@ const App = () => (
           </ProtectedRoute>
         } />
 
+        <Route path="/dashboard/automations/agents" element={
+          <ProtectedRoute>
+            <AgentsPage />
+          </ProtectedRoute>
+        } />
+
         {/* Temporary redirects for new menu items - will redirect to main dashboard until pages are created */}
         <Route path="/dashboard/leads" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/automations" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard/automations" element={<Navigate to="/dashboard/automations/agents" replace />} />
         <Route path="/dashboard/messages" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard/templates" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard/analytics" element={<Navigate to="/dashboard" replace />} />
