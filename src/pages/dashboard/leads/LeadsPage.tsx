@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -141,6 +142,7 @@ export default function LeadsPage() {
     return colors[stage as keyof typeof colors] || 'bg-gray-100 text-gray-800 hover:bg-gray-100';
   };
 
+  // Handle kanban view by navigating to funnel page
   if (viewMode === 'kanban') {
     navigate('/dashboard/leads/funnel');
     return null;
