@@ -22,7 +22,8 @@ import {
   CheckCircle,
   XCircle,
   X,
-  FileText
+  FileText,
+  History
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -142,6 +143,14 @@ export function ChatArea({
                     <FileText className="w-3 h-3 text-gray-400" />
                     <span className="text-xs text-gray-500">#{conversation.protocolNumber}</span>
                   </div>
+                  {conversation.assignedUser && (
+                    <>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-gray-500">
+                        <span className="font-medium">Dono:</span> {conversation.assignedUser}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -185,13 +194,14 @@ export function ChatArea({
                 )}
               </div>
 
+              {/* Histórico (substituindo Phone) */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="sm">
-                    <Phone className="h-5 w-5" />
+                    <History className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Fazer chamada</TooltipContent>
+                <TooltipContent>Ver histórico do paciente</TooltipContent>
               </Tooltip>
 
               <Tooltip>
@@ -216,14 +226,19 @@ export function ChatArea({
                 <TooltipContent>Transferir contato</TooltipContent>
               </Tooltip>
               
-              {/* Finish/Start Button */}
+              {/* Finish/Start Button com estilo consistente */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isFinished ? "default" : "destructive"}
+                    variant={isFinished ? "default" : "default"}
                     size="sm"
                     onClick={handleFinishConversation}
-                    className="px-3"
+                    className={cn(
+                      "px-3",
+                      isFinished 
+                        ? "bg-green-500 hover:bg-green-600 text-white" 
+                        : "bg-red-500 hover:bg-red-600 text-white"
+                    )}
                   >
                     {isFinished ? (
                       <>
@@ -250,7 +265,7 @@ export function ChatArea({
                     variant="outline" 
                     size="sm"
                     onClick={() => setIsNewContactModalOpen(true)}
-                    className="px-3"
+                    className="px-3 border-gray-200 hover:bg-brand-50"
                   >
                     <UserPlus className="w-4 h-4 mr-1" />
                     Novo
@@ -266,12 +281,12 @@ export function ChatArea({
                     <MoreVertical className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white border shadow-lg">
+                <DropdownMenuContent align="end" className="bg-white border shadow-lg z-50">
                   <DropdownMenuItem onClick={() => setIsEditContactModalOpen(true)}>
                     Editar Contato
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setIsContactTagsModalOpen(true)}>
-                    Criar Tags
+                    Gerenciar Tags
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

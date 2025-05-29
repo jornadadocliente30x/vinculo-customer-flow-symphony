@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -32,19 +31,31 @@ const categoryLabels = {
   conversa_ia: 'Conversa IA'
 };
 
+const categoryColors = {
+  atendimento: 'bg-blue-500 text-white hover:bg-blue-600',
+  finalizados: 'bg-green-500 text-white hover:bg-green-600',
+  agendamentos: 'bg-yellow-500 text-white hover:bg-yellow-600',
+  conversa_ia: 'bg-purple-500 text-white hover:bg-purple-600'
+};
+
 const getOriginIcon = (origin: string) => {
-  switch (origin) {
-    case 'instagram':
-      return '📷';
-    case 'linkedin':
-      return '💼';
-    case 'tiktok':
-      return '🎵';
-    case 'site':
-      return '🌐';
-    default:
-      return '💬';
-  }
+  const icons = {
+    instagram: '📷',
+    linkedin: '💼',
+    tiktok: '🎵',
+    site: '🌐'
+  };
+  return icons[origin as keyof typeof icons] || '💬';
+};
+
+const getOriginColor = (origin: string) => {
+  const colors = {
+    instagram: 'bg-pink-100 text-pink-800',
+    linkedin: 'bg-blue-100 text-blue-800',
+    tiktok: 'bg-gray-100 text-gray-800',
+    site: 'bg-green-100 text-green-800'
+  };
+  return colors[origin as keyof typeof colors] || 'bg-gray-100 text-gray-800';
 };
 
 export function ConversationSidebar({
@@ -108,11 +119,11 @@ export function ConversationSidebar({
 
   const getTagColorClasses = (color: TagType['color']) => {
     switch (color) {
-      case 'blue': return 'bg-blue-100 text-blue-800';
-      case 'green': return 'bg-green-100 text-green-800';
-      case 'yellow': return 'bg-yellow-100 text-yellow-800';
-      case 'purple': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'blue': return 'bg-blue-100 text-blue-800 hover:bg-blue-100';
+      case 'green': return 'bg-green-100 text-green-800 hover:bg-green-100';
+      case 'yellow': return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
+      case 'purple': return 'bg-purple-100 text-purple-800 hover:bg-purple-100';
+      default: return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
     }
   };
 
@@ -173,24 +184,26 @@ export function ConversationSidebar({
           )}
         </div>
 
-        {/* Filters */}
+        {/* Filters com cores melhoradas */}
         <div className="p-4 border-b border-gray-100">
-          <Tabs value={activeFilter} onValueChange={(value) => onFilterChange(value as ConversationCategory)}>
-            <TabsList className="grid w-full grid-cols-4 h-auto">
-              {Object.entries(categoryLabels).map(([key, label]) => (
-                <TabsTrigger 
-                  key={key} 
-                  value={key}
-                  className={cn(
-                    "text-xs py-2 px-1 data-[state=active]:bg-brand-500 data-[state=active]:text-white",
-                    "transition-all duration-200"
-                  )}
-                >
-                  {label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(categoryLabels).map(([key, label]) => (
+              <Button
+                key={key}
+                variant={activeFilter === key ? "default" : "outline"}
+                size="sm"
+                onClick={() => onFilterChange(key as ConversationCategory)}
+                className={cn(
+                  "text-xs py-2 px-3 transition-all duration-200",
+                  activeFilter === key 
+                    ? categoryColors[key as ConversationCategory]
+                    : "hover:bg-gray-50 border-gray-200"
+                )}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Conversations List */}
@@ -202,7 +215,7 @@ export function ConversationSidebar({
                 className={cn(
                   "p-4 cursor-pointer hover:bg-gray-50 transition-colors relative",
                   selectedConversationId === conversation.id && "bg-brand-50 border-r-2 border-brand-500",
-                  !conversation.isRead && "bg-blue-50/50"
+                  !conversation.isRead && "bg-blue-50/30"
                 )}
                 onClick={() => onSelectConversation(conversation.id)}
               >
@@ -219,8 +232,11 @@ export function ConversationSidebar({
                       {conversation.isOnline && (
                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
                       )}
-                      {/* Ícone de origem */}
-                      <div className="absolute -top-1 -right-1 text-xs bg-white rounded-full p-1 shadow-sm">
+                      {/* Ícone de origem melhorado */}
+                      <div className={cn(
+                        "absolute -top-1 -right-1 text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-sm border border-white",
+                        getOriginColor(conversation.origin)
+                      )}>
                         {getOriginIcon(conversation.origin)}
                       </div>
                     </div>
@@ -282,7 +298,7 @@ export function ConversationSidebar({
 
                       {/* Preview para agendamentos */}
                       {activeFilter === 'agendamentos' && conversation.scheduledDateTime && (
-                        <div className="mt-2 p-2 bg-yellow-50 rounded text-xs">
+                        <div className="mt-2 p-2 bg-yellow-50 rounded text-xs border border-yellow-200">
                           <div className="flex items-center justify-between">
                             <span className="text-yellow-800">
                               📅 {formatScheduledDateTime(conversation.scheduledDateTime)}
@@ -307,23 +323,30 @@ export function ConversationSidebar({
                         </div>
                       )}
 
-                      {/* Tags */}
+                      {/* Tags melhoradas */}
                       {conversation.tags && conversation.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {conversation.tags.map((tag) => (
                             <span
                               key={tag.id}
-                              className={`text-xs px-2 py-1 rounded-full ${getTagColorClasses(tag.color)}`}
+                              className={`text-xs px-2 py-1 rounded-full transition-colors ${getTagColorClasses(tag.color)}`}
                             >
                               {tag.name}
                             </span>
                           ))}
                         </div>
                       )}
+
+                      {/* Campo "Dono" */}
+                      {conversation.assignedUser && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          <span className="font-medium">Dono:</span> {conversation.assignedUser}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Action buttons */}
+                  {/* Action buttons melhorados */}
                   <div className="flex items-center justify-between space-x-2 ml-15">
                     {/* Steps button */}
                     <Tooltip>
@@ -335,9 +358,9 @@ export function ConversationSidebar({
                             e.stopPropagation();
                             openStepsModal(conversation.id);
                           }}
-                          className="flex-1 h-8 text-xs"
+                          className="flex-1 h-8 text-xs border-gray-200 hover:bg-brand-50"
                         >
-                          <span>{conversation.stage?.name || 'Etapas'}</span>
+                          <span>{conversation.stage?.name || 'Assimilação'}</span>
                           <ChevronDown className="w-3 h-3 ml-1" />
                         </Button>
                       </TooltipTrigger>
@@ -354,10 +377,10 @@ export function ConversationSidebar({
                             e.stopPropagation();
                             openTagsModal(conversation.id);
                           }}
-                          className="flex-1 h-8 text-xs"
+                          className="flex-1 h-8 text-xs border-gray-200 hover:bg-brand-50"
                         >
                           <Tag className="w-3 h-3 mr-1" />
-                          <span>{conversation.tags?.length ? `${conversation.tags.length} tag(s)` : 'Tags'}</span>
+                          <span>{conversation.tags?.length ? `${conversation.tags.length}` : '0'}</span>
                           <ChevronDown className="w-3 h-3 ml-1" />
                         </Button>
                       </TooltipTrigger>
@@ -378,6 +401,7 @@ export function ConversationSidebar({
                             onCheckedChange={(checked) => {
                               handleReadToggle(conversation.id, checked);
                             }}
+                            className="data-[state=checked]:bg-brand-500"
                           />
                         </div>
                       </TooltipTrigger>
@@ -394,7 +418,7 @@ export function ConversationSidebar({
                             e.stopPropagation();
                             setIsScriptsModalOpen(true);
                           }}
-                          className="h-8 px-2"
+                          className="h-8 px-2 border-gray-200 hover:bg-brand-50"
                         >
                           <FileText className="w-3 h-3" />
                         </Button>
@@ -432,8 +456,9 @@ export function ConversationSidebar({
         <ScriptsModal
           isOpen={isScriptsModalOpen}
           onClose={() => setIsScriptsModalOpen(false)}
-          onSaveScript={(script) => {
-            console.log('Script saved:', script);
+          onUseScript={(content) => {
+            console.log('Script content to use:', content);
+            // Esta função será conectada ao MessageInput através do ChatArea
           }}
         />
       </div>
