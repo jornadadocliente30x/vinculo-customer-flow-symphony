@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { MessageScript } from '@/types/messages';
-import { Edit, Trash2, Plus, FileText, Image, Mic, Video } from 'lucide-react';
+import { Edit, Trash2, Plus, FileText, Image, Mic, Video, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ScriptsModalProps {
@@ -49,12 +48,19 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
   // Criar novo script
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [newAttachments, setNewAttachments] = useState<File[]>([]);
   
   // Editar script
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   
   const { toast } = useToast();
+
+  // File input refs
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCreateScript = () => {
     if (!newTitle.trim() || !newContent.trim()) {
@@ -70,16 +76,45 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
       id: Date.now().toString(),
       title: newTitle,
       content: newContent,
+      attachments: newAttachments.map(file => ({
+        id: Date.now().toString() + Math.random(),
+        type: file.type.startsWith('image/') ? 'image' as const :
+              file.type.startsWith('video/') ? 'video' as const :
+              file.type.startsWith('audio/') ? 'audio' as const : 'document' as const,
+        url: URL.createObjectURL(file),
+        filename: file.name,
+        size: file.size,
+      }))
     };
 
     setScripts(prev => [...prev, newScript]);
     setNewTitle('');
     setNewContent('');
+    setNewAttachments([]);
     
     toast({
       title: "Script criado",
       description: "Script criado com sucesso!",
     });
+  };
+
+  const handleFileUpload = (file: File) => {
+    setNewAttachments(prev => [...prev, file]);
+    toast({
+      title: "Arquivo anexado",
+      description: `${file.name} foi anexado ao script`,
+    });
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setNewAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
   };
 
   const handleEditScript = (script: MessageScript) => {
@@ -159,6 +194,16 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                         <div className="flex-1" onClick={() => setSelectedScript(script)}>
                           <h3 className="font-semibold text-gray-900 mb-2">{script.title}</h3>
                           <p className="text-sm text-gray-600 line-clamp-2">{script.content}</p>
+                          
+                          {script.attachments && script.attachments.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {script.attachments.map(attachment => (
+                                <span key={attachment.id} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                  {attachment.filename}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         
                         <div className="flex items-center space-x-2 ml-4">
@@ -168,7 +213,7 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEditScript(script)}
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 hover:bg-brand-50 hover:text-brand-600"
                               >
                                 <Edit size={14} />
                               </Button>
@@ -182,7 +227,7 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteScript(script.id)}
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 <Trash2 size={14} />
                               </Button>
@@ -230,7 +275,7 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="Ex: Saudação inicial"
-                    className="mt-1"
+                    className="mt-1 focus:border-brand-500 focus:ring-brand-500"
                   />
                 </div>
 
@@ -242,16 +287,21 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                     onChange={(e) => setNewContent(e.target.value)}
                     placeholder="Digite o conteúdo do script aqui..."
                     rows={6}
-                    className="mt-1"
+                    className="mt-1 focus:border-brand-500 focus:ring-brand-500"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Anexos (em desenvolvimento)</Label>
+                  <Label className="text-sm font-medium">Anexos</Label>
                   <div className="flex space-x-2 mt-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" disabled>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => imageInputRef.current?.click()}
+                          className="hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300"
+                        >
                           <Image size={16} className="mr-2" />
                           Imagem
                         </Button>
@@ -261,7 +311,12 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                     
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" disabled>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => videoInputRef.current?.click()}
+                          className="hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300"
+                        >
                           <Video size={16} className="mr-2" />
                           Vídeo
                         </Button>
@@ -271,7 +326,12 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                     
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" disabled>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => audioInputRef.current?.click()}
+                          className="hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300"
+                        >
                           <Mic size={16} className="mr-2" />
                           Áudio
                         </Button>
@@ -281,7 +341,12 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                     
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="outline" size="sm" disabled>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => fileInputRef.current?.click()}
+                          className="hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300"
+                        >
                           <FileText size={16} className="mr-2" />
                           Arquivo
                         </Button>
@@ -289,6 +354,26 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                       <TooltipContent>Upload de arquivo</TooltipContent>
                     </Tooltip>
                   </div>
+
+                  {/* Attachments Preview */}
+                  {newAttachments.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      <Label className="text-xs text-gray-600">Arquivos anexados:</Label>
+                      {newAttachments.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                          <span className="text-sm text-gray-700">{file.name}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveAttachment(index)}
+                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                          >
+                            <X size={12} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -308,7 +393,37 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
             </TabsContent>
           </Tabs>
 
-          {/* Modal de Edição */}
+          {/* Hidden file inputs */}
+          <input
+            ref={imageInputRef}
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileSelect}
+          />
+          <input
+            ref={videoInputRef}
+            type="file"
+            className="hidden"
+            accept="video/*"
+            onChange={handleFileSelect}
+          />
+          <input
+            ref={audioInputRef}
+            type="file"
+            className="hidden"
+            accept="audio/*"
+            onChange={handleFileSelect}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.doc,.docx,.txt"
+            onChange={handleFileSelect}
+          />
+
+          {/* Edit Modal */}
           {editingScript && (
             <Dialog open={!!editingScript} onOpenChange={() => setEditingScript(null)}>
               <DialogContent className="max-w-2xl">
@@ -323,7 +438,7 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                       id="edit-title"
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
-                      className="mt-1"
+                      className="mt-1 focus:border-brand-500 focus:ring-brand-500"
                     />
                   </div>
                   
@@ -334,7 +449,7 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
                       rows={5}
-                      className="mt-1"
+                      className="mt-1 focus:border-brand-500 focus:ring-brand-500"
                     />
                   </div>
                 </div>

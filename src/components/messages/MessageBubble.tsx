@@ -7,14 +7,14 @@ import { MessageAttachmentComponent } from './MessageAttachment';
 import { AudioPlayer } from './AudioPlayer';
 import { QuickReplyModal } from './QuickReplyModal';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, MoreHorizontal } from 'lucide-react';
+import { Check, CheckCheck, MoreHorizontal, Reply } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: ChatMessage;
   isConsecutive?: boolean;
   contactName?: string;
   contactAvatar?: string;
-  onSendReply?: (reply: string) => void;
+  onSendReply?: (reply: string, replyTo?: ChatMessage) => void;
 }
 
 export function MessageBubble({ 
@@ -49,7 +49,7 @@ export function MessageBubble({
 
   const handleReply = (reply: string) => {
     if (onSendReply) {
-      onSendReply(reply);
+      onSendReply(reply, message);
     }
   };
 
@@ -74,7 +74,7 @@ export function MessageBubble({
       {!isOutbound && isConsecutive && <div className="w-8" />}
 
       <div className="max-w-xs lg:max-w-md relative">
-        {/* Três pontinhos para resposta */}
+        {/* Reply Button */}
         <Button
           variant="ghost"
           size="sm"
@@ -86,6 +86,20 @@ export function MessageBubble({
         >
           <MoreHorizontal className="h-3 w-3 text-gray-500" />
         </Button>
+
+        {/* Reply Reference */}
+        {message.replyTo && (
+          <div className={cn(
+            "mb-2 p-2 rounded-lg border-l-4 bg-gray-50 text-xs",
+            isOutbound ? "border-brand-400" : "border-blue-400"
+          )}>
+            <div className="flex items-center space-x-1 mb-1">
+              <Reply className="w-3 h-3 text-gray-500" />
+              <span className="font-medium text-gray-600">{message.replyTo.senderName}</span>
+            </div>
+            <p className="text-gray-600 line-clamp-2">{message.replyTo.content}</p>
+          </div>
+        )}
 
         {/* Audio Message */}
         {isAudioMessage && (
@@ -114,7 +128,7 @@ export function MessageBubble({
         {/* Text message */}
         {message.content && !isAudioMessage && (
           <div className={cn(
-            "px-4 py-2 rounded-2xl relative shadow-sm",
+            "px-4 py-3 rounded-2xl relative shadow-sm transition-all hover:shadow-md",
             isOutbound 
               ? "bg-white text-gray-900 rounded-br-md border border-gray-200" 
               : "bg-gradient-to-r from-blue-50 to-brand-50 text-gray-900 rounded-bl-md border border-blue-100"
@@ -122,7 +136,7 @@ export function MessageBubble({
             <p className="text-sm leading-relaxed">{message.content}</p>
             
             <div className={cn(
-              "flex items-center justify-end space-x-1 mt-1",
+              "flex items-center justify-end space-x-1 mt-2",
               isOutbound ? "text-gray-500" : "text-blue-600"
             )}>
               <span className="text-xs">{formatTime(message.timestamp)}</span>

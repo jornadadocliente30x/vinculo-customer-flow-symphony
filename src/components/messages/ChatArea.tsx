@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -18,7 +17,7 @@ import { mockTransferRequests } from '@/data/mockTransferRequests';
 interface ChatAreaProps {
   conversation: Conversation | null;
   messages: ChatMessage[];
-  onSendMessage: (content: string, type: 'text' | 'audio') => void;
+  onSendMessage: (content: string, type: 'text' | 'audio', replyTo?: ChatMessage) => void;
   onAttachFile: (file: File, type: 'image' | 'video' | 'document') => void;
   onUpdateConversation: (id: string, updates: Partial<Conversation>) => void;
   activeFilter: string;
@@ -120,9 +119,17 @@ export function ChatArea({
     }
   };
 
-  // Fixed: Integration with Quick Reply Modal
-  const handleSendReply = (reply: string) => {
-    onSendMessage(reply, 'text');
+  const handleSendReply = (reply: string, replyToMessage?: ChatMessage) => {
+    if (replyToMessage) {
+      const replyTo = {
+        messageId: replyToMessage.id,
+        content: replyToMessage.content,
+        senderName: replyToMessage.direction === 'inbound' ? conversation.contactName : 'Você'
+      };
+      onSendMessage(reply, 'text', replyToMessage);
+    } else {
+      onSendMessage(reply, 'text');
+    }
   };
 
   const canSendMessages = activeFilter === 'atendimento';
@@ -179,7 +186,7 @@ export function ChatArea({
         {canSendMessages ? (
           <div className="border-t border-gray-200 bg-white">
             <MessageInput 
-              onSendMessage={onSendMessage}
+              onSendMessage={(content, type) => onSendMessage(content, type)}
               onAttachFile={onAttachFile}
             />
           </div>

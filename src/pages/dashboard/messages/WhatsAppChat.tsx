@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { ConversationSidebar } from '@/components/messages/ConversationSidebar';
@@ -33,7 +32,7 @@ export default function WhatsAppChat() {
     msg => msg.conversationId === selectedConversationId
   );
 
-  const handleSendMessage = (content: string, type: 'text' | 'audio') => {
+  const handleSendMessage = (content: string, type: 'text' | 'audio', replyToMessage?: ChatMessage) => {
     if (!selectedConversationId) return;
 
     const newMessage: ChatMessage = {
@@ -44,6 +43,11 @@ export default function WhatsAppChat() {
       direction: 'outbound',
       status: 'sent',
       timestamp: new Date(),
+      replyTo: replyToMessage ? {
+        messageId: replyToMessage.id,
+        content: replyToMessage.content,
+        senderName: replyToMessage.direction === 'inbound' ? selectedConversation?.contactName || 'Paciente' : 'Você'
+      } : undefined
     };
 
     setMessages(prev => [...prev, newMessage]);
@@ -115,7 +119,6 @@ export default function WhatsAppChat() {
   const handleAISummary = () => {
     if (!selectedConversation) return;
     
-    // Simulate AI generating a summary of the conversation
     const mockSummary = `RESUMO DA CONVERSA - ${selectedConversation.contactName}
 
 🤖 ANÁLISE AUTOMÁTICA:
@@ -151,7 +154,6 @@ export default function WhatsAppChat() {
   const handleForwardToAttendance = () => {
     if (!selectedConversation) return;
 
-    // Move conversation to "atendimento" filter
     handleUpdateConversation(selectedConversation.id, { 
       category: 'atendimento',
       tags: [
@@ -160,7 +162,6 @@ export default function WhatsAppChat() {
       ]
     });
 
-    // Change to "atendimento" filter
     setActiveFilter('atendimento');
     
     setIsAISummaryModalOpen(false);
@@ -185,23 +186,24 @@ export default function WhatsAppChat() {
         />
 
         <div className="flex-1 flex flex-col">
-          {/* AI Button for Conversa IA filter */}
           {activeFilter === 'conversa_ia' && selectedConversation && (
-            <div className="bg-purple-50 border-b border-purple-200 p-3">
+            <div className="bg-gradient-to-r from-purple-50 to-brand-50 border-b border-purple-200 p-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bot className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-800">
-                    Conversa com IA ativa
-                  </span>
-                  <Badge variant="outline" className="text-purple-600 border-purple-300">
-                    Análise automática
-                  </Badge>
+                <div className="flex items-center space-x-3">
+                  <Bot className="w-6 h-6 text-purple-600" />
+                  <div>
+                    <span className="text-sm font-medium text-purple-800">
+                      Conversa com IA ativa
+                    </span>
+                    <Badge variant="outline" className="ml-2 text-purple-600 border-purple-300">
+                      Análise automática
+                    </Badge>
+                  </div>
                 </div>
                 <Button
                   size="sm"
                   onClick={handleAISummary}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-sm"
                 >
                   <Bot className="w-4 h-4 mr-2" />
                   Gerar Resumo
@@ -228,7 +230,6 @@ export default function WhatsAppChat() {
         onSchedule={handleScheduleSubmit}
       />
 
-      {/* AI Summary Modal */}
       <Dialog open={isAISummaryModalOpen} onOpenChange={setIsAISummaryModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -245,7 +246,7 @@ export default function WhatsAppChat() {
                 value={aiSummary}
                 onChange={(e) => setAiSummary(e.target.value)}
                 rows={15}
-                className="mt-2 font-mono text-sm"
+                className="mt-2 font-mono text-sm focus:border-brand-500 focus:ring-brand-500"
                 readOnly
               />
             </div>

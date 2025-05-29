@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -80,7 +79,6 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
       mediaRecorder.start();
       setIsRecording(true);
       
-      // Start timer
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
@@ -128,11 +126,9 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
 
   const sendAudio = () => {
     if (audioBlob) {
-      // Create a File object from the blob
       const audioFile = new File([audioBlob], 'audio-message.wav', { type: 'audio/wav' });
-      onAttachFile(audioFile, 'document'); // Treating audio as document for now
+      onAttachFile(audioFile, 'document');
       
-      // Reset recording state
       setRecordingTime(0);
       setAudioBlob(null);
     }
@@ -252,16 +248,16 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
   }
 
   return (
-    <div className="border-t border-gray-200 p-4 bg-white">
+    <div className="border-t border-gray-200 p-4 pb-6 bg-white">
       <div className="flex items-end space-x-3">
         <div className="flex space-x-1">
-          {/* File attachments */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
+                className="hover:bg-brand-50 hover:text-brand-600 transition-colors"
               >
                 <Paperclip className="h-5 w-5" />
               </Button>
@@ -275,6 +271,7 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
                 variant="ghost"
                 size="sm"
                 onClick={() => imageInputRef.current?.click()}
+                className="hover:bg-brand-50 hover:text-brand-600 transition-colors"
               >
                 <Image className="h-5 w-5" />
               </Button>
@@ -288,6 +285,7 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
                 variant="ghost"
                 size="sm"
                 onClick={() => videoInputRef.current?.click()}
+                className="hover:bg-brand-50 hover:text-brand-600 transition-colors"
               >
                 <Video className="h-5 w-5" />
               </Button>
@@ -295,13 +293,13 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
             <TooltipContent>Enviar vídeo</TooltipContent>
           </Tooltip>
 
-          {/* Scripts Modal Button */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsScriptsModalOpen(true)}
+                className="hover:bg-brand-50 hover:text-brand-600 transition-colors"
               >
                 <FileText className="h-5 w-5" />
               </Button>
@@ -316,7 +314,7 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua mensagem..."
-            className="min-h-[44px] max-h-32 resize-none"
+            className="min-h-[44px] max-h-32 resize-none border-gray-300 focus:border-brand-500 focus:ring-brand-500"
             rows={1}
           />
         </div>
@@ -328,6 +326,7 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
                 variant="ghost"
                 size="sm"
                 onClick={startRecording}
+                className="hover:bg-brand-50 hover:text-brand-600 transition-colors"
               >
                 <Mic className="h-5 w-5" />
               </Button>
@@ -339,7 +338,7 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
             onClick={handleSend}
             disabled={!message.trim()}
             size="sm"
-            className="bg-gradient-brand hover:opacity-90"
+            className="bg-gradient-brand hover:opacity-90 disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
           </Button>
@@ -371,7 +370,6 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
         accept="video/*"
       />
 
-      {/* Scripts Modal */}
       <ScriptsModal
         isOpen={isScriptsModalOpen}
         onClose={() => setIsScriptsModalOpen(false)}

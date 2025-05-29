@@ -32,6 +32,11 @@ export interface ChatMessage {
   status: MessageStatus;
   timestamp: Date;
   attachments?: MessageAttachment[];
+  replyTo?: {
+    messageId: string;
+    content: string;
+    senderName: string;
+  };
 }
 
 export interface MessageAttachment {
