@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { ConversationSidebar } from '@/components/messages/ConversationSidebar';
 import { ChatArea } from '@/components/messages/ChatArea';
@@ -7,20 +7,13 @@ import { ScheduleMessageModal } from '@/components/messages/ScheduleMessageModal
 import { mockConversations, mockMessages } from '@/data/mockConversations';
 import { ChatMessage, ScheduledMessage } from '@/types/messages';
 import { useToast } from '@/hooks/use-toast';
-import { useSidebar } from '@/components/ui/sidebar';
 
 export default function WhatsAppChat() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduleConversationId, setScheduleConversationId] = useState<string>('');
-  const { setOpen } = useSidebar();
   const { toast } = useToast();
-
-  // Start with collapsed sidebar for chat
-  useEffect(() => {
-    setOpen(false);
-  }, [setOpen]);
 
   const selectedConversation = mockConversations.find(
     conv => conv.id === selectedConversationId
