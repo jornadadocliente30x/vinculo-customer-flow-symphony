@@ -92,6 +92,7 @@ export interface Contact {
   description?: string;
   services: ContactService[];
   avatar?: string;
+  assignedUser?: string;
 }
 
 export interface ContactService {

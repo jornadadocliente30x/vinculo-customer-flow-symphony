@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { User } from '@/types/messages';
@@ -23,16 +22,14 @@ export function TransferContactModal({
   contactName,
   onTransfer 
 }: TransferContactModalProps) {
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const handleTransfer = () => {
-    if (selectedUserId) {
-      onTransfer(selectedUserId);
+    if (selectedUser) {
+      onTransfer(selectedUser.id);
       onClose();
     }
   };
-
-  const selectedUser = mockUsers.find(user => user.id === selectedUserId);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -42,53 +39,39 @@ export function TransferContactModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Transferir conversa de <strong>{contactName}</strong> para:
-          </p>
-
           <div>
-            <Label>Selecionar Usuário</Label>
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Escolha um usuário" />
-              </SelectTrigger>
-              <SelectContent>
-                {mockUsers.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback className="text-xs">
-                          {user.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-xs text-gray-500">{user.email}</div>
-                      </div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-sm font-medium">
+              Transferindo contato: <span className="font-bold">{contactName}</span>
+            </Label>
           </div>
 
-          {selectedUser && (
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={selectedUser.avatar} />
-                  <AvatarFallback>
-                    {selectedUser.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">{selectedUser.name}</div>
-                  <div className="text-sm text-gray-500">{selectedUser.email}</div>
+          <div>
+            <Label className="text-sm">Selecionar usuário:</Label>
+            <div className="space-y-2 mt-2">
+              {mockUsers.map((user) => (
+                <div
+                  key={user.id}
+                  onClick={() => setSelectedUser(user)}
+                  className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer border transition-all ${
+                    selectedUser?.id === user.id 
+                      ? 'border-brand-500 bg-brand-50' 
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.avatar} />
+                    <AvatarFallback>
+                      {user.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium text-gray-900">{user.name}</p>
+                    <p className="text-sm text-gray-500">{user.email}</p>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          )}
+          </div>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button variant="outline" onClick={onClose}>
@@ -96,7 +79,7 @@ export function TransferContactModal({
             </Button>
             <Button 
               onClick={handleTransfer}
-              disabled={!selectedUserId}
+              disabled={!selectedUser}
               className="bg-gradient-brand hover:opacity-90"
             >
               Transferir

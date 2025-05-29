@@ -9,11 +9,11 @@ export const mockTags: Tag[] = [
 ];
 
 export const mockStages: FunnelStage[] = [
-  { id: '1', name: 'Lead', color: '#3B82F6' },
-  { id: '2', name: 'Contato', color: '#F59E0B' },
-  { id: '3', name: 'Qualificado', color: '#8B5CF6' },
-  { id: '4', name: 'Proposta', color: '#EF4444' },
-  { id: '5', name: 'Fechado', color: '#10B981' },
+  { id: '1', name: 'Lead', color: '#3B82F6', order: 1 },
+  { id: '2', name: 'Contato', color: '#F59E0B', order: 2 },
+  { id: '3', name: 'Qualificado', color: '#8B5CF6', order: 3 },
+  { id: '4', name: 'Proposta', color: '#EF4444', order: 4 },
+  { id: '5', name: 'Fechado', color: '#10B981', order: 5 },
 ];
 
 export const mockUsers: User[] = [
@@ -37,6 +37,10 @@ export const mockConversations: Conversation[] = [
     stage: mockStages[1],
     tags: [mockTags[0], mockTags[3]],
     notificationsEnabled: true,
+    isRead: false,
+    origin: 'instagram',
+    protocolNumber: 'PRO-2024-001',
+    assignedUser: 'João Silva',
   },
   {
     id: '2',
@@ -52,6 +56,11 @@ export const mockConversations: Conversation[] = [
     stage: mockStages[3],
     tags: [mockTags[1]],
     notificationsEnabled: true,
+    isRead: true,
+    origin: 'linkedin',
+    protocolNumber: 'PRO-2024-002',
+    scheduledDateTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    assignedUser: 'Maria Santos',
   },
   {
     id: '3',
@@ -67,6 +76,10 @@ export const mockConversations: Conversation[] = [
     stage: mockStages[4],
     tags: [mockTags[2]],
     notificationsEnabled: false,
+    isRead: false,
+    origin: 'tiktok',
+    protocolNumber: 'PRO-2024-003',
+    assignedUser: 'Pedro Costa',
   },
   {
     id: '4',
@@ -81,6 +94,10 @@ export const mockConversations: Conversation[] = [
     stage: mockStages[0],
     tags: [],
     notificationsEnabled: true,
+    isRead: true,
+    origin: 'site',
+    protocolNumber: 'PRO-2024-004',
+    assignedUser: 'João Silva',
   },
 ];
 

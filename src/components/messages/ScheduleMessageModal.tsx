@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Upload, X, Check, CheckCheck, Clock, Calendar as CalendarIcon, Edit, Trash2 } from 'lucide-react';
-import { ScheduledMessage } from '@/types/messages';
+import { ScheduledMessage, MessageAttachment } from '@/types/messages';
 import { mockScheduledMessages } from '@/data/mockConversations';
 
 interface ScheduleMessageModalProps {
@@ -42,9 +42,16 @@ export function ScheduleMessageModal({
     const scheduledDate = new Date(date);
     scheduledDate.setHours(hours, minutes);
 
+    const getFileType = (file: File): MessageAttachment['type'] => {
+      if (file.type.startsWith('image/')) return 'image';
+      if (file.type.startsWith('video/')) return 'video';
+      if (file.type.startsWith('audio/')) return 'audio';
+      return 'document';
+    };
+
     if (editingMessage) {
       // Editar mensagem existente
-      const updatedMessage = {
+      const updatedMessage: ScheduledMessage = {
         ...editingMessage,
         title,
         description,
@@ -52,8 +59,7 @@ export function ScheduleMessageModal({
         scheduledDate,
         attachments: attachments.map(file => ({
           id: Math.random().toString(),
-          type: file.type.startsWith('image') ? 'image' : 
-                file.type.startsWith('video') ? 'video' : 'document',
+          type: getFileType(file),
           url: URL.createObjectURL(file),
           filename: file.name,
           size: file.size,
@@ -74,8 +80,7 @@ export function ScheduleMessageModal({
         scheduledDate,
         attachments: attachments.map(file => ({
           id: Math.random().toString(),
-          type: file.type.startsWith('image') ? 'image' : 
-                file.type.startsWith('video') ? 'video' : 'document',
+          type: getFileType(file),
           url: URL.createObjectURL(file),
           filename: file.name,
           size: file.size,
