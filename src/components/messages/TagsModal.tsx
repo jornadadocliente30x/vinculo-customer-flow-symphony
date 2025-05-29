@@ -162,7 +162,6 @@ export function TagsModal({ isOpen, onClose, conversationId, currentTags, onUpda
                             value={editTagName}
                             onChange={(e) => setEditTagName(e.target.value)}
                             className="flex-1"
-                            size="sm"
                           />
                           <div className="flex gap-1">
                             {tagColors.map((color) => (
@@ -222,7 +221,7 @@ export function TagsModal({ isOpen, onClose, conversationId, currentTags, onUpda
                                   onClick={() => handleDeleteTag(tag.id)}
                                   className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 size={12} />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Excluir tag</TooltipContent>
@@ -253,7 +252,7 @@ export function TagsModal({ isOpen, onClose, conversationId, currentTags, onUpda
                           onClick={() => handleToggleTag(tag)}
                           className="ml-1 hover:text-red-600"
                         >
-                          <X className="w-3 h-3" />
+                          <X size={12} />
                         </button>
                       </Badge>
                     );
