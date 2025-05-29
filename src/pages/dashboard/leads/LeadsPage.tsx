@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,8 @@ import { EditLeadModal } from '@/components/leads/EditLeadModal';
 import { DeleteLeadModal } from '@/components/leads/DeleteLeadModal';
 import { useToast } from '@/hooks/use-toast';
 
+type ViewMode = 'list' | 'kanban';
+
 export default function LeadsPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -39,7 +40,7 @@ export default function LeadsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterStage, setFilterStage] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   
   // Modal states
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
