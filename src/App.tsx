@@ -17,6 +17,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 
 // Dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
+import LeadsPage from "./pages/dashboard/leads/LeadsPage";
 import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
 import WhatsAppChat from "./pages/dashboard/messages/WhatsAppChat";
 import AgentsPage from "./pages/dashboard/agents/AgentsPage";
@@ -48,7 +49,7 @@ const App = () => (
 
         <Route path="/dashboard/leads" element={
           <ProtectedRoute>
-            <Dashboard />
+            <LeadsPage />
           </ProtectedRoute>
         } />
 
