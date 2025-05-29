@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Upload, X, Check, CheckCheck, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Upload, X, Check, CheckCheck, Clock, Calendar as CalendarIcon, Edit, Trash2 } from 'lucide-react';
 import { ScheduledMessage } from '@/types/messages';
 import { mockScheduledMessages } from '@/data/mockConversations';
 
@@ -32,6 +32,8 @@ export function ScheduleMessageModal({
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [scheduledMessages, setScheduledMessages] = useState(mockScheduledMessages);
+  const [editingMessage, setEditingMessage] = useState<ScheduledMessage | null>(null);
 
   const handleSubmit = () => {
     if (!title || !content || !date || !time) return;
@@ -40,31 +42,80 @@ export function ScheduleMessageModal({
     const scheduledDate = new Date(date);
     scheduledDate.setHours(hours, minutes);
 
-    onSchedule({
-      conversationId,
-      title,
-      description,
-      content,
-      scheduledDate,
-      attachments: attachments.map(file => ({
-        id: Math.random().toString(),
-        type: file.type.startsWith('image') ? 'image' : 
-              file.type.startsWith('video') ? 'video' : 'document',
-        url: URL.createObjectURL(file),
-        filename: file.name,
-        size: file.size,
-      })),
-      status: 'pending',
-    });
+    if (editingMessage) {
+      // Editar mensagem existente
+      const updatedMessage = {
+        ...editingMessage,
+        title,
+        description,
+        content,
+        scheduledDate,
+        attachments: attachments.map(file => ({
+          id: Math.random().toString(),
+          type: file.type.startsWith('image') ? 'image' : 
+                file.type.startsWith('video') ? 'video' : 'document',
+          url: URL.createObjectURL(file),
+          filename: file.name,
+          size: file.size,
+        })),
+      };
+
+      setScheduledMessages(prev => 
+        prev.map(msg => msg.id === editingMessage.id ? updatedMessage : msg)
+      );
+      setEditingMessage(null);
+    } else {
+      // Criar nova mensagem
+      onSchedule({
+        conversationId,
+        title,
+        description,
+        content,
+        scheduledDate,
+        attachments: attachments.map(file => ({
+          id: Math.random().toString(),
+          type: file.type.startsWith('image') ? 'image' : 
+                file.type.startsWith('video') ? 'video' : 'document',
+          url: URL.createObjectURL(file),
+          filename: file.name,
+          size: file.size,
+        })),
+        status: 'pending',
+      });
+    }
 
     // Reset form
+    resetForm();
+  };
+
+  const resetForm = () => {
     setTitle('');
     setDescription('');
     setContent('');
     setDate(undefined);
     setTime('');
     setAttachments([]);
-    onClose();
+    setEditingMessage(null);
+  };
+
+  const handleEditMessage = (message: ScheduledMessage) => {
+    setEditingMessage(message);
+    setTitle(message.title);
+    setDescription(message.description);
+    setContent(message.content);
+    setDate(message.scheduledDate);
+    setTime(message.scheduledDate.toTimeString().slice(0, 5));
+    setAttachments([]);
+  };
+
+  const handleCancelMessage = (messageId: string) => {
+    if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+      setScheduledMessages(prev => 
+        prev.map(msg => 
+          msg.id === messageId ? { ...msg, status: 'cancelled' as const } : msg
+        )
+      );
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +137,8 @@ export function ScheduleMessageModal({
         return <CheckCheck className="w-4 h-4 text-gray-400" />;
       case 'read':
         return <CheckCheck className="w-4 h-4 text-brand-500" />;
+      case 'cancelled':
+        return <X className="w-4 h-4 text-red-500" />;
       default:
         return null;
     }
@@ -116,199 +169,245 @@ export function ScheduleMessageModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Agendamento de Mensagens</DialogTitle>
-        </DialogHeader>
+    <TooltipProvider>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingMessage ? 'Editar Agendamento' : 'Agendamento de Mensagens'}
+            </DialogTitle>
+          </DialogHeader>
 
-        <Tabs defaultValue="schedule" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="schedule">Nova Mensagem</TabsTrigger>
-            <TabsTrigger value="list">Mensagens Agendadas</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="schedule" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="schedule">
+                {editingMessage ? 'Editar Mensagem' : 'Nova Mensagem'}
+              </TabsTrigger>
+              <TabsTrigger value="list">Mensagens Agendadas</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="schedule" className="space-y-4">
-            {/* Title */}
-            <div>
-              <Label htmlFor="title">Título</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Título do agendamento"
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <Label htmlFor="description">Descrição</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Descrição do agendamento (opcional)"
-                rows={3}
-              />
-            </div>
-
-            {/* Message Content */}
-            <div>
-              <Label htmlFor="content">Mensagem</Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Digite a mensagem que será enviada"
-                rows={4}
-              />
-            </div>
-
-            {/* File Attachments */}
-            <div>
-              <Label>Anexos</Label>
-              <Card className="border-dashed border-2 border-gray-300">
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="mt-2">
-                      <label htmlFor="file-upload" className="cursor-pointer">
-                        <span className="mt-2 block text-sm font-medium text-gray-900">
-                          Clique para enviar arquivos
-                        </span>
-                        <span className="mt-1 block text-xs text-gray-500">
-                          PNG, JPG, PDF, DOC até 10MB
-                        </span>
-                        <input
-                          id="file-upload"
-                          type="file"
-                          multiple
-                          className="hidden"
-                          onChange={handleFileUpload}
-                          accept="image/*,video/*,.pdf,.doc,.docx"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Attachment List */}
-              {attachments.length > 0 && (
-                <div className="mt-2 space-y-2">
-                  {attachments.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm truncate">{file.name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAttachment(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Date and Time */}
-            <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="schedule" className="space-y-4">
+              {/* Title */}
               <div>
-                <Label>Data</Label>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  disabled={(date) => date < new Date()}
-                  className="rounded-md border"
+                <Label htmlFor="title">Título</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Título do agendamento"
                 />
               </div>
-              
-              <div className="space-y-4">
+
+              {/* Description */}
+              <div>
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Descrição do agendamento (opcional)"
+                  rows={3}
+                />
+              </div>
+
+              {/* Message Content */}
+              <div>
+                <Label htmlFor="content">Mensagem</Label>
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Digite a mensagem que será enviada"
+                  rows={4}
+                />
+              </div>
+
+              {/* File Attachments */}
+              <div>
+                <Label>Anexos</Label>
+                <Card className="border-dashed border-2 border-gray-300">
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="mt-2">
+                        <label htmlFor="file-upload" className="cursor-pointer">
+                          <span className="mt-2 block text-sm font-medium text-gray-900">
+                            Clique para enviar arquivos
+                          </span>
+                          <span className="mt-1 block text-xs text-gray-500">
+                            PNG, JPG, PDF, DOC até 10MB
+                          </span>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            multiple
+                            className="hidden"
+                            onChange={handleFileUpload}
+                            accept="image/*,video/*,.pdf,.doc,.docx"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Attachment List */}
+                {attachments.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {attachments.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span className="text-sm truncate">{file.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAttachment(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Date and Time */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="time">Horário</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                  <Label>Data</Label>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-md border"
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleSubmit}
-                disabled={!title || !content || !date || !time}
-                className="bg-gradient-brand hover:opacity-90"
-              >
-                Agendar Mensagem
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="list" className="space-y-4">
-            <div className="space-y-3">
-              <h3 className="font-medium text-gray-900">Mensagens Agendadas</h3>
-              
-              {mockScheduledMessages.length === 0 ? (
-                <div className="text-center py-8">
-                  <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Nenhuma mensagem agendada</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="time">Horário</Label>
+                    <Input
+                      id="time"
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {mockScheduledMessages.map((scheduledMessage) => (
-                    <Card key={scheduledMessage.id} className="border border-gray-200">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h4 className="font-medium text-gray-900">{scheduledMessage.title}</h4>
-                              {getStatusIcon(scheduledMessage.status)}
-                              {getStatusBadge(scheduledMessage.status)}
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    resetForm();
+                    onClose();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={!title || !content || !date || !time}
+                  className="bg-gradient-brand hover:opacity-90"
+                >
+                  {editingMessage ? 'Salvar Alterações' : 'Agendar Mensagem'}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="list" className="space-y-4">
+              <div className="space-y-3">
+                <h3 className="font-medium text-gray-900">Mensagens Agendadas</h3>
+                
+                {scheduledMessages.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Nenhuma mensagem agendada</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {scheduledMessages.map((scheduledMessage) => (
+                      <Card key={scheduledMessage.id} className="border border-gray-200">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <h4 className="font-medium text-gray-900">{scheduledMessage.title}</h4>
+                                {getStatusIcon(scheduledMessage.status)}
+                                {getStatusBadge(scheduledMessage.status)}
+                              </div>
+                              
+                              {scheduledMessage.description && (
+                                <p className="text-sm text-gray-600 mb-2">{scheduledMessage.description}</p>
+                              )}
+                              
+                              <p className="text-sm text-gray-800 bg-gray-50 p-2 rounded">
+                                {scheduledMessage.content}
+                              </p>
+                              
+                              <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+                                <span>
+                                  Agendado para: {scheduledMessage.scheduledDate.toLocaleString('pt-BR')}
+                                </span>
+                                {scheduledMessage.deliveredAt && (
+                                  <span>
+                                    Entregue em: {scheduledMessage.deliveredAt.toLocaleString('pt-BR')}
+                                  </span>
+                                )}
+                                {scheduledMessage.readAt && (
+                                  <span>
+                                    Lida em: {scheduledMessage.readAt.toLocaleString('pt-BR')}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                             
-                            {scheduledMessage.description && (
-                              <p className="text-sm text-gray-600 mb-2">{scheduledMessage.description}</p>
-                            )}
-                            
-                            <p className="text-sm text-gray-800 bg-gray-50 p-2 rounded">
-                              {scheduledMessage.content}
-                            </p>
-                            
-                            <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
-                              <span>
-                                Agendado para: {scheduledMessage.scheduledDate.toLocaleString('pt-BR')}
-                              </span>
-                              {scheduledMessage.deliveredAt && (
-                                <span>
-                                  Entregue em: {scheduledMessage.deliveredAt.toLocaleString('pt-BR')}
-                                </span>
-                              )}
-                              {scheduledMessage.readAt && (
-                                <span>
-                                  Lida em: {scheduledMessage.readAt.toLocaleString('pt-BR')}
-                                </span>
+                            {/* Action buttons */}
+                            <div className="flex space-x-2 ml-4">
+                              {scheduledMessage.status === 'pending' && (
+                                <>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleEditMessage(scheduledMessage)}
+                                      >
+                                        <Edit className="w-4 h-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Editar agendamento</TooltipContent>
+                                  </Tooltip>
+                                  
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleCancelMessage(scheduledMessage.id)}
+                                        className="text-red-600 hover:text-red-700"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Cancelar agendamento</TooltipContent>
+                                  </Tooltip>
+                                </>
                               )}
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 }

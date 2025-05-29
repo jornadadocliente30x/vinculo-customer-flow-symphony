@@ -5,37 +5,96 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Upload } from 'lucide-react';
-import { Contact } from '@/types/messages';
+import { Upload, Plus, X, AlertTriangle } from 'lucide-react';
+import { Contact, ContactService, TransferRequest } from '@/types/messages';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface NewContactModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveContact: (contact: Omit<Contact, 'id'>) => void;
+  existingContacts?: Contact[];
 }
 
-const availableServices = [
-  'Consulta Médica',
-  'Exames',
-  'Cirurgia',
-  'Fisioterapia',
-  'Nutrição',
-  'Psicologia',
+const serviceTypes = [
+  { value: 'consultation', label: 'Consulta Médica' },
+  { value: 'exam', label: 'Exames' },
+  { value: 'surgery', label: 'Cirurgia' },
+  { value: 'therapy', label: 'Fisioterapia' },
+  { value: 'nutrition', label: 'Nutrição' },
+  { value: 'psychology', label: 'Psicologia' },
+  { value: 'custom', label: 'Personalizado' },
 ];
 
-export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactModalProps) {
+export function NewContactModal({ 
+  isOpen, 
+  onClose, 
+  onSaveContact, 
+  existingContacts = [] 
+}: NewContactModalProps) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [services, setServices] = useState<ContactService[]>([]);
   const [avatar, setAvatar] = useState<string>('');
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServiceType, setNewServiceType] = useState<ContactService['type']>('consultation');
+  const [duplicateContact, setDuplicateContact] = useState<Contact | null>(null);
+  const [showTransferRequest, setShowTransferRequest] = useState(false);
+
+  const checkForDuplicates = (phoneValue: string, emailValue: string) => {
+    const duplicate = existingContacts.find(contact => 
+      contact.phone === phoneValue || 
+      (emailValue && contact.email === emailValue)
+    );
+    
+    setDuplicateContact(duplicate || null);
+    setShowTransferRequest(!!duplicate);
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setPhone(value);
+    checkForDuplicates(value, email);
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    checkForDuplicates(phone, value);
+  };
+
+  const handleAddService = () => {
+    if (!newServiceName.trim()) return;
+
+    const newService: ContactService = {
+      id: Date.now().toString(),
+      name: newServiceName,
+      type: newServiceType,
+    };
+
+    setServices(prev => [...prev, newService]);
+    setNewServiceName('');
+    setNewServiceType('consultation');
+  };
+
+  const handleRemoveService = (serviceId: string) => {
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+  };
+
+  const handleRequestTransfer = () => {
+    // Aqui você implementaria a lógica de solicitação de transferência
+    console.log('Requesting transfer for duplicate contact:', duplicateContact);
+    // Simular notificação para o usuário responsável
+    alert(`Solicitação de transferência enviada para ${duplicateContact?.assignedUser || 'usuário responsável'}`);
+    onClose();
+  };
 
   const handleSubmit = () => {
-    if (!firstName || !phone) return;
+    if (!firstName || !phone || duplicateContact) return;
 
     onSaveContact({
       firstName,
@@ -43,7 +102,7 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
       phone,
       email,
       description,
-      services: selectedServices,
+      services,
       avatar,
     });
 
@@ -53,17 +112,11 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
     setPhone('');
     setEmail('');
     setDescription('');
-    setSelectedServices([]);
+    setServices([]);
     setAvatar('');
+    setDuplicateContact(null);
+    setShowTransferRequest(false);
     onClose();
-  };
-
-  const handleServiceChange = (service: string, checked: boolean) => {
-    if (checked) {
-      setSelectedServices(prev => [...prev, service]);
-    } else {
-      setSelectedServices(prev => prev.filter(s => s !== service));
-    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,12 +128,46 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Novo Contato</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Alerta de contato duplicado */}
+          {duplicateContact && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="space-y-2">
+                  <p>
+                    Já existe um contato com este {duplicateContact.phone === phone ? 'telefone' : 'email'} 
+                    sendo atendido por <strong>{duplicateContact.assignedUser || 'outro usuário'}</strong>.
+                  </p>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRequestTransfer}
+                    >
+                      Solicitar Transferência
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setDuplicateContact(null);
+                        setShowTransferRequest(false);
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Avatar Upload */}
           <div className="flex items-center space-x-4">
             <Avatar className="h-20 w-20">
@@ -90,7 +177,7 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
               </AvatarFallback>
             </Avatar>
             <div>
-              <Label>Foto do Paciente</Label>
+              <Label>Foto do Contato</Label>
               <div className="mt-1">
                 <label htmlFor="avatar-upload" className="cursor-pointer">
                   <Button variant="outline" size="sm" asChild>
@@ -139,7 +226,7 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
               <Input
                 id="phone"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+55 11 99999-9999"
               />
             </div>
@@ -149,7 +236,7 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 placeholder="email@exemplo.com"
               />
             </div>
@@ -162,7 +249,7 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Informações adicionais sobre o paciente"
+              placeholder="Informações adicionais sobre o contato"
               rows={3}
             />
           </div>
@@ -170,21 +257,60 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
           {/* Services */}
           <div>
             <Label>Serviços Associados</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {availableServices.map((service) => (
-                <div key={service} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={service}
-                    checked={selectedServices.includes(service)}
-                    onCheckedChange={(checked) => 
-                      handleServiceChange(service, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={service} className="text-sm">
-                    {service}
-                  </Label>
+            
+            {/* Add new service */}
+            <div className="mt-2 space-y-3">
+              <div className="flex space-x-2">
+                <Input
+                  placeholder="Nome do serviço"
+                  value={newServiceName}
+                  onChange={(e) => setNewServiceName(e.target.value)}
+                  className="flex-1"
+                />
+                <Select value={newServiceType} onValueChange={(value) => setNewServiceType(value as ContactService['type'])}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {serviceTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={handleAddService}
+                  disabled={!newServiceName.trim()}
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Services list */}
+              {services.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm">Serviços Selecionados:</Label>
+                  {services.map((service) => (
+                    <div key={service.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <div>
+                        <span className="font-medium">{service.name}</span>
+                        <span className="text-sm text-gray-500 ml-2">
+                          ({serviceTypes.find(t => t.value === service.type)?.label})
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveService(service.id)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -195,7 +321,7 @@ export function NewContactModal({ isOpen, onClose, onSaveContact }: NewContactMo
             </Button>
             <Button 
               onClick={handleSubmit}
-              disabled={!firstName || !phone}
+              disabled={!firstName || !phone || !!duplicateContact}
               className="bg-gradient-brand hover:opacity-90"
             >
               Salvar Contato

@@ -5,7 +5,7 @@ import { ConversationSidebar } from '@/components/messages/ConversationSidebar';
 import { ChatArea } from '@/components/messages/ChatArea';
 import { ScheduleMessageModal } from '@/components/messages/ScheduleMessageModal';
 import { mockConversations, mockMessages } from '@/data/mockConversations';
-import { ChatMessage, ScheduledMessage, Conversation } from '@/types/messages';
+import { ChatMessage, ScheduledMessage, Conversation, ConversationCategory } from '@/types/messages';
 import { useToast } from '@/hooks/use-toast';
 
 export default function WhatsAppChat() {
@@ -14,6 +14,7 @@ export default function WhatsAppChat() {
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduleConversationId, setScheduleConversationId] = useState<string>('');
+  const [activeFilter, setActiveFilter] = useState<ConversationCategory>('atendimento');
   const { toast } = useToast();
 
   const selectedConversation = conversations.find(
@@ -98,6 +99,11 @@ export default function WhatsAppChat() {
     });
   };
 
+  const handleFilterChange = (filter: ConversationCategory) => {
+    setActiveFilter(filter);
+    setSelectedConversationId(null); // Reset selection when changing filter
+  };
+
   return (
     <DashboardLayout>
       <div className="h-[calc(100vh-120px)] flex bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -107,6 +113,8 @@ export default function WhatsAppChat() {
           onSelectConversation={setSelectedConversationId}
           onScheduleMessage={handleScheduleMessage}
           onUpdateConversation={handleUpdateConversation}
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
         />
 
         <ChatArea
@@ -115,6 +123,7 @@ export default function WhatsAppChat() {
           onSendMessage={handleSendMessage}
           onAttachFile={handleAttachFile}
           onUpdateConversation={handleUpdateConversation}
+          activeFilter={activeFilter}
         />
       </div>
 

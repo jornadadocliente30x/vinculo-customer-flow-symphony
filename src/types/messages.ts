@@ -3,6 +3,7 @@ export interface Conversation {
   id: string;
   contactName: string;
   contactPhone: string;
+  contactEmail?: string;
   avatar?: string;
   lastMessage: string;
   lastMessageTime: Date;
@@ -13,6 +14,11 @@ export interface Conversation {
   stage?: FunnelStage;
   tags?: Tag[];
   notificationsEnabled: boolean;
+  isRead: boolean;
+  origin: 'instagram' | 'linkedin' | 'tiktok' | 'site';
+  protocolNumber: string;
+  scheduledDateTime?: Date;
+  assignedUser?: string;
 }
 
 export type ConversationCategory = 'atendimento' | 'finalizados' | 'agendamentos' | 'conversa_ia';
@@ -34,6 +40,7 @@ export interface MessageAttachment {
   url: string;
   filename: string;
   size: number;
+  thumbnail?: string;
 }
 
 export interface ScheduledMessage {
@@ -59,6 +66,7 @@ export interface FunnelStage {
   id: string;
   name: string;
   color: string;
+  order: number;
 }
 
 export interface User {
@@ -82,8 +90,23 @@ export interface Contact {
   phone: string;
   email: string;
   description?: string;
-  services: string[];
+  services: ContactService[];
   avatar?: string;
+}
+
+export interface ContactService {
+  id: string;
+  name: string;
+  type: 'consultation' | 'exam' | 'surgery' | 'therapy' | 'nutrition' | 'psychology' | 'custom';
+}
+
+export interface TransferRequest {
+  id: string;
+  contactName: string;
+  fromUser: string;
+  toUser: string;
+  requestedAt: Date;
+  status: 'pending' | 'accepted' | 'rejected';
 }
 
 export type MessageType = 'text' | 'image' | 'document' | 'audio' | 'video' | 'emoji';

@@ -1,6 +1,7 @@
 
 import { ChatMessage } from '@/types/messages';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { MessageAttachmentComponent } from './MessageAttachment';
 import { cn } from '@/lib/utils';
 import { Check, CheckCheck } from 'lucide-react';
 
@@ -39,6 +40,8 @@ export function MessageBubble({
     }
   };
 
+  const hasAttachments = message.attachments && message.attachments.length > 0;
+
   return (
     <div className={cn(
       "flex items-end space-x-2 mb-4",
@@ -55,21 +58,39 @@ export function MessageBubble({
       
       {!isOutbound && isConsecutive && <div className="w-8" />}
 
-      <div className={cn(
-        "max-w-xs lg:max-w-md px-4 py-2 rounded-2xl relative",
-        isOutbound 
-          ? "bg-gradient-brand text-white rounded-br-md" 
-          : "bg-gray-100 text-gray-900 rounded-bl-md"
-      )}>
-        <p className="text-sm leading-relaxed">{message.content}</p>
-        
-        <div className={cn(
-          "flex items-center justify-end space-x-1 mt-1",
-          isOutbound ? "text-white/70" : "text-gray-500"
-        )}>
-          <span className="text-xs">{formatTime(message.timestamp)}</span>
-          {isOutbound && getStatusIcon()}
-        </div>
+      <div className="max-w-xs lg:max-w-md">
+        {/* Attachments */}
+        {hasAttachments && (
+          <div className="mb-2 space-y-2">
+            {message.attachments!.map((attachment) => (
+              <MessageAttachmentComponent
+                key={attachment.id}
+                attachment={attachment}
+                isOutbound={isOutbound}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Text message */}
+        {message.content && (
+          <div className={cn(
+            "px-4 py-2 rounded-2xl relative",
+            isOutbound 
+              ? "bg-gradient-brand text-white rounded-br-md" 
+              : "bg-gray-100 text-gray-900 rounded-bl-md"
+          )}>
+            <p className="text-sm leading-relaxed">{message.content}</p>
+            
+            <div className={cn(
+              "flex items-center justify-end space-x-1 mt-1",
+              isOutbound ? "text-white/70" : "text-gray-500"
+            )}>
+              <span className="text-xs">{formatTime(message.timestamp)}</span>
+              {isOutbound && getStatusIcon()}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
