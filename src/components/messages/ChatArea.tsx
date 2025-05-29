@@ -54,16 +54,16 @@ export function ChatArea({
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="text-center">
-          <div className="w-24 h-24 bg-gradient-brand rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">💬</span>
+          <div className="w-32 h-32 bg-gradient-brand rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <span className="text-white text-4xl">💬</span>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-xl font-semibold text-gray-900 mb-3">
             Selecione uma conversa
           </h3>
-          <p className="text-gray-500">
-            Escolha uma conversa na lista para começar a conversar
+          <p className="text-gray-600 max-w-sm mx-auto">
+            Escolha uma conversa na lista para começar a atender seus pacientes de forma eficiente e organizada
           </p>
         </div>
       </div>
@@ -111,7 +111,6 @@ export function ChatArea({
 
   const handleVideoCallSummary = (summary: string) => {
     console.log('Video call summary:', summary);
-    // Here you would save the summary to the conversation or medical records
   };
 
   const handleSearchToggle = () => {
@@ -119,6 +118,10 @@ export function ChatArea({
     if (isSearchExpanded) {
       setSearchTerm('');
     }
+  };
+
+  const handleSendReply = (reply: string) => {
+    onSendMessage(reply, 'text');
   };
 
   const canSendMessages = activeFilter === 'atendimento';
@@ -131,7 +134,7 @@ export function ChatArea({
 
   return (
     <TooltipProvider>
-      <div className="flex-1 flex flex-col bg-gray-50">
+      <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50">
         <ChatHeader
           conversation={conversation}
           isSearchExpanded={isSearchExpanded}
@@ -150,8 +153,8 @@ export function ChatArea({
         />
 
         {/* Messages Area */}
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-          <div className="space-y-1">
+        <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+          <div className="space-y-2">
             {filteredMessages.map((message, index) => {
               const isConsecutive = index > 0 && 
                 filteredMessages[index - 1].direction === message.direction &&
@@ -164,6 +167,7 @@ export function ChatArea({
                   isConsecutive={isConsecutive}
                   contactName={conversation.contactName}
                   contactAvatar={conversation.avatar}
+                  onSendReply={handleSendReply}
                 />
               );
             })}
@@ -172,14 +176,17 @@ export function ChatArea({
 
         {/* Message Input */}
         {canSendMessages ? (
-          <MessageInput 
-            onSendMessage={onSendMessage}
-            onAttachFile={onAttachFile}
-          />
+          <div className="border-t border-gray-200 bg-white">
+            <MessageInput 
+              onSendMessage={onSendMessage}
+              onAttachFile={onAttachFile}
+            />
+          </div>
         ) : (
-          <div className="border-t border-gray-200 p-4 bg-gray-50">
-            <div className="text-center text-gray-500 text-sm">
-              💬 Campo de mensagem disponível apenas no filtro "Atendimento"
+          <div className="border-t border-gray-200 p-4 bg-gradient-to-r from-gray-50 to-blue-50">
+            <div className="text-center text-gray-600 text-sm flex items-center justify-center space-x-2">
+              <span>💬</span>
+              <span>Campo de mensagem disponível apenas no filtro "Atendimento"</span>
             </div>
           </div>
         )}
@@ -239,7 +246,6 @@ export function ChatArea({
           onSaveSummary={handleVideoCallSummary}
         />
 
-        {/* Patient History Panel */}
         <PatientHistoryPanel
           isOpen={isHistoryPanelOpen}
           onClose={() => setIsHistoryPanelOpen(false)}

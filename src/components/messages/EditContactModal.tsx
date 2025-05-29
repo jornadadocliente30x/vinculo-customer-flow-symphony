@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Upload, Plus, Edit, Trash2, Calendar, Star, FileText } from 'lucide-react';
+import { ToothSelector } from './ToothSelector';
+import { Upload, Plus, Edit, Trash2, Calendar, Star, FileText, Save, X } from 'lucide-react';
 import { Contact } from '@/types/messages';
 
 interface EditContactModalProps {
@@ -27,6 +28,7 @@ interface MedicalRecord {
   diagnosis: string;
   prescription?: string;
   notes?: string;
+  selectedTeeth?: number[];
 }
 
 interface Treatment {
@@ -57,7 +59,12 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
   const [description, setDescription] = useState(contact?.description || '');
   const [avatar, setAvatar] = useState(contact?.avatar || '');
   
-  // Mock data for medical records, treatments, and payments
+  // States for editing
+  const [editingRecord, setEditingRecord] = useState<string | null>(null);
+  const [editingTreatment, setEditingTreatment] = useState<string | null>(null);
+  const [editingPayment, setEditingPayment] = useState<string | null>(null);
+
+  // Mock data with editable states
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([
     {
       id: '1',
@@ -65,7 +72,8 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
       doctor: 'Dr. João Silva',
       diagnosis: 'Consulta de rotina - Hipertensão controlada',
       prescription: 'Losartana 50mg - 1x ao dia',
-      notes: 'Paciente apresenta boa evolução no controle da pressão arterial.'
+      notes: 'Paciente apresenta boa evolução no controle da pressão arterial.',
+      selectedTeeth: [11, 12, 21, 22]
     }
   ]);
 
@@ -97,7 +105,8 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     doctor: '',
     diagnosis: '',
     prescription: '',
-    notes: ''
+    notes: '',
+    selectedTeeth: [] as number[]
   });
 
   const [newTreatment, setNewTreatment] = useState({
@@ -138,6 +147,7 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     }
   };
 
+  // Medical Records functions
   const addMedicalRecord = () => {
     if (!newRecord.doctor || !newRecord.diagnosis) return;
     
@@ -147,13 +157,24 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
       doctor: newRecord.doctor,
       diagnosis: newRecord.diagnosis,
       prescription: newRecord.prescription,
-      notes: newRecord.notes
+      notes: newRecord.notes,
+      selectedTeeth: newRecord.selectedTeeth
     };
     
     setMedicalRecords(prev => [record, ...prev]);
-    setNewRecord({ doctor: '', diagnosis: '', prescription: '', notes: '' });
+    setNewRecord({ doctor: '', diagnosis: '', prescription: '', notes: '', selectedTeeth: [] });
   };
 
+  const deleteRecord = (id: string) => {
+    setMedicalRecords(prev => prev.filter(r => r.id !== id));
+  };
+
+  const saveRecordEdit = (id: string, updatedRecord: Partial<MedicalRecord>) => {
+    setMedicalRecords(prev => prev.map(r => r.id === id ? { ...r, ...updatedRecord } : r));
+    setEditingRecord(null);
+  };
+
+  // Treatment functions
   const addTreatment = () => {
     if (!newTreatment.service || !newTreatment.professional) return;
     
@@ -171,6 +192,11 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     setNewTreatment({ service: '', professional: '', notes: '', evolution: '' });
   };
 
+  const deleteTreatment = (id: string) => {
+    setTreatments(prev => prev.filter(t => t.id !== id));
+  };
+
+  // Payment functions
   const addPayment = () => {
     if (!newPayment.service || !newPayment.amount) return;
     
@@ -188,14 +214,18 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     setNewPayment({ amount: '', service: '', rating: 0, feedback: '' });
   };
 
+  const deletePayment = (id: string) => {
+    setPayments(prev => prev.filter(p => p.id !== id));
+  };
+
   const getStatusBadge = (status: string) => {
     const variants = {
-      completed: 'bg-green-100 text-green-800',
-      ongoing: 'bg-blue-100 text-blue-800',
-      scheduled: 'bg-yellow-100 text-yellow-800',
-      paid: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      overdue: 'bg-red-100 text-red-800'
+      completed: 'bg-green-100 text-green-800 hover:bg-green-200',
+      ongoing: 'bg-blue-100 text-blue-800 hover:bg-blue-200',
+      scheduled: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
+      paid: 'bg-green-100 text-green-800 hover:bg-green-200',
+      pending: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
+      overdue: 'bg-red-100 text-red-800 hover:bg-red-200'
     };
 
     const labels = {
@@ -208,7 +238,7 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     };
 
     return (
-      <Badge className={`${variants[status as keyof typeof variants]} border-none`}>
+      <Badge className={`${variants[status as keyof typeof variants]} border-none transition-colors cursor-pointer`}>
         {labels[status as keyof typeof labels]}
       </Badge>
     );
@@ -236,7 +266,7 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Contato</DialogTitle>
         </DialogHeader>
@@ -280,7 +310,6 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
               </div>
             </div>
 
-            {/* Personal Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="firstName">Nome *</Label>
@@ -324,7 +353,6 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <Label htmlFor="description">Descrição</Label>
               <Textarea
@@ -338,6 +366,12 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
           </TabsContent>
 
           <TabsContent value="prontuario" className="space-y-4">
+            {/* Tooth Selector */}
+            <ToothSelector 
+              selectedTeeth={newRecord.selectedTeeth} 
+              onTeethChange={(teeth) => setNewRecord(prev => ({ ...prev, selectedTeeth: teeth }))}
+            />
+
             {/* Add new record */}
             <Card>
               <CardHeader>
@@ -395,27 +429,56 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                 {medicalRecords.map((record) => (
                   <Card key={record.id}>
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-medium">{record.diagnosis}</h4>
-                          <p className="text-sm text-gray-500">
-                            <Calendar className="w-3 h-3 inline mr-1" />
-                            {record.date.toLocaleDateString('pt-BR')} - {record.doctor}
-                          </p>
-                        </div>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      {record.prescription && (
-                        <p className="text-sm text-gray-600 mb-1">
-                          <strong>Prescrição:</strong> {record.prescription}
-                        </p>
-                      )}
-                      {record.notes && (
-                        <p className="text-sm text-gray-600">
-                          <strong>Observações:</strong> {record.notes}
-                        </p>
+                      {editingRecord === record.id ? (
+                        <EditRecordForm
+                          record={record}
+                          onSave={(updatedRecord) => saveRecordEdit(record.id, updatedRecord)}
+                          onCancel={() => setEditingRecord(null)}
+                        />
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-medium">{record.diagnosis}</h4>
+                              <p className="text-sm text-gray-500">
+                                <Calendar className="w-3 h-3 inline mr-1" />
+                                {record.date.toLocaleDateString('pt-BR')} - {record.doctor}
+                              </p>
+                            </div>
+                            <div className="flex space-x-1">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => setEditingRecord(record.id)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => deleteRecord(record.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          {record.prescription && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>Prescrição:</strong> {record.prescription}
+                            </p>
+                          )}
+                          {record.notes && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>Observações:</strong> {record.notes}
+                            </p>
+                          )}
+                          {record.selectedTeeth && record.selectedTeeth.length > 0 && (
+                            <p className="text-sm text-gray-600">
+                              <strong>Dentes:</strong> {record.selectedTeeth.join(', ')}
+                            </p>
+                          )}
+                        </>
                       )}
                     </CardContent>
                   </Card>
@@ -493,9 +556,19 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                         </div>
                         <div className="flex items-center space-x-2">
                           {getStatusBadge(treatment.status)}
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
+                          <div className="flex space-x-1">
+                            <Button variant="ghost" size="sm">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => deleteTreatment(treatment.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                       {treatment.notes && (
@@ -587,9 +660,19 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                         </div>
                         <div className="flex items-center space-x-2">
                           {getStatusBadge(payment.status)}
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
+                          <div className="flex space-x-1">
+                            <Button variant="ghost" size="sm">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => deletePayment(payment.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                       {payment.rating && (
@@ -626,5 +709,63 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Helper component for editing records
+function EditRecordForm({ 
+  record, 
+  onSave, 
+  onCancel 
+}: { 
+  record: MedicalRecord; 
+  onSave: (record: Partial<MedicalRecord>) => void; 
+  onCancel: () => void; 
+}) {
+  const [doctor, setDoctor] = useState(record.doctor);
+  const [diagnosis, setDiagnosis] = useState(record.diagnosis);
+  const [prescription, setPrescription] = useState(record.prescription || '');
+  const [notes, setNotes] = useState(record.notes || '');
+
+  const handleSave = () => {
+    onSave({ doctor, diagnosis, prescription, notes });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <Input
+          value={doctor}
+          onChange={(e) => setDoctor(e.target.value)}
+          placeholder="Médico"
+        />
+        <Input
+          value={diagnosis}
+          onChange={(e) => setDiagnosis(e.target.value)}
+          placeholder="Diagnóstico"
+        />
+      </div>
+      <Input
+        value={prescription}
+        onChange={(e) => setPrescription(e.target.value)}
+        placeholder="Prescrição"
+      />
+      <Textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Observações"
+        rows={2}
+      />
+      <div className="flex space-x-2">
+        <Button size="sm" onClick={handleSave}>
+          <Save className="w-3 h-3 mr-1" />
+          Salvar
+        </Button>
+        <Button variant="outline" size="sm" onClick={onCancel}>
+          <X className="w-3 h-3 mr-1" />
+          Cancelar
+        </Button>
+      </div>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { MonthlyCalendarModal } from './MonthlyCalendarModal';
 import { Conversation } from '@/types/messages';
 import { 
   Search, 
@@ -17,7 +18,8 @@ import {
   UserPlus, 
   MoreVertical,
   Bell,
-  FileText
+  FileText,
+  Calendar
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -60,48 +62,49 @@ export function ChatHeader({
   onViewHistory,
   activeFilter
 }: ChatHeaderProps) {
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const isFinished = conversation.category === 'finalizados';
   const isTransferred = conversation.tags?.some(tag => tag.name === 'Transferido');
 
   return (
-    <div className="bg-white border-b border-gray-200 p-4">
+    <div className="bg-gradient-to-r from-white to-gray-50 border-b border-gray-200 p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="relative">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
               <AvatarImage src={conversation.avatar} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-gradient-brand text-white font-semibold">
                 {conversation.contactName.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             {conversation.isOnline && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm" />
             )}
           </div>
           
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="font-medium text-gray-900">{conversation.contactName}</h3>
+              <h3 className="font-semibold text-gray-900 text-lg">{conversation.contactName}</h3>
               {isTransferred && (
-                <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
+                <Badge variant="outline" className="text-yellow-700 border-yellow-300 bg-yellow-50 hover:bg-yellow-100">
                   Transferido
                 </Badge>
               )}
             </div>
             <div className="flex items-center space-x-2">
-              <p className="text-sm text-gray-500">
-                {conversation.isOnline ? 'Online' : 'Visto por último hoje'}
+              <p className="text-sm text-gray-600 font-medium">
+                {conversation.contactPhone}
               </p>
               <span className="text-xs text-gray-400">•</span>
               <div className="flex items-center space-x-1">
                 <FileText className="w-3 h-3 text-gray-400" />
-                <span className="text-xs text-gray-500">#{conversation.protocolNumber}</span>
+                <span className="text-xs text-gray-500 font-mono">#{conversation.protocolNumber}</span>
               </div>
               {conversation.assignedUser && (
                 <>
                   <span className="text-xs text-gray-400">•</span>
                   <span className="text-xs text-gray-500">
-                    <span className="font-medium">Dono:</span> {conversation.assignedUser}
+                    <span className="font-medium text-brand-600">Responsável:</span> {conversation.assignedUser}
                   </span>
                 </>
               )}
@@ -116,10 +119,10 @@ export function ChatHeader({
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="relative"
+                className="relative hover:bg-blue-50"
                 onClick={onTransferNotifications}
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 text-gray-600" />
                 {pendingTransferCount > 0 && (
                   <Badge 
                     variant="destructive" 
@@ -141,15 +144,16 @@ export function ChatHeader({
                   placeholder="Pesquisar na conversa..."
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  className="w-48"
+                  className="w-48 border-brand-200 focus:border-brand-400"
                   autoFocus
                 />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onSearchToggle}
+                  className="hover:bg-red-50"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-gray-600" />
                 </Button>
               </div>
             ) : (
@@ -159,8 +163,9 @@ export function ChatHeader({
                     variant="ghost" 
                     size="sm"
                     onClick={onSearchToggle}
+                    className="hover:bg-blue-50"
                   >
-                    <Search className="h-5 w-5" />
+                    <Search className="h-5 w-5 text-gray-600" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Pesquisar na conversa</TooltipContent>
@@ -175,17 +180,37 @@ export function ChatHeader({
                 variant="ghost" 
                 size="sm"
                 onClick={onViewHistory}
+                className="hover:bg-blue-50"
               >
-                <History className="h-5 w-5" />
+                <History className="h-5 w-5 text-gray-600" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Ver histórico do paciente</TooltipContent>
           </Tooltip>
 
+          {/* Calendar Icon */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <VideoIcon className="h-5 w-5" />
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsCalendarModalOpen(true)}
+                className="hover:bg-blue-50"
+              >
+                <Calendar className="h-5 w-5 text-gray-600" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Calendário de agendamentos</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="hover:bg-blue-50"
+              >
+                <VideoIcon className="h-5 w-5 text-gray-600" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Videochamada</TooltipContent>
@@ -197,8 +222,9 @@ export function ChatHeader({
                 variant="ghost" 
                 size="sm"
                 onClick={onTransferContact}
+                className="hover:bg-blue-50"
               >
-                <ArrowRightLeft className="h-5 w-5" />
+                <ArrowRightLeft className="h-5 w-5 text-gray-600" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Transferir contato</TooltipContent>
@@ -212,20 +238,20 @@ export function ChatHeader({
                 size="sm"
                 onClick={onFinishConversation}
                 className={cn(
-                  "px-3",
+                  "px-4 shadow-sm transition-all",
                   isFinished 
-                    ? "bg-green-500 hover:bg-green-600 text-white" 
-                    : "bg-red-500 hover:bg-red-600 text-white"
+                    ? "bg-green-500 hover:bg-green-600 text-white shadow-green-200" 
+                    : "bg-red-500 hover:bg-red-600 text-white shadow-red-200"
                 )}
               >
                 {isFinished ? (
                   <>
-                    <CheckCircle className="w-4 h-4 mr-1" />
+                    <CheckCircle className="w-4 h-4 mr-2" />
                     Iniciar
                   </>
                 ) : (
                   <>
-                    <XCircle className="w-4 h-4 mr-1" />
+                    <XCircle className="w-4 h-4 mr-2" />
                     Finalizar
                   </>
                 )}
@@ -243,9 +269,9 @@ export function ChatHeader({
                 variant="outline" 
                 size="sm"
                 onClick={onNewContact}
-                className="px-3 border-gray-200 hover:bg-brand-50"
+                className="px-4 border-brand-200 hover:bg-brand-50 hover:border-brand-300 text-brand-700 shadow-sm"
               >
-                <UserPlus className="w-4 h-4 mr-1" />
+                <UserPlus className="w-4 h-4 mr-2" />
                 Novo
               </Button>
             </TooltipTrigger>
@@ -255,21 +281,27 @@ export function ChatHeader({
           {/* More Options */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreVertical className="h-5 w-5" />
+              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                <MoreVertical className="h-5 w-5 text-gray-600" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white border shadow-lg z-50">
-              <DropdownMenuItem onClick={onEditContact}>
+              <DropdownMenuItem onClick={onEditContact} className="hover:bg-gray-50">
                 Editar Contato
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onManageTags}>
+              <DropdownMenuItem onClick={onManageTags} className="hover:bg-gray-50">
                 Gerenciar Tags
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Monthly Calendar Modal */}
+      <MonthlyCalendarModal
+        isOpen={isCalendarModalOpen}
+        onClose={() => setIsCalendarModalOpen(false)}
+      />
     </div>
   );
 }
