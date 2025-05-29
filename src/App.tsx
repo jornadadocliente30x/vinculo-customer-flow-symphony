@@ -17,6 +17,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 
 // Dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
+import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,12 @@ const App = () => (
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard/leads/funnel" element={
+          <ProtectedRoute>
+            <LeadsFunnel />
           </ProtectedRoute>
         } />
 

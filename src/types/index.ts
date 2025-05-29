@@ -1,4 +1,3 @@
-
 // Core Types for Vinculo Platform
 
 export interface User {
@@ -100,4 +99,34 @@ export interface Analytics {
     responseRate: number;
     campaignsSent: number;
   };
+}
+
+export interface KanbanLead {
+  id: string;
+  name: string;
+  phone: string;
+  company: string;
+  value: number;
+  responsible: {
+    name: string;
+    avatar: string;
+  };
+  stage: FunnelStage;
+  createdAt: Date;
+  lastContact?: Date;
+}
+
+export interface FunnelStage {
+  id: string;
+  name: string;
+  color: string;
+  order: number;
+}
+
+export interface KanbanColumn {
+  stage: FunnelStage;
+  leads: KanbanLead[];
+  totalValue: number;
+  currentPage: number;
+  hasMore: boolean;
 }
