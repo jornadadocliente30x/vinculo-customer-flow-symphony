@@ -12,6 +12,7 @@ import { NewContactModal } from './NewContactModal';
 import { TagsModal } from './TagsModal';
 import { EditContactModal } from './EditContactModal';
 import { ChatMessage, Conversation, Contact } from '@/types/messages';
+import { cn } from '@/lib/utils';
 import { 
   MoreVertical, 
   Phone, 
