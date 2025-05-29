@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Teeth } from 'lucide-react';
+import { Circle } from 'lucide-react';
 
 interface ToothSelectorProps {
   selectedTeeth: number[];
@@ -45,7 +45,7 @@ export function ToothSelector({ selectedTeeth, onTeethChange }: ToothSelectorPro
                   }
                 `}
               >
-                <Teeth className="w-4 h-4" />
+                <Circle className="w-4 h-4" />
               </label>
             </div>
             <span className="text-xs text-gray-600 font-mono">{toothNum}</span>
@@ -59,7 +59,7 @@ export function ToothSelector({ selectedTeeth, onTeethChange }: ToothSelectorPro
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center space-x-2">
-          <Teeth className="w-5 h-5 text-brand-500" />
+          <Circle className="w-5 h-5 text-brand-500" />
           <span>Seletor de Dentes</span>
         </CardTitle>
       </CardHeader>

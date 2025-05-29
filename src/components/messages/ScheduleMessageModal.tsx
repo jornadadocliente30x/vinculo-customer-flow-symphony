@@ -69,6 +69,7 @@ export function ScheduleMessageModal({
     onSchedule({
       conversationId,
       title,
+      description: content, // Add description field using content
       content,
       scheduledDate: dateTime,
       status: 'pending'
