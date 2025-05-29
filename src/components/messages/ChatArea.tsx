@@ -120,6 +120,7 @@ export function ChatArea({
     }
   };
 
+  // Fixed: Integration with Quick Reply Modal
   const handleSendReply = (reply: string) => {
     onSendMessage(reply, 'text');
   };

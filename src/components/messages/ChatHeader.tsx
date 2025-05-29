@@ -11,7 +11,6 @@ import {
   Search, 
   X, 
   History, 
-  VideoIcon, 
   ArrowRightLeft, 
   CheckCircle, 
   XCircle, 
@@ -100,14 +99,6 @@ export function ChatHeader({
                 <FileText className="w-3 h-3 text-gray-400" />
                 <span className="text-xs text-gray-500 font-mono">#{conversation.protocolNumber}</span>
               </div>
-              {conversation.assignedUser && (
-                <>
-                  <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-500">
-                    <span className="font-medium text-brand-600">Responsável:</span> {conversation.assignedUser}
-                  </span>
-                </>
-              )}
             </div>
           </div>
         </div>
@@ -201,19 +192,6 @@ export function ChatHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent>Calendário de agendamentos</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="hover:bg-blue-50"
-              >
-                <VideoIcon className="h-5 w-5 text-gray-600" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Videochamada</TooltipContent>
           </Tooltip>
 
           <Tooltip>
