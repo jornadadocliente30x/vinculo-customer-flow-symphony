@@ -28,7 +28,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from '@/components/ui/sidebar';
+import { SupportCard } from '@/components/dashboard/SupportCard';
 import { cn } from '@/lib/utils';
 
 interface MenuItem {
@@ -156,19 +158,37 @@ export function AppSidebar() {
                       {item.submenu ? (
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center">
-                            <item.icon className="w-5 h-5 mr-3" />
-                            <span className="font-medium">{item.title}</span>
+                            <item.icon className={cn(
+                              "w-5 h-5 mr-3",
+                              isParentActive(item) ? "text-white" : ""
+                            )} />
+                            <span className={cn(
+                              "font-medium",
+                              isParentActive(item) ? "text-white" : ""
+                            )}>{item.title}</span>
                           </div>
                           {expandedItems.includes(item.title) ? (
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                            <ChevronDown className={cn(
+                              "w-4 h-4 transition-transform duration-200",
+                              isParentActive(item) ? "text-white" : ""
+                            )} />
                           ) : (
-                            <ChevronRight className="w-4 h-4 transition-transform duration-200" />
+                            <ChevronRight className={cn(
+                              "w-4 h-4 transition-transform duration-200",
+                              isParentActive(item) ? "text-white" : ""
+                            )} />
                           )}
                         </div>
                       ) : (
                         <Link to={item.href} className="flex items-center w-full">
-                          <item.icon className="w-5 h-5 mr-3" />
-                          <span className="font-medium">{item.title}</span>
+                          <item.icon className={cn(
+                            "w-5 h-5 mr-3",
+                            isParentActive(item) ? "text-white" : ""
+                          )} />
+                          <span className={cn(
+                            "font-medium",
+                            isParentActive(item) ? "text-white" : ""
+                          )}>{item.title}</span>
                         </Link>
                       )}
                     </SidebarMenuButton>
@@ -188,8 +208,13 @@ export function AppSidebar() {
                             )}
                           >
                             <Link to={subItem.href} className="flex items-center">
-                              <subItem.icon className="w-4 h-4 mr-3" />
-                              <span>{subItem.title}</span>
+                              <subItem.icon className={cn(
+                                "w-4 h-4 mr-3",
+                                isActive(subItem.href) ? "text-brand-700" : ""
+                              )} />
+                              <span className={cn(
+                                isActive(subItem.href) ? "text-brand-700 font-medium" : ""
+                              )}>{subItem.title}</span>
                             </Link>
                           </SidebarMenuButton>
                         ))}
@@ -202,6 +227,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="p-4 border-t border-gray-100">
+        <SupportCard />
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -7,6 +7,7 @@ import { SalesFunnel } from '@/components/dashboard/SalesFunnel';
 import { CustomerJourney } from '@/components/dashboard/CustomerJourney';
 import { ServiceMetrics } from '@/components/dashboard/ServiceMetrics';
 import { RecentCampaigns } from '@/components/dashboard/RecentCampaigns';
+import { formatCounter, formatPercentage } from '@/utils/formatting';
 import { 
   Users, 
   MessageSquare, 
@@ -17,8 +18,8 @@ import {
 const stats = [
   {
     title: 'Total de Leads',
-    value: '2,847',
-    change: '+12%',
+    value: formatCounter(2847),
+    change: formatPercentage(12),
     trend: 'up',
     icon: <Users className="h-5 w-5" />,
     description: 'vs. mês anterior',
@@ -27,8 +28,8 @@ const stats = [
   },
   {
     title: 'Conversões',
-    value: '543',
-    change: '+8%',
+    value: formatCounter(543),
+    change: formatPercentage(8),
     trend: 'up',
     icon: <Target className="h-5 w-5" />,
     description: 'vs. mês anterior',
@@ -37,8 +38,8 @@ const stats = [
   },
   {
     title: 'Mensagens Enviadas',
-    value: '12,459',
-    change: '+23%',
+    value: formatCounter(12459),
+    change: formatPercentage(23),
     trend: 'up',
     icon: <MessageSquare className="h-5 w-5" />,
     description: 'vs. mês anterior',
@@ -47,8 +48,8 @@ const stats = [
   },
   {
     title: 'Taxa de Conversão',
-    value: '19.1%',
-    change: '-2%',
+    value: '19,1%',
+    change: formatPercentage(2),
     trend: 'down',
     icon: <TrendingUp className="h-5 w-5" />,
     description: 'vs. mês anterior',
@@ -94,36 +95,36 @@ export default function Dashboard() {
 
         {/* Origin of Contacts */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-soft p-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+          <h2 className="text-2xl font-semibold mb-6 flex items-center bg-gradient-brand bg-clip-text text-transparent">
             <div className="w-2 h-6 bg-gradient-brand rounded-full mr-3" />
             Origem dos Contatos
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <OriginCard
               platform="Instagram"
-              icon={<div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg"></div>}
-              value="1,234"
+              icon={<div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">IG</div>}
+              value={formatCounter(1234)}
               percentage="43"
               color="bg-gradient-to-br from-pink-50 to-purple-50"
             />
             <OriginCard
               platform="LinkedIn"
-              icon={<div className="w-6 h-6 bg-blue-600 rounded-lg"></div>}
-              value="856"
+              icon={<div className="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs font-bold">IN</div>}
+              value={formatCounter(856)}
               percentage="30"
               color="bg-gradient-to-br from-blue-50 to-cyan-50"
             />
             <OriginCard
               platform="TikTok"
-              icon={<div className="w-6 h-6 bg-gray-900 rounded-lg"></div>}
-              value="423"
+              icon={<div className="w-6 h-6 bg-gray-900 rounded-lg flex items-center justify-center text-white text-xs font-bold">TT</div>}
+              value={formatCounter(423)}
               percentage="15"
               color="bg-gradient-to-br from-gray-50 to-slate-50"
             />
             <OriginCard
               platform="Site"
-              icon={<div className="w-6 h-6 bg-gradient-brand rounded-lg"></div>}
-              value="334"
+              icon={<div className="w-6 h-6 bg-gradient-brand rounded-lg flex items-center justify-center text-white text-xs font-bold">WB</div>}
+              value={formatCounter(334)}
               percentage="12"
               color="bg-gradient-to-br from-brand-50 to-purple-50"
             />
@@ -138,7 +139,7 @@ export default function Dashboard() {
 
         {/* Service Metrics */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-soft p-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+          <h2 className="text-2xl font-semibold mb-6 flex items-center bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
             <div className="w-2 h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mr-3" />
             Métricas de Atendimento
           </h2>
@@ -147,7 +148,7 @@ export default function Dashboard() {
 
         {/* Recent Campaigns */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-soft p-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+          <h2 className="text-2xl font-semibold mb-6 flex items-center bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
             <div className="w-2 h-6 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full mr-3" />
             Campanhas Recentes
           </h2>

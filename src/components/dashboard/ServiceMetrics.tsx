@@ -8,7 +8,7 @@ export function ServiceMetrics() {
       <MetricCard
         title="Tempo Médio de Atendimento"
         value="12m 34s"
-        change="-8%"
+        change="8%"
         trend="up"
         icon={<Clock className="h-4 w-4" />}
         description="vs. mês anterior"
@@ -18,7 +18,7 @@ export function ServiceMetrics() {
       <MetricCard
         title="Tempo Médio com IA"
         value="3m 12s"
-        change="+15%"
+        change="15%"
         trend="down"
         icon={<Bot className="h-4 w-4" />}
         description="vs. mês anterior"
@@ -28,7 +28,7 @@ export function ServiceMetrics() {
       <MetricCard
         title="Intervalo Entre Atendimentos"
         value="24m 8s"
-        change="+5%"
+        change="5%"
         trend="down"
         icon={<Calendar className="h-4 w-4" />}
         description="vs. mês anterior"
@@ -37,8 +37,8 @@ export function ServiceMetrics() {
       
       <MetricCard
         title="Satisfação do Cliente"
-        value="4.8"
-        change="+3%"
+        value="4,8"
+        change="3%"
         trend="up"
         icon={<Star className="h-4 w-4" />}
         description="NPS: 85"

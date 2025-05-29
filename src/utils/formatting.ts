@@ -8,6 +8,23 @@ export const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
+export const formatBRLCurrency = (value: number): string => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+};
+
+export const formatCounter = (value: number): string => {
+  return value.toString();
+};
+
+export const formatPercentage = (value: number): string => {
+  return `${value}%`;
+};
+
 export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
@@ -35,14 +52,6 @@ export const formatPhone = (phone: string): string => {
     return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
   }
   return phone;
-};
-
-export const formatPercentage = (value: number): string => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'percent',
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1
-  }).format(value / 100);
 };
 
 export const truncateText = (text: string, maxLength: number): string => {
