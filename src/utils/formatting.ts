@@ -17,6 +17,36 @@ export const formatBRLCurrency = (value: number): string => {
   }).format(value);
 };
 
+export const formatCurrencyInput = (value: string): string => {
+  // Remove tudo que não é número
+  const numericValue = value.replace(/\D/g, '');
+  
+  // Se não há valor, retorna vazio
+  if (!numericValue) return '';
+  
+  // Converte para centavos
+  const cents = parseInt(numericValue);
+  const reais = cents / 100;
+  
+  // Formata como moeda brasileira
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(reais);
+};
+
+export const parseCurrencyToNumber = (currencyString: string): number => {
+  // Remove R$, espaços, pontos e substitui vírgula por ponto
+  const numericString = currencyString
+    .replace(/R\$\s?/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.');
+  
+  return parseFloat(numericString) || 0;
+};
+
 export const formatCounter = (value: number): string => {
   return value.toString();
 };

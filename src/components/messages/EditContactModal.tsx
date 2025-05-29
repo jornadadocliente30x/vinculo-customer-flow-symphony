@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ToothSelector } from './ToothSelector';
 import { Upload, Plus, Edit, Trash2, Calendar, Star, FileText, Save, X } from 'lucide-react';
 import { Contact } from '@/types/messages';
+import { formatBRLCurrency, formatCurrencyInput, parseCurrencyToNumber } from '@/utils/formatting';
 
 interface EditContactModalProps {
   isOpen: boolean;
@@ -208,7 +209,7 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     const payment: Payment = {
       id: Date.now().toString(),
       date: new Date(),
-      amount: parseFloat(newPayment.amount),
+      amount: parseCurrencyToNumber(newPayment.amount),
       service: newPayment.service,
       status: 'paid',
       rating: newPayment.rating,
@@ -226,6 +227,11 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
   const savePaymentEdit = (id: string, updatedPayment: Partial<Payment>) => {
     setPayments(prev => prev.map(p => p.id === id ? { ...p, ...updatedPayment } : p));
     setEditingPayment(null);
+  };
+
+  const handlePaymentAmountChange = (value: string) => {
+    const formatted = formatCurrencyInput(value);
+    setNewPayment(prev => ({ ...prev, amount: formatted }));
   };
 
   const getStatusBadge = (status: string) => {
@@ -634,10 +640,9 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                   <div>
                     <Label>Valor</Label>
                     <Input
-                      type="number"
                       value={newPayment.amount}
-                      onChange={(e) => setNewPayment(prev => ({ ...prev, amount: e.target.value }))}
-                      placeholder="0.00"
+                      onChange={(e) => handlePaymentAmountChange(e.target.value)}
+                      placeholder="R$ 0,00"
                     />
                   </div>
                 </div>
@@ -687,7 +692,7 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                                 {payment.date.toLocaleDateString('pt-BR')}
                               </p>
                               <p className="text-lg font-semibold text-green-600">
-                                R$ {payment.amount.toFixed(2)}
+                                {formatBRLCurrency(payment.amount)}
                               </p>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -889,7 +894,7 @@ function EditPaymentForm({
   onCancel: () => void; 
 }) {
   const [service, setService] = useState(payment.service);
-  const [amount, setAmount] = useState(payment.amount.toString());
+  const [amount, setAmount] = useState(formatBRLCurrency(payment.amount));
   const [status, setStatus] = useState(payment.status);
   const [rating, setRating] = useState(payment.rating || 0);
   const [feedback, setFeedback] = useState(payment.feedback || '');
@@ -897,11 +902,16 @@ function EditPaymentForm({
   const handleSave = () => {
     onSave({ 
       service, 
-      amount: parseFloat(amount), 
+      amount: parseCurrencyToNumber(amount), 
       status, 
       rating: rating || undefined,
       feedback: feedback || undefined
     });
+  };
+
+  const handleAmountChange = (value: string) => {
+    const formatted = formatCurrencyInput(value);
+    setAmount(formatted);
   };
 
   const renderStars = (currentRating: number, interactive = false, onChange?: (rating: number) => void) => {
@@ -931,10 +941,9 @@ function EditPaymentForm({
           placeholder="Serviço"
         />
         <Input
-          type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Valor"
+          onChange={(e) => handleAmountChange(e.target.value)}
+          placeholder="R$ 0,00"
         />
       </div>
       <Select value={status} onValueChange={(value) => setStatus(value as Payment['status'])}>
