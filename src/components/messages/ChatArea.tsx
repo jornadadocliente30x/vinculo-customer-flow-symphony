@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
 import { TransferContactModal } from './TransferContactModal';
+import { TransferNotificationModal } from './TransferNotificationModal';
 import { NewContactModal } from './NewContactModal';
 import { TagsModal } from './TagsModal';
 import { EditContactModal } from './EditContactModal';
-import { ChatMessage, Conversation, Contact } from '@/types/messages';
+import { ChatMessage, Conversation, Contact, TransferRequest } from '@/types/messages';
+import { mockTransferRequests } from '@/data/mockTransferRequests';
 import { cn } from '@/lib/utils';
 import { 
   MoreVertical, 
@@ -24,7 +27,8 @@ import {
   XCircle,
   X,
   FileText,
-  History
+  History,
+  Bell
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -52,11 +56,15 @@ export function ChatArea({
 }: ChatAreaProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isTransferNotificationModalOpen, setIsTransferNotificationModalOpen] = useState(false);
   const [isNewContactModalOpen, setIsNewContactModalOpen] = useState(false);
   const [isContactTagsModalOpen, setIsContactTagsModalOpen] = useState(false);
   const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [transferRequests, setTransferRequests] = useState<TransferRequest[]>(mockTransferRequests);
+
+  const pendingTransferCount = transferRequests.filter(req => req.status === 'pending').length;
 
   useEffect(() => {
     // Auto scroll to bottom when new messages arrive
@@ -92,6 +100,12 @@ export function ChatArea({
   const handleTransferContact = (userId: string) => {
     console.log('Transferring contact to user:', userId);
     // Here you would implement the transfer logic
+    // Add "Transferido" tag temporarily
+    const currentTags = conversation.tags || [];
+    const transferTag = { id: 'transfer-temp', name: 'Transferido', color: 'yellow' as const };
+    onUpdateConversation(conversation.id, { 
+      tags: [...currentTags, transferTag] 
+    });
   };
 
   const handleNewContact = (contactData: any) => {
@@ -104,8 +118,25 @@ export function ChatArea({
     // Here you would implement the contact update logic
   };
 
+  const handleAcceptTransfer = (requestId: string) => {
+    setTransferRequests(prev => 
+      prev.map(req => 
+        req.id === requestId ? { ...req, status: 'accepted' as const } : req
+      )
+    );
+  };
+
+  const handleRejectTransfer = (requestId: string) => {
+    setTransferRequests(prev => 
+      prev.map(req => 
+        req.id === requestId ? { ...req, status: 'rejected' as const } : req
+      )
+    );
+  };
+
   const isFinished = conversation.category === 'finalizados';
   const canSendMessages = activeFilter === 'atendimento';
+  const isTransferred = conversation.tags?.some(tag => tag.name === 'Transferido');
 
   // Filtrar mensagens baseado na pesquisa
   const filteredMessages = searchTerm 
@@ -134,7 +165,14 @@ export function ChatArea({
               </div>
               
               <div>
-                <h3 className="font-medium text-gray-900">{conversation.contactName}</h3>
+                <div className="flex items-center space-x-2">
+                  <h3 className="font-medium text-gray-900">{conversation.contactName}</h3>
+                  {isTransferred && (
+                    <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
+                      Transferido
+                    </Badge>
+                  )}
+                </div>
                 <div className="flex items-center space-x-2">
                   <p className="text-sm text-gray-500">
                     {conversation.isOnline ? 'Online' : 'Visto por último hoje'}
@@ -157,6 +195,29 @@ export function ChatArea({
             </div>
 
             <div className="flex items-center space-x-2">
+              {/* Transfer Notifications */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="relative"
+                    onClick={() => setIsTransferNotificationModalOpen(true)}
+                  >
+                    <Bell className="h-5 w-5" />
+                    {pendingTransferCount > 0 && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                      >
+                        {pendingTransferCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Notificações de transferência</TooltipContent>
+              </Tooltip>
+
               {/* Search */}
               <div className="flex items-center">
                 {isSearchExpanded ? (
@@ -339,6 +400,14 @@ export function ChatArea({
           conversationId={conversation.id}
           contactName={conversation.contactName}
           onTransfer={handleTransferContact}
+        />
+
+        <TransferNotificationModal
+          isOpen={isTransferNotificationModalOpen}
+          onClose={() => setIsTransferNotificationModalOpen(false)}
+          transferRequests={transferRequests}
+          onAcceptTransfer={handleAcceptTransfer}
+          onRejectTransfer={handleRejectTransfer}
         />
 
         <NewContactModal
