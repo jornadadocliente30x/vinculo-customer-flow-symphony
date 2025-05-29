@@ -1,0 +1,82 @@
+
+import { Conversation, ChatMessage } from '@/types/messages';
+
+export const mockConversations: Conversation[] = [
+  {
+    id: '1',
+    contactName: 'Maria Silva',
+    contactPhone: '+55 11 99999-1234',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612c3c3?w=100&h=100&fit=crop&crop=face',
+    lastMessage: 'Olá! Gostaria de saber mais sobre os serviços.',
+    lastMessageTime: new Date(Date.now() - 5 * 60 * 1000),
+    unreadCount: 2,
+    isOnline: true,
+    category: 'atendimento',
+    isPinned: false,
+  },
+  {
+    id: '2',
+    contactName: 'João Santos',
+    contactPhone: '+55 11 98888-5678',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+    lastMessage: 'Perfeito! Vamos agendar para amanhã às 14h.',
+    lastMessageTime: new Date(Date.now() - 30 * 60 * 1000),
+    unreadCount: 0,
+    isOnline: false,
+    category: 'agendamentos',
+    isPinned: true,
+  },
+  {
+    id: '3',
+    contactName: 'Ana Costa',
+    contactPhone: '+55 11 97777-9012',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
+    lastMessage: 'Aguardando retorno sobre o orçamento...',
+    lastMessageTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    unreadCount: 1,
+    isOnline: false,
+    category: 'esperando',
+    isPinned: false,
+  },
+  {
+    id: '4',
+    contactName: 'Carlos Oliveira',
+    contactPhone: '+55 11 96666-3456',
+    lastMessage: 'Mensagem automática: Obrigado pelo contato!',
+    lastMessageTime: new Date(Date.now() - 4 * 60 * 60 * 1000),
+    unreadCount: 0,
+    isOnline: true,
+    category: 'chatbot',
+    isPinned: false,
+  },
+];
+
+export const mockMessages: ChatMessage[] = [
+  {
+    id: '1',
+    conversationId: '1',
+    content: 'Olá! Como posso ajudá-lo hoje?',
+    type: 'text',
+    direction: 'outbound',
+    status: 'read',
+    timestamp: new Date(Date.now() - 10 * 60 * 1000),
+  },
+  {
+    id: '2',
+    conversationId: '1',
+    content: 'Olá! Gostaria de saber mais sobre os serviços.',
+    type: 'text',
+    direction: 'inbound',
+    status: 'delivered',
+    timestamp: new Date(Date.now() - 5 * 60 * 1000),
+  },
+  {
+    id: '3',
+    conversationId: '1',
+    content: 'Posso te enviar nossa apresentação com todos os detalhes?',
+    type: 'text',
+    direction: 'outbound',
+    status: 'sent',
+    timestamp: new Date(Date.now() - 2 * 60 * 1000),
+  },
+];

@@ -18,6 +18,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 // Dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
 import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
+import WhatsAppChat from "./pages/dashboard/messages/WhatsAppChat";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,12 @@ const App = () => (
         <Route path="/dashboard/leads/funnel" element={
           <ProtectedRoute>
             <LeadsFunnel />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard/messages/whatsapp" element={
+          <ProtectedRoute>
+            <WhatsAppChat />
           </ProtectedRoute>
         } />
 
