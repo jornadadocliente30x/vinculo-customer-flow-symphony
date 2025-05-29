@@ -20,6 +20,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
 import WhatsAppChat from "./pages/dashboard/messages/WhatsAppChat";
 import AgentsPage from "./pages/dashboard/agents/AgentsPage";
+import ConnectPage from "./pages/dashboard/connect/ConnectPage";
 
 const queryClient = new QueryClient();
 
@@ -45,15 +46,15 @@ const App = () => (
           </ProtectedRoute>
         } />
 
-        <Route path="/dashboard/leads/funnel" element={
+        <Route path="/dashboard/leads" element={
           <ProtectedRoute>
-            <LeadsFunnel />
+            <Dashboard />
           </ProtectedRoute>
         } />
 
-        <Route path="/dashboard/messages/whatsapp" element={
+        <Route path="/dashboard/leads/funnel" element={
           <ProtectedRoute>
-            <WhatsAppChat />
+            <LeadsFunnel />
           </ProtectedRoute>
         } />
 
@@ -63,13 +64,23 @@ const App = () => (
           </ProtectedRoute>
         } />
 
-        {/* Temporary redirects for new menu items - will redirect to main dashboard until pages are created */}
-        <Route path="/dashboard/leads" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/automations" element={<Navigate to="/dashboard/automations/agents" replace />} />
-        <Route path="/dashboard/messages" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/templates" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/analytics" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/settings" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard/connect" element={
+          <ProtectedRoute>
+            <ConnectPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard/messages" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard/messages/whatsapp" element={
+          <ProtectedRoute>
+            <WhatsAppChat />
+          </ProtectedRoute>
+        } />
 
         {/* Redirect any other /dashboard/* to /dashboard */}
         <Route path="/dashboard/*" element={<Navigate to="/dashboard" replace />} />
