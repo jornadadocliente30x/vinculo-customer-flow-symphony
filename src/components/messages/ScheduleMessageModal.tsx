@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Upload, X, Check, CheckCheck, Clock, Calendar as CalendarIcon, Edit, Trash2 } from 'lucide-react';
+import { Upload, X, Check, CheckCheck, Clock, Calendar as CalendarIcon, Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ScheduledMessage, MessageAttachment } from '@/types/messages';
 import { mockScheduledMessages } from '@/data/mockConversations';
 
@@ -19,6 +19,42 @@ interface ScheduleMessageModalProps {
   conversationId: string;
   onSchedule: (message: Omit<ScheduledMessage, 'id'>) => void;
 }
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  date: Date;
+  time: string;
+  patientName: string;
+  type: 'appointment' | 'message' | 'follow-up';
+}
+
+const mockCalendarEvents: CalendarEvent[] = [
+  {
+    id: '1',
+    title: 'Consulta Dr. Silva',
+    date: new Date(2024, 11, 15, 14, 0),
+    time: '14:00',
+    patientName: 'Maria Santos',
+    type: 'appointment'
+  },
+  {
+    id: '2',
+    title: 'Lembrete Medicação',
+    date: new Date(2024, 11, 16, 9, 0),
+    time: '09:00',
+    patientName: 'João Costa',
+    type: 'message'
+  },
+  {
+    id: '3',
+    title: 'Retorno Fisioterapia',
+    date: new Date(2024, 11, 18, 16, 30),
+    time: '16:30',
+    patientName: 'Ana Silva',
+    type: 'follow-up'
+  }
+];
 
 export function ScheduleMessageModal({ 
   isOpen, 
@@ -34,6 +70,9 @@ export function ScheduleMessageModal({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [scheduledMessages, setScheduledMessages] = useState(mockScheduledMessages);
   const [editingMessage, setEditingMessage] = useState<ScheduledMessage | null>(null);
+  const [calendarEvents] = useState<CalendarEvent[]>(mockCalendarEvents);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date>(new Date());
+  const [calendarView, setCalendarView] = useState<'week' | 'day'>('week');
 
   const handleSubmit = () => {
     if (!title || !content || !date || !time) return;
@@ -50,7 +89,6 @@ export function ScheduleMessageModal({
     };
 
     if (editingMessage) {
-      // Editar mensagem existente
       const updatedMessage: ScheduledMessage = {
         ...editingMessage,
         title,
@@ -71,7 +109,6 @@ export function ScheduleMessageModal({
       );
       setEditingMessage(null);
     } else {
-      // Criar nova mensagem
       onSchedule({
         conversationId,
         title,
@@ -89,7 +126,6 @@ export function ScheduleMessageModal({
       });
     }
 
-    // Reset form
     resetForm();
   };
 
@@ -173,10 +209,110 @@ export function ScheduleMessageModal({
     );
   };
 
+  const getEventsForDate = (targetDate: Date) => {
+    return calendarEvents.filter(event => 
+      event.date.toDateString() === targetDate.toDateString()
+    );
+  };
+
+  const getEventTypeColor = (type: CalendarEvent['type']) => {
+    switch (type) {
+      case 'appointment':
+        return 'bg-blue-500';
+      case 'message':
+        return 'bg-green-500';
+      case 'follow-up':
+        return 'bg-purple-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const renderWeekView = () => {
+    const startOfWeek = new Date(selectedCalendarDate);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day;
+    startOfWeek.setDate(diff);
+
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      weekDays.push(date);
+    }
+
+    return (
+      <div className="grid grid-cols-7 gap-2 h-64">
+        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dayName, index) => (
+          <div key={dayName} className="text-center">
+            <div className="font-medium text-sm text-gray-600 mb-2">{dayName}</div>
+            <div className="border rounded-lg p-2 h-48 overflow-y-auto">
+              <div className="text-lg font-bold text-center mb-2">
+                {weekDays[index].getDate()}
+              </div>
+              <div className="space-y-1">
+                {getEventsForDate(weekDays[index]).map((event) => (
+                  <Tooltip key={event.id}>
+                    <TooltipTrigger asChild>
+                      <div className={`text-xs p-1 rounded text-white ${getEventTypeColor(event.type)}`}>
+                        <div className="font-medium truncate">{event.time}</div>
+                        <div className="truncate">{event.patientName}</div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-sm">
+                        <div className="font-medium">{event.title}</div>
+                        <div>{event.patientName}</div>
+                        <div>{event.time}</div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderDayView = () => {
+    const events = getEventsForDate(selectedCalendarDate);
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+
+    return (
+      <div className="h-64 overflow-y-auto">
+        <div className="space-y-2">
+          {hours.map((hour) => {
+            const hourEvents = events.filter(event => event.date.getHours() === hour);
+            return (
+              <div key={hour} className="flex items-start space-x-2 border-b border-gray-100 pb-2">
+                <div className="w-16 text-sm text-gray-500 font-mono">
+                  {hour.toString().padStart(2, '0')}:00
+                </div>
+                <div className="flex-1">
+                  {hourEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className={`p-2 rounded text-white text-sm mb-1 ${getEventTypeColor(event.type)}`}
+                    >
+                      <div className="font-medium">{event.title}</div>
+                      <div className="text-xs">{event.patientName} - {event.time}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <TooltipProvider>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingMessage ? 'Editar Agendamento' : 'Agendamento de Mensagens'}
@@ -184,11 +320,12 @@ export function ScheduleMessageModal({
           </DialogHeader>
 
           <Tabs defaultValue="schedule" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="schedule">
                 {editingMessage ? 'Editar Mensagem' : 'Nova Mensagem'}
               </TabsTrigger>
               <TabsTrigger value="list">Mensagens Agendadas</TabsTrigger>
+              <TabsTrigger value="calendar">Calendário</TabsTrigger>
             </TabsList>
 
             <TabsContent value="schedule" className="space-y-4">
@@ -409,6 +546,113 @@ export function ScheduleMessageModal({
                   </div>
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="calendar" className="space-y-4">
+              {/* Calendar Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-lg font-semibold">
+                    {selectedCalendarDate.toLocaleDateString('pt-BR', { 
+                      month: 'long', 
+                      year: 'numeric' 
+                    })}
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newDate = new Date(selectedCalendarDate);
+                        newDate.setDate(newDate.getDate() - (calendarView === 'week' ? 7 : 1));
+                        setSelectedCalendarDate(newDate);
+                      }}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newDate = new Date(selectedCalendarDate);
+                        newDate.setDate(newDate.getDate() + (calendarView === 'week' ? 7 : 1));
+                        setSelectedCalendarDate(newDate);
+                      }}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant={calendarView === 'week' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCalendarView('week')}
+                  >
+                    Semana
+                  </Button>
+                  <Button
+                    variant={calendarView === 'day' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCalendarView('day')}
+                  >
+                    Dia
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedCalendarDate(new Date())}
+                  >
+                    Hoje
+                  </Button>
+                </div>
+              </div>
+
+              {/* Calendar Legend */}
+              <div className="flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                  <span>Consultas</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded"></div>
+                  <span>Mensagens</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                  <span>Retornos</span>
+                </div>
+              </div>
+
+              {/* Calendar View */}
+              {calendarView === 'week' ? renderWeekView() : renderDayView()}
+
+              {/* Statistics */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {calendarEvents.filter(e => e.type === 'appointment').length}
+                      </div>
+                      <div className="text-sm text-gray-600">Consultas do Mês</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {calendarEvents.filter(e => e.type === 'message').length}
+                      </div>
+                      <div className="text-sm text-gray-600">Mensagens Agendadas</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-purple-600">
+                        {calendarEvents.filter(e => e.type === 'follow-up').length}
+                      </div>
+                      <div className="text-sm text-gray-600">Retornos Programados</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </DialogContent>

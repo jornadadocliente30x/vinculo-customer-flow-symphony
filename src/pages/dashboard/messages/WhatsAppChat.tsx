@@ -4,9 +4,15 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { ConversationSidebar } from '@/components/messages/ConversationSidebar';
 import { ChatArea } from '@/components/messages/ChatArea';
 import { ScheduleMessageModal } from '@/components/messages/ScheduleMessageModal';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { mockConversations, mockMessages } from '@/data/mockConversations';
 import { ChatMessage, ScheduledMessage, Conversation, ConversationCategory } from '@/types/messages';
 import { useToast } from '@/hooks/use-toast';
+import { Bot, Send, ArrowRight } from 'lucide-react';
 
 export default function WhatsAppChat() {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
@@ -15,6 +21,8 @@ export default function WhatsAppChat() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduleConversationId, setScheduleConversationId] = useState<string>('');
   const [activeFilter, setActiveFilter] = useState<ConversationCategory>('atendimento');
+  const [isAISummaryModalOpen, setIsAISummaryModalOpen] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
   const { toast } = useToast();
 
   const selectedConversation = conversations.find(
@@ -101,7 +109,66 @@ export default function WhatsAppChat() {
 
   const handleFilterChange = (filter: ConversationCategory) => {
     setActiveFilter(filter);
-    setSelectedConversationId(null); // Reset selection when changing filter
+    setSelectedConversationId(null);
+  };
+
+  const handleAISummary = () => {
+    if (!selectedConversation) return;
+    
+    // Simulate AI generating a summary of the conversation
+    const mockSummary = `RESUMO DA CONVERSA - ${selectedConversation.contactName}
+
+🤖 ANÁLISE AUTOMÁTICA:
+
+📋 CONTEXTO:
+• Paciente: ${selectedConversation.contactName}
+• Protocolo: #${selectedConversation.protocolNumber}
+• Última interação: ${selectedConversation.lastMessageTime.toLocaleString('pt-BR')}
+
+💬 PRINCIPAIS PONTOS:
+• Paciente relatou dores lombares recorrentes
+• Histórico de tratamento fisioterápico anterior
+• Interesse em agendar nova consulta médica
+• Demonstrou preocupação com medicação atual
+
+🎯 RECOMENDAÇÕES:
+• Agendar consulta presencial para avaliação
+• Revisar prescrição médica atual
+• Considerar encaminhamento para especialista
+• Acompanhar evolução do quadro
+
+📌 PRÓXIMOS PASSOS:
+• Paciente deve retornar em 7 dias
+• Exames complementares podem ser necessários
+• Manter acompanhamento regular
+
+✅ STATUS: Pronto para encaminhamento ao atendimento médico`;
+
+    setAiSummary(mockSummary);
+    setIsAISummaryModalOpen(true);
+  };
+
+  const handleForwardToAttendance = () => {
+    if (!selectedConversation) return;
+
+    // Move conversation to "atendimento" filter
+    handleUpdateConversation(selectedConversation.id, { 
+      category: 'atendimento',
+      tags: [
+        ...(selectedConversation.tags || []),
+        { id: 'ai-analyzed', name: 'Analisado pela IA', color: 'purple' as const }
+      ]
+    });
+
+    // Change to "atendimento" filter
+    setActiveFilter('atendimento');
+    
+    setIsAISummaryModalOpen(false);
+    
+    toast({
+      title: "Conversa encaminhada",
+      description: "Conversa foi encaminhada para Atendimento com resumo da IA",
+    });
   };
 
   return (
@@ -117,14 +184,41 @@ export default function WhatsAppChat() {
           onFilterChange={handleFilterChange}
         />
 
-        <ChatArea
-          conversation={selectedConversation || null}
-          messages={conversationMessages}
-          onSendMessage={handleSendMessage}
-          onAttachFile={handleAttachFile}
-          onUpdateConversation={handleUpdateConversation}
-          activeFilter={activeFilter}
-        />
+        <div className="flex-1 flex flex-col">
+          {/* AI Button for Conversa IA filter */}
+          {activeFilter === 'conversa_ia' && selectedConversation && (
+            <div className="bg-purple-50 border-b border-purple-200 p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Bot className="w-5 h-5 text-purple-600" />
+                  <span className="text-sm font-medium text-purple-800">
+                    Conversa com IA ativa
+                  </span>
+                  <Badge variant="outline" className="text-purple-600 border-purple-300">
+                    Análise automática
+                  </Badge>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleAISummary}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Bot className="w-4 h-4 mr-2" />
+                  Gerar Resumo
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <ChatArea
+            conversation={selectedConversation || null}
+            messages={conversationMessages}
+            onSendMessage={handleSendMessage}
+            onAttachFile={handleAttachFile}
+            onUpdateConversation={handleUpdateConversation}
+            activeFilter={activeFilter}
+          />
+        </div>
       </div>
 
       <ScheduleMessageModal
@@ -133,6 +227,47 @@ export default function WhatsAppChat() {
         conversationId={scheduleConversationId}
         onSchedule={handleScheduleSubmit}
       />
+
+      {/* AI Summary Modal */}
+      <Dialog open={isAISummaryModalOpen} onOpenChange={setIsAISummaryModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Bot className="w-5 h-5 text-purple-600" />
+              <span>Resumo da IA</span>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Análise automática da conversa</Label>
+              <Textarea
+                value={aiSummary}
+                onChange={(e) => setAiSummary(e.target.value)}
+                rows={15}
+                className="mt-2 font-mono text-sm"
+                readOnly
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAISummaryModalOpen(false)}
+              >
+                Fechar
+              </Button>
+              <Button 
+                onClick={handleForwardToAttendance}
+                className="bg-gradient-brand hover:opacity-90"
+              >
+                <ArrowRight className="w-4 h-4 mr-2" />
+                Encaminhar para Atendimento
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

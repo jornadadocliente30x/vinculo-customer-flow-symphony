@@ -6,7 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Upload } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Upload, Plus, Edit, Trash2, Calendar, Star, FileText } from 'lucide-react';
 import { Contact } from '@/types/messages';
 
 interface EditContactModalProps {
@@ -16,6 +20,35 @@ interface EditContactModalProps {
   onSaveContact: (contact: Contact) => void;
 }
 
+interface MedicalRecord {
+  id: string;
+  date: Date;
+  doctor: string;
+  diagnosis: string;
+  prescription?: string;
+  notes?: string;
+}
+
+interface Treatment {
+  id: string;
+  date: Date;
+  service: string;
+  professional: string;
+  status: 'completed' | 'ongoing' | 'scheduled';
+  notes?: string;
+  evolution?: string;
+}
+
+interface Payment {
+  id: string;
+  date: Date;
+  amount: number;
+  service: string;
+  status: 'paid' | 'pending' | 'overdue';
+  rating?: number;
+  feedback?: string;
+}
+
 export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: EditContactModalProps) {
   const [firstName, setFirstName] = useState(contact?.firstName || '');
   const [lastName, setLastName] = useState(contact?.lastName || '');
@@ -23,6 +56,63 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
   const [email, setEmail] = useState(contact?.email || '');
   const [description, setDescription] = useState(contact?.description || '');
   const [avatar, setAvatar] = useState(contact?.avatar || '');
+  
+  // Mock data for medical records, treatments, and payments
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([
+    {
+      id: '1',
+      date: new Date('2024-01-15'),
+      doctor: 'Dr. João Silva',
+      diagnosis: 'Consulta de rotina - Hipertensão controlada',
+      prescription: 'Losartana 50mg - 1x ao dia',
+      notes: 'Paciente apresenta boa evolução no controle da pressão arterial.'
+    }
+  ]);
+
+  const [treatments, setTreatments] = useState<Treatment[]>([
+    {
+      id: '1',
+      date: new Date('2024-01-20'),
+      service: 'Fisioterapia',
+      professional: 'Dra. Ana Costa',
+      status: 'ongoing',
+      notes: 'Tratamento para dor lombar',
+      evolution: 'Paciente com melhora significativa na mobilidade.'
+    }
+  ]);
+
+  const [payments, setPayments] = useState<Payment[]>([
+    {
+      id: '1',
+      date: new Date('2024-01-15'),
+      amount: 150.00,
+      service: 'Consulta Médica',
+      status: 'paid',
+      rating: 5,
+      feedback: 'Excelente atendimento, médico muito atencioso.'
+    }
+  ]);
+
+  const [newRecord, setNewRecord] = useState({
+    doctor: '',
+    diagnosis: '',
+    prescription: '',
+    notes: ''
+  });
+
+  const [newTreatment, setNewTreatment] = useState({
+    service: '',
+    professional: '',
+    notes: '',
+    evolution: ''
+  });
+
+  const [newPayment, setNewPayment] = useState({
+    amount: '',
+    service: '',
+    rating: 0,
+    feedback: ''
+  });
 
   const handleSubmit = () => {
     if (!contact || !firstName || !phone) return;
@@ -48,115 +138,491 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     }
   };
 
+  const addMedicalRecord = () => {
+    if (!newRecord.doctor || !newRecord.diagnosis) return;
+    
+    const record: MedicalRecord = {
+      id: Date.now().toString(),
+      date: new Date(),
+      doctor: newRecord.doctor,
+      diagnosis: newRecord.diagnosis,
+      prescription: newRecord.prescription,
+      notes: newRecord.notes
+    };
+    
+    setMedicalRecords(prev => [record, ...prev]);
+    setNewRecord({ doctor: '', diagnosis: '', prescription: '', notes: '' });
+  };
+
+  const addTreatment = () => {
+    if (!newTreatment.service || !newTreatment.professional) return;
+    
+    const treatment: Treatment = {
+      id: Date.now().toString(),
+      date: new Date(),
+      service: newTreatment.service,
+      professional: newTreatment.professional,
+      status: 'ongoing',
+      notes: newTreatment.notes,
+      evolution: newTreatment.evolution
+    };
+    
+    setTreatments(prev => [treatment, ...prev]);
+    setNewTreatment({ service: '', professional: '', notes: '', evolution: '' });
+  };
+
+  const addPayment = () => {
+    if (!newPayment.service || !newPayment.amount) return;
+    
+    const payment: Payment = {
+      id: Date.now().toString(),
+      date: new Date(),
+      amount: parseFloat(newPayment.amount),
+      service: newPayment.service,
+      status: 'paid',
+      rating: newPayment.rating,
+      feedback: newPayment.feedback
+    };
+    
+    setPayments(prev => [payment, ...prev]);
+    setNewPayment({ amount: '', service: '', rating: 0, feedback: '' });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      completed: 'bg-green-100 text-green-800',
+      ongoing: 'bg-blue-100 text-blue-800',
+      scheduled: 'bg-yellow-100 text-yellow-800',
+      paid: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      overdue: 'bg-red-100 text-red-800'
+    };
+
+    const labels = {
+      completed: 'Concluído',
+      ongoing: 'Em andamento',
+      scheduled: 'Agendado',
+      paid: 'Pago',
+      pending: 'Pendente',
+      overdue: 'Vencido'
+    };
+
+    return (
+      <Badge className={`${variants[status as keyof typeof variants]} border-none`}>
+        {labels[status as keyof typeof labels]}
+      </Badge>
+    );
+  };
+
+  const renderStars = (rating: number, interactive = false, onChange?: (rating: number) => void) => {
+    return (
+      <div className="flex space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= rating
+                ? 'text-yellow-400 fill-current'
+                : 'text-gray-300'
+            } ${interactive ? 'cursor-pointer hover:text-yellow-300' : ''}`}
+            onClick={() => interactive && onChange && onChange(star)}
+          />
+        ))}
+      </div>
+    );
+  };
+
   if (!contact) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Contato</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Avatar Upload */}
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={avatar} />
-              <AvatarFallback className="text-lg">
-                {firstName[0]?.toUpperCase() || '?'}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <Label>Foto do Contato</Label>
-              <div className="mt-1">
-                <label htmlFor="avatar-upload" className="cursor-pointer">
-                  <Button variant="outline" size="sm" asChild>
-                    <span>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Alterar Foto
-                    </span>
-                  </Button>
-                  <input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                  />
-                </label>
+        <Tabs defaultValue="contato" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="contato">Contato</TabsTrigger>
+            <TabsTrigger value="prontuario">Prontuário</TabsTrigger>
+            <TabsTrigger value="tratamentos">Tratamentos</TabsTrigger>
+            <TabsTrigger value="pagamentos">Pagamentos</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="contato" className="space-y-4">
+            {/* Avatar Upload */}
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={avatar} />
+                <AvatarFallback className="text-lg">
+                  {firstName[0]?.toUpperCase() || '?'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <Label>Foto do Contato</Label>
+                <div className="mt-1">
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Button variant="outline" size="sm" asChild>
+                      <span>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Alterar Foto
+                      </span>
+                    </Button>
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Personal Info */}
-          <div className="grid grid-cols-2 gap-4">
+            {/* Personal Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">Nome *</Label>
+                <Input
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Nome"
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Sobrenome</Label>
+                <Input
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Sobrenome"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone">Telefone *</Label>
+                <Input
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+55 11 99999-9999"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@exemplo.com"
+                />
+              </div>
+            </div>
+
+            {/* Description */}
             <div>
-              <Label htmlFor="firstName">Nome *</Label>
-              <Input
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Nome"
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Informações adicionais sobre o contato"
+                rows={3}
               />
             </div>
-            <div>
-              <Label htmlFor="lastName">Sobrenome</Label>
-              <Input
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Sobrenome"
-              />
-            </div>
-          </div>
+          </TabsContent>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="phone">Telefone *</Label>
-              <Input
-                id="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+55 11 99999-9999"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@exemplo.com"
-              />
-            </div>
-          </div>
+          <TabsContent value="prontuario" className="space-y-4">
+            {/* Add new record */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Novo Registro Médico
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Médico</Label>
+                    <Input
+                      value={newRecord.doctor}
+                      onChange={(e) => setNewRecord(prev => ({ ...prev, doctor: e.target.value }))}
+                      placeholder="Nome do médico"
+                    />
+                  </div>
+                  <div>
+                    <Label>Diagnóstico</Label>
+                    <Input
+                      value={newRecord.diagnosis}
+                      onChange={(e) => setNewRecord(prev => ({ ...prev, diagnosis: e.target.value }))}
+                      placeholder="Diagnóstico ou tipo de consulta"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Prescrição</Label>
+                  <Input
+                    value={newRecord.prescription}
+                    onChange={(e) => setNewRecord(prev => ({ ...prev, prescription: e.target.value }))}
+                    placeholder="Medicamentos prescritos (opcional)"
+                  />
+                </div>
+                <div>
+                  <Label>Observações</Label>
+                  <Textarea
+                    value={newRecord.notes}
+                    onChange={(e) => setNewRecord(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Observações médicas"
+                    rows={3}
+                  />
+                </div>
+                <Button onClick={addMedicalRecord} disabled={!newRecord.doctor || !newRecord.diagnosis}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Registro
+                </Button>
+              </CardContent>
+            </Card>
 
-          {/* Description */}
-          <div>
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Informações adicionais sobre o contato"
-              rows={3}
-            />
-          </div>
+            {/* Medical records list */}
+            <ScrollArea className="h-64">
+              <div className="space-y-3">
+                {medicalRecords.map((record) => (
+                  <Card key={record.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-medium">{record.diagnosis}</h4>
+                          <p className="text-sm text-gray-500">
+                            <Calendar className="w-3 h-3 inline mr-1" />
+                            {record.date.toLocaleDateString('pt-BR')} - {record.doctor}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      {record.prescription && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Prescrição:</strong> {record.prescription}
+                        </p>
+                      )}
+                      {record.notes && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Observações:</strong> {record.notes}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
 
-          {/* Actions */}
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleSubmit}
-              disabled={!firstName || !phone}
-              className="bg-gradient-brand hover:opacity-90"
-            >
-              Salvar Alterações
-            </Button>
-          </div>
+          <TabsContent value="tratamentos" className="space-y-4">
+            {/* Add new treatment */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Novo Tratamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Serviço</Label>
+                    <Input
+                      value={newTreatment.service}
+                      onChange={(e) => setNewTreatment(prev => ({ ...prev, service: e.target.value }))}
+                      placeholder="Tipo de tratamento"
+                    />
+                  </div>
+                  <div>
+                    <Label>Profissional</Label>
+                    <Input
+                      value={newTreatment.professional}
+                      onChange={(e) => setNewTreatment(prev => ({ ...prev, professional: e.target.value }))}
+                      placeholder="Nome do profissional"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Notas</Label>
+                  <Textarea
+                    value={newTreatment.notes}
+                    onChange={(e) => setNewTreatment(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder="Observações sobre o tratamento"
+                    rows={2}
+                  />
+                </div>
+                <div>
+                  <Label>Evolução</Label>
+                  <Textarea
+                    value={newTreatment.evolution}
+                    onChange={(e) => setNewTreatment(prev => ({ ...prev, evolution: e.target.value }))}
+                    placeholder="Evolução do paciente"
+                    rows={2}
+                  />
+                </div>
+                <Button onClick={addTreatment} disabled={!newTreatment.service || !newTreatment.professional}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Tratamento
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Treatments list */}
+            <ScrollArea className="h-64">
+              <div className="space-y-3">
+                {treatments.map((treatment) => (
+                  <Card key={treatment.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-medium">{treatment.service}</h4>
+                          <p className="text-sm text-gray-500">
+                            <Calendar className="w-3 h-3 inline mr-1" />
+                            {treatment.date.toLocaleDateString('pt-BR')} - {treatment.professional}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {getStatusBadge(treatment.status)}
+                          <Button variant="ghost" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {treatment.notes && (
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Notas:</strong> {treatment.notes}
+                        </p>
+                      )}
+                      {treatment.evolution && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Evolução:</strong> {treatment.evolution}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="pagamentos" className="space-y-4">
+            {/* Add new payment */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Novo Pagamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Serviço</Label>
+                    <Input
+                      value={newPayment.service}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, service: e.target.value }))}
+                      placeholder="Serviço prestado"
+                    />
+                  </div>
+                  <div>
+                    <Label>Valor</Label>
+                    <Input
+                      type="number"
+                      value={newPayment.amount}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, amount: e.target.value }))}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Avaliação</Label>
+                  <div className="mt-1">
+                    {renderStars(newPayment.rating, true, (rating) => 
+                      setNewPayment(prev => ({ ...prev, rating }))
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <Label>Feedback</Label>
+                  <Textarea
+                    value={newPayment.feedback}
+                    onChange={(e) => setNewPayment(prev => ({ ...prev, feedback: e.target.value }))}
+                    placeholder="Feedback do paciente (opcional)"
+                    rows={2}
+                  />
+                </div>
+                <Button onClick={addPayment} disabled={!newPayment.service || !newPayment.amount}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Pagamento
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Payments list */}
+            <ScrollArea className="h-64">
+              <div className="space-y-3">
+                {payments.map((payment) => (
+                  <Card key={payment.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className="font-medium">{payment.service}</h4>
+                          <p className="text-sm text-gray-500">
+                            <Calendar className="w-3 h-3 inline mr-1" />
+                            {payment.date.toLocaleDateString('pt-BR')}
+                          </p>
+                          <p className="text-lg font-semibold text-green-600">
+                            R$ {payment.amount.toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {getStatusBadge(payment.status)}
+                          <Button variant="ghost" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {payment.rating && (
+                        <div className="mb-2">
+                          <p className="text-sm text-gray-600 mb-1">Avaliação:</p>
+                          {renderStars(payment.rating)}
+                        </div>
+                      )}
+                      {payment.feedback && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Feedback:</strong> {payment.feedback}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+
+        {/* Actions */}
+        <div className="flex justify-end space-x-2 pt-4">
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={!firstName || !phone}
+            className="bg-gradient-brand hover:opacity-90"
+          >
+            Salvar Alterações
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

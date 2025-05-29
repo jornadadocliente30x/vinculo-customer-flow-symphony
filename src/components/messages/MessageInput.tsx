@@ -1,15 +1,23 @@
 
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ScriptsModal } from './ScriptsModal';
 import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Smile, Paperclip, Mic, Send } from 'lucide-react';
+  Send, 
+  Paperclip, 
+  Image, 
+  FileText, 
+  Video, 
+  Mic, 
+  MicOff, 
+  Square,
+  Play,
+  Pause,
+  FileIcon,
+  X
+} from 'lucide-react';
 
 interface MessageInputProps {
   onSendMessage: (content: string, type: 'text' | 'audio') => void;
@@ -19,7 +27,17 @@ interface MessageInputProps {
 export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isScriptsModalOpen, setIsScriptsModalOpen] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout>();
 
   const handleSend = () => {
     if (message.trim()) {
@@ -35,120 +53,330 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
     }
   };
 
-  const handleFileSelect = (type: 'image' | 'video' | 'document') => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = type === 'image' ? 'image/*' : 
-                   type === 'video' ? 'video/*' : 
-                   '.pdf,.doc,.docx,.txt';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        onAttachFile(file, type);
-      }
-    };
-    input.click();
-  };
-
-  const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    if (!isRecording) {
-      // Simular gravação
-      setTimeout(() => {
-        setIsRecording(false);
-        onSendMessage('Mensagem de áudio gravada', 'audio');
-      }, 3000);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'document') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onAttachFile(file, type);
     }
   };
 
-  const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨'];
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        setAudioBlob(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      
+      // Start timer
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
+  };
+
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.pause();
+      setIsPaused(true);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+  };
+
+  const resumeRecording = () => {
+    if (mediaRecorderRef.current && isPaused) {
+      mediaRecorderRef.current.resume();
+      setIsPaused(false);
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsPaused(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+  };
+
+  const cancelRecording = () => {
+    stopRecording();
+    setRecordingTime(0);
+    setAudioBlob(null);
+  };
+
+  const sendAudio = () => {
+    if (audioBlob) {
+      // Create a File object from the blob
+      const audioFile = new File([audioBlob], 'audio-message.wav', { type: 'audio/wav' });
+      onAttachFile(audioFile, 'document'); // Treating audio as document for now
+      
+      // Reset recording state
+      setRecordingTime(0);
+      setAudioBlob(null);
+    }
+  };
+
+  const playAudio = () => {
+    if (audioBlob) {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleUseScript = (scriptContent: string) => {
+    setMessage(scriptContent);
+  };
+
+  if (isRecording || audioBlob) {
+    return (
+      <div className="border-t border-gray-200 p-4 bg-white">
+        <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-red-800">
+                {isRecording ? (isPaused ? 'Gravação pausada' : 'Gravando áudio...') : 'Áudio gravado'}
+              </p>
+              <p className="text-xs text-red-600">{formatTime(recordingTime)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            {isRecording && (
+              <>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={isPaused ? resumeRecording : pauseRecording}
+                    >
+                      {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{isPaused ? 'Continuar' : 'Pausar'}</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={stopRecording}
+                    >
+                      <Square className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Parar gravação</TooltipContent>
+                </Tooltip>
+              </>
+            )}
+
+            {audioBlob && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={playAudio}
+                  >
+                    <Play className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Ouvir gravação</TooltipContent>
+              </Tooltip>
+            )}
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={cancelRecording}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Cancelar</TooltipContent>
+            </Tooltip>
+
+            {audioBlob && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    onClick={sendAudio}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Enviar áudio</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="border-t border-gray-200 p-4 bg-white">
-      <div className="flex items-end space-x-2">
-        {/* Attachment Button */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-brand-600">
-              <Paperclip className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => handleFileSelect('image')}>
-              📷 Foto
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleFileSelect('video')}>
-              🎥 Vídeo
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleFileSelect('document')}>
-              📄 Documento
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-end space-x-3">
+        <div className="flex space-x-1">
+          {/* File attachments */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Anexar arquivo</TooltipContent>
+          </Tooltip>
 
-        {/* Message Input */}
-        <div className="flex-1 relative">
-          <Input
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <Image className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Enviar imagem</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => videoInputRef.current?.click()}
+              >
+                <Video className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Enviar vídeo</TooltipContent>
+          </Tooltip>
+
+          {/* Scripts Modal Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsScriptsModalOpen(true)}
+              >
+                <FileText className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Scripts de mensagem</TooltipContent>
+          </Tooltip>
+        </div>
+
+        <div className="flex-1">
+          <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Digite uma mensagem..."
-            className="pr-10 rounded-full border-gray-300 focus:border-brand-500"
+            placeholder="Digite sua mensagem..."
+            className="min-h-[44px] max-h-32 resize-none"
+            rows={1}
           />
-          
-          {/* Emoji Button */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-brand-600"
-              >
-                <Smile className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-2">
-              <div className="grid grid-cols-6 gap-1">
-                {emojis.map((emoji, index) => (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-lg hover:bg-brand-50"
-                    onClick={() => setMessage(prev => prev + emoji)}
-                  >
-                    {emoji}
-                  </Button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
         </div>
 
-        {/* Audio/Send Button */}
-        {message.trim() ? (
-          <Button 
+        <div className="flex space-x-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={startRecording}
+              >
+                <Mic className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Gravar áudio</TooltipContent>
+          </Tooltip>
+
+          <Button
             onClick={handleSend}
-            className="bg-gradient-brand hover:opacity-90 rounded-full h-10 w-10 p-0"
+            disabled={!message.trim()}
+            size="sm"
+            className="bg-gradient-brand hover:opacity-90"
           >
             <Send className="h-4 w-4" />
           </Button>
-        ) : (
-          <Button
-            onClick={toggleRecording}
-            variant={isRecording ? "destructive" : "ghost"}
-            className={`rounded-full h-10 w-10 p-0 ${isRecording ? '' : 'text-gray-500 hover:text-brand-600'}`}
-          >
-            <Mic className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-      
-      {isRecording && (
-        <div className="mt-2 flex items-center justify-center text-red-500 text-sm">
-          <div className="animate-pulse">● Gravando áudio...</div>
         </div>
-      )}
+      </div>
+
+      {/* Hidden file inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => handleFileSelect(e, 'document')}
+        accept=".pdf,.doc,.docx,.txt"
+      />
+      
+      <input
+        ref={imageInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => handleFileSelect(e, 'image')}
+        accept="image/*"
+      />
+      
+      <input
+        ref={videoInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => handleFileSelect(e, 'video')}
+        accept="video/*"
+      />
+
+      {/* Scripts Modal */}
+      <ScriptsModal
+        isOpen={isScriptsModalOpen}
+        onClose={() => setIsScriptsModalOpen(false)}
+        onUseScript={handleUseScript}
+      />
     </div>
   );
 }
