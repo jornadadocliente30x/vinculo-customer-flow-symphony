@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { KanbanLead, FunnelStage } from '@/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,21 +13,38 @@ interface KanbanColumnProps {
   stage: FunnelStage;
   leads: KanbanLead[];
   totalValue: number;
+  onOpenDetails?: (lead: KanbanLead) => void;
+  onMarkAsWon?: (leadId: string) => void;
+  onMarkAsLost?: (leadId: string) => void;
+  onDelete?: (leadId: string) => void;
 }
 
-export function KanbanColumn({ stage, leads, totalValue }: KanbanColumnProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const leadsPerPage = 20;
-  const startIndex = (currentPage - 1) * leadsPerPage;
-  const visibleLeads = leads.slice(0, startIndex + leadsPerPage);
-  const hasMore = leads.length > visibleLeads.length;
+export function KanbanColumn({ 
+  stage, 
+  leads, 
+  totalValue, 
+  onOpenDetails, 
+  onMarkAsWon, 
+  onMarkAsLost, 
+  onDelete 
+}: KanbanColumnProps) {
+  const [visibleCount, setVisibleCount] = useState(20);
+  const visibleLeads = leads.slice(0, visibleCount);
+  const hasMore = leads.length > visibleCount;
 
   const { setNodeRef } = useDroppable({
     id: stage.id,
   });
 
+  // Reset visible count when leads change significantly
+  useEffect(() => {
+    if (leads.length < visibleCount) {
+      setVisibleCount(20);
+    }
+  }, [leads.length]);
+
   const handleLoadMore = () => {
-    setCurrentPage(prev => prev + 1);
+    setVisibleCount(prev => Math.min(prev + 20, leads.length));
   };
 
   return (
@@ -35,10 +52,12 @@ export function KanbanColumn({ stage, leads, totalValue }: KanbanColumnProps) {
       <Card className="h-full bg-gray-50/50 border border-gray-200 rounded-xl">
         <CardHeader className="pb-3">
           <div className={`bg-gradient-to-r ${stage.color} p-4 rounded-lg text-white mb-2`}>
-            <h3 className="font-semibold text-lg">{stage.name}</h3>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-sm opacity-90">{leads.length} contatos</span>
-              <span className="font-bold">{formatBRLCurrency(totalValue)}</span>
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold text-lg">{stage.name}</h3>
+              <div className="text-right">
+                <div className="text-sm opacity-90">{leads.length} contatos</div>
+                <div className="font-bold text-lg">{formatBRLCurrency(totalValue)}</div>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -50,7 +69,14 @@ export function KanbanColumn({ stage, leads, totalValue }: KanbanColumnProps) {
           >
             <SortableContext items={visibleLeads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
               {visibleLeads.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} />
+                <LeadCard 
+                  key={lead.id} 
+                  lead={lead} 
+                  onOpenDetails={onOpenDetails}
+                  onMarkAsWon={onMarkAsWon}
+                  onMarkAsLost={onMarkAsLost}
+                  onDelete={onDelete}
+                />
               ))}
             </SortableContext>
             
@@ -62,7 +88,7 @@ export function KanbanColumn({ stage, leads, totalValue }: KanbanColumnProps) {
                   className="w-full text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Carregar mais ({leads.length - visibleLeads.length} restantes)
+                  Carregar mais ({leads.length - visibleCount} restantes)
                 </Button>
               </div>
             )}
