@@ -14,7 +14,7 @@ import {
   Phone, 
   VideoIcon, 
   Search, 
-  Transfer, 
+  ArrowRightLeft, 
   UserPlus,
   CheckCircle,
   XCircle 
@@ -130,7 +130,7 @@ export function ChatArea({
               size="sm"
               onClick={() => setIsTransferModalOpen(true)}
             >
-              <Transfer className="h-5 w-5" />
+              <ArrowRightLeft className="h-5 w-5" />
             </Button>
             
             {/* Finish/Start Button */}
