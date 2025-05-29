@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToothSelector } from './ToothSelector';
 import { Upload, Plus, Edit, Trash2, Calendar, Star, FileText, Save, X } from 'lucide-react';
 import { Contact } from '@/types/messages';
@@ -196,6 +196,11 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
     setTreatments(prev => prev.filter(t => t.id !== id));
   };
 
+  const saveTreatmentEdit = (id: string, updatedTreatment: Partial<Treatment>) => {
+    setTreatments(prev => prev.map(t => t.id === id ? { ...t, ...updatedTreatment } : t));
+    setEditingTreatment(null);
+  };
+
   // Payment functions
   const addPayment = () => {
     if (!newPayment.service || !newPayment.amount) return;
@@ -216,6 +221,11 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
 
   const deletePayment = (id: string) => {
     setPayments(prev => prev.filter(p => p.id !== id));
+  };
+
+  const savePaymentEdit = (id: string, updatedPayment: Partial<Payment>) => {
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, ...updatedPayment } : p));
+    setEditingPayment(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -540,46 +550,60 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
               </CardContent>
             </Card>
 
-            {/* Treatments list */}
+            {/* Treatments list with inline editing */}
             <ScrollArea className="h-64">
               <div className="space-y-3">
                 {treatments.map((treatment) => (
                   <Card key={treatment.id}>
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-medium">{treatment.service}</h4>
-                          <p className="text-sm text-gray-500">
-                            <Calendar className="w-3 h-3 inline mr-1" />
-                            {treatment.date.toLocaleDateString('pt-BR')} - {treatment.professional}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {getStatusBadge(treatment.status)}
-                          <div className="flex space-x-1">
-                            <Button variant="ghost" size="sm">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => deleteTreatment(treatment.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                      {editingTreatment === treatment.id ? (
+                        <EditTreatmentForm
+                          treatment={treatment}
+                          onSave={(updatedTreatment) => saveTreatmentEdit(treatment.id, updatedTreatment)}
+                          onCancel={() => setEditingTreatment(null)}
+                        />
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-medium">{treatment.service}</h4>
+                              <p className="text-sm text-gray-500">
+                                <Calendar className="w-3 h-3 inline mr-1" />
+                                {treatment.date.toLocaleDateString('pt-BR')} - {treatment.professional}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              {getStatusBadge(treatment.status)}
+                              <div className="flex space-x-1">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => setEditingTreatment(treatment.id)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => deleteTreatment(treatment.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                      {treatment.notes && (
-                        <p className="text-sm text-gray-600 mb-1">
-                          <strong>Notas:</strong> {treatment.notes}
-                        </p>
-                      )}
-                      {treatment.evolution && (
-                        <p className="text-sm text-gray-600">
-                          <strong>Evolução:</strong> {treatment.evolution}
-                        </p>
+                          {treatment.notes && (
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>Notas:</strong> {treatment.notes}
+                            </p>
+                          )}
+                          {treatment.evolution && (
+                            <p className="text-sm text-gray-600">
+                              <strong>Evolução:</strong> {treatment.evolution}
+                            </p>
+                          )}
+                        </>
                       )}
                     </CardContent>
                   </Card>
@@ -641,50 +665,64 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
               </CardContent>
             </Card>
 
-            {/* Payments list */}
+            {/* Payments list with inline editing */}
             <ScrollArea className="h-64">
               <div className="space-y-3">
                 {payments.map((payment) => (
                   <Card key={payment.id}>
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-medium">{payment.service}</h4>
-                          <p className="text-sm text-gray-500">
-                            <Calendar className="w-3 h-3 inline mr-1" />
-                            {payment.date.toLocaleDateString('pt-BR')}
-                          </p>
-                          <p className="text-lg font-semibold text-green-600">
-                            R$ {payment.amount.toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {getStatusBadge(payment.status)}
-                          <div className="flex space-x-1">
-                            <Button variant="ghost" size="sm">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => deletePayment(payment.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                      {editingPayment === payment.id ? (
+                        <EditPaymentForm
+                          payment={payment}
+                          onSave={(updatedPayment) => savePaymentEdit(payment.id, updatedPayment)}
+                          onCancel={() => setEditingPayment(null)}
+                        />
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-medium">{payment.service}</h4>
+                              <p className="text-sm text-gray-500">
+                                <Calendar className="w-3 h-3 inline mr-1" />
+                                {payment.date.toLocaleDateString('pt-BR')}
+                              </p>
+                              <p className="text-lg font-semibold text-green-600">
+                                R$ {payment.amount.toFixed(2)}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              {getStatusBadge(payment.status)}
+                              <div className="flex space-x-1">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => setEditingPayment(payment.id)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => deletePayment(payment.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                      {payment.rating && (
-                        <div className="mb-2">
-                          <p className="text-sm text-gray-600 mb-1">Avaliação:</p>
-                          {renderStars(payment.rating)}
-                        </div>
-                      )}
-                      {payment.feedback && (
-                        <p className="text-sm text-gray-600">
-                          <strong>Feedback:</strong> {payment.feedback}
-                        </p>
+                          {payment.rating && (
+                            <div className="mb-2">
+                              <p className="text-sm text-gray-600 mb-1">Avaliação:</p>
+                              {renderStars(payment.rating)}
+                            </div>
+                          )}
+                          {payment.feedback && (
+                            <p className="text-sm text-gray-600">
+                              <strong>Feedback:</strong> {payment.feedback}
+                            </p>
+                          )}
+                        </>
                       )}
                     </CardContent>
                   </Card>
@@ -754,6 +792,171 @@ function EditRecordForm({
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Observações"
+        rows={2}
+      />
+      <div className="flex space-x-2">
+        <Button size="sm" onClick={handleSave}>
+          <Save className="w-3 h-3 mr-1" />
+          Salvar
+        </Button>
+        <Button variant="outline" size="sm" onClick={onCancel}>
+          <X className="w-3 h-3 mr-1" />
+          Cancelar
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Helper component for editing treatments
+function EditTreatmentForm({ 
+  treatment, 
+  onSave, 
+  onCancel 
+}: { 
+  treatment: Treatment; 
+  onSave: (treatment: Partial<Treatment>) => void; 
+  onCancel: () => void; 
+}) {
+  const [service, setService] = useState(treatment.service);
+  const [professional, setProfessional] = useState(treatment.professional);
+  const [status, setStatus] = useState(treatment.status);
+  const [notes, setNotes] = useState(treatment.notes || '');
+  const [evolution, setEvolution] = useState(treatment.evolution || '');
+
+  const handleSave = () => {
+    onSave({ service, professional, status, notes, evolution });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <Input
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          placeholder="Serviço"
+        />
+        <Input
+          value={professional}
+          onChange={(e) => setProfessional(e.target.value)}
+          placeholder="Profissional"
+        />
+      </div>
+      <Select value={status} onValueChange={(value) => setStatus(value as Treatment['status'])}>
+        <SelectTrigger>
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="scheduled">Agendado</SelectItem>
+          <SelectItem value="ongoing">Em andamento</SelectItem>
+          <SelectItem value="completed">Concluído</SelectItem>
+        </SelectContent>
+      </Select>
+      <Textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Notas"
+        rows={2}
+      />
+      <Textarea
+        value={evolution}
+        onChange={(e) => setEvolution(e.target.value)}
+        placeholder="Evolução"
+        rows={2}
+      />
+      <div className="flex space-x-2">
+        <Button size="sm" onClick={handleSave}>
+          <Save className="w-3 h-3 mr-1" />
+          Salvar
+        </Button>
+        <Button variant="outline" size="sm" onClick={onCancel}>
+          <X className="w-3 h-3 mr-1" />
+          Cancelar
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Helper component for editing payments
+function EditPaymentForm({ 
+  payment, 
+  onSave, 
+  onCancel 
+}: { 
+  payment: Payment; 
+  onSave: (payment: Partial<Payment>) => void; 
+  onCancel: () => void; 
+}) {
+  const [service, setService] = useState(payment.service);
+  const [amount, setAmount] = useState(payment.amount.toString());
+  const [status, setStatus] = useState(payment.status);
+  const [rating, setRating] = useState(payment.rating || 0);
+  const [feedback, setFeedback] = useState(payment.feedback || '');
+
+  const handleSave = () => {
+    onSave({ 
+      service, 
+      amount: parseFloat(amount), 
+      status, 
+      rating: rating || undefined,
+      feedback: feedback || undefined
+    });
+  };
+
+  const renderStars = (currentRating: number, interactive = false, onChange?: (rating: number) => void) => {
+    return (
+      <div className="flex space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= currentRating
+                ? 'text-yellow-400 fill-current'
+                : 'text-gray-300'
+            } ${interactive ? 'cursor-pointer hover:text-yellow-300' : ''}`}
+            onClick={() => interactive && onChange && onChange(star)}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <Input
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          placeholder="Serviço"
+        />
+        <Input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Valor"
+        />
+      </div>
+      <Select value={status} onValueChange={(value) => setStatus(value as Payment['status'])}>
+        <SelectTrigger>
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="pending">Pendente</SelectItem>
+          <SelectItem value="paid">Pago</SelectItem>
+          <SelectItem value="overdue">Vencido</SelectItem>
+        </SelectContent>
+      </Select>
+      <div>
+        <Label className="text-sm">Avaliação</Label>
+        <div className="mt-1">
+          {renderStars(rating, true, setRating)}
+        </div>
+      </div>
+      <Textarea
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        placeholder="Feedback"
         rows={2}
       />
       <div className="flex space-x-2">
