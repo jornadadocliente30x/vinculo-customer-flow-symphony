@@ -1,12 +1,14 @@
 
 import { cn } from "@/lib/utils";
+import { CSSProperties } from "react";
 
 interface SkeletonLoaderProps {
   className?: string;
   children?: React.ReactNode;
+  style?: CSSProperties;
 }
 
-export function SkeletonLoader({ className, children }: SkeletonLoaderProps) {
+export function SkeletonLoader({ className, children, style }: SkeletonLoaderProps) {
   return (
     <div 
       className={cn(
@@ -14,6 +16,7 @@ export function SkeletonLoader({ className, children }: SkeletonLoaderProps) {
         "animate-shimmer",
         className
       )}
+      style={style}
     >
       {children}
     </div>
