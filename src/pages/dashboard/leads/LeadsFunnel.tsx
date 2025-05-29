@@ -5,12 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { KanbanBoard } from '@/components/leads/KanbanBoard';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
-import { Plus, Search, Filter, Users } from 'lucide-react';
+import { Search, Filter, Users, List, Kanban } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function LeadsFunnel() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterResponsible, setFilterResponsible] = useState('all');
   const [filterValue, setFilterValue] = useState('all');
+
+  const handleViewModeChange = (mode: 'list' | 'kanban') => {
+    if (mode === 'list') {
+      navigate('/dashboard/leads');
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -25,10 +33,25 @@ export default function LeadsFunnel() {
               Gerencie seus leads através do funil de vendas com drag & drop
             </p>
           </div>
-          <Button className="mt-4 lg:mt-0 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Contato
-          </Button>
+          
+          <div className="flex border rounded-lg mt-4 lg:mt-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleViewModeChange('list')}
+              className="rounded-r-none"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => handleViewModeChange('kanban')}
+              className="rounded-l-none"
+            >
+              <Kanban className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Filters and Search */}
@@ -39,7 +62,7 @@ export default function LeadsFunnel() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Buscar por nome do contato..."
+                  placeholder="Buscar por nome, email ou telefone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -80,8 +103,12 @@ export default function LeadsFunnel() {
         </div>
 
         {/* Kanban Board */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-soft">
-          <KanbanBoard />
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-soft">
+          <KanbanBoard 
+            searchTerm={searchTerm}
+            filterResponsible={filterResponsible}
+            filterValue={filterValue}
+          />
         </div>
       </div>
     </DashboardLayout>
