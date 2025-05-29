@@ -37,7 +37,7 @@ export function TagsModal({ isOpen, onClose, conversationId, currentTags, onUpda
     if (!newTagName.trim()) return;
 
     const newTag: Tag = {
-      id: Date.now().toString(),
+      id: `tag_${Date.now()}`,
       name: newTagName,
       color: selectedColor,
     };
