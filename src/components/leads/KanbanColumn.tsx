@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { KanbanLead, FunnelStage } from '@/types';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LeadCard } from './LeadCard';
 import { formatBRLCurrency } from '@/utils/formatting';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Plus } from 'lucide-react';
+import { Plus, DollarSign } from 'lucide-react';
 
 interface KanbanColumnProps {
   stage: FunnelStage;
@@ -29,6 +30,7 @@ export function KanbanColumn({
   onDelete 
 }: KanbanColumnProps) {
   const [visibleCount, setVisibleCount] = useState(20);
+  const [paginationSize, setPaginationSize] = useState(20);
   const visibleLeads = leads.slice(0, visibleCount);
   const hasMore = leads.length > visibleCount;
 
@@ -39,33 +41,47 @@ export function KanbanColumn({
   // Reset visible count when leads change significantly
   useEffect(() => {
     if (leads.length < visibleCount) {
-      setVisibleCount(20);
+      setVisibleCount(paginationSize);
     }
-  }, [leads.length]);
+  }, [leads.length, paginationSize]);
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 20, leads.length));
+    setVisibleCount(prev => Math.min(prev + paginationSize, leads.length));
+  };
+
+  const handlePaginationChange = (size: string) => {
+    const newSize = parseInt(size);
+    setPaginationSize(newSize);
+    setVisibleCount(newSize);
   };
 
   return (
     <div className="flex-shrink-0 w-80">
       <Card className="h-full bg-gray-50/50 border border-gray-200 rounded-xl">
-        <CardHeader className="pb-3">
-          <div className={`bg-gradient-to-r ${stage.color} p-4 rounded-lg text-white mb-2`}>
+        {/* Novo Header Compacto com Gradiente */}
+        <div className={`bg-gradient-to-r ${stage.color} px-4 py-3 rounded-t-xl text-white`}>
+          <div className="space-y-2">
+            <h3 className="font-bold text-lg">{stage.name}</h3>
+            
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-lg">{stage.name}</h3>
-              <div className="text-right">
-                <div className="text-sm opacity-90">{leads.length} contatos</div>
-                <div className="font-bold text-lg">{formatBRLCurrency(totalValue)}</div>
+              <div className="flex items-center space-x-1">
+                <div className="bg-white/20 rounded-full px-2 py-1">
+                  <span className="font-semibold text-sm">{leads.length}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <DollarSign className="h-4 w-4 opacity-90" />
+                <span className="font-bold text-sm">{formatBRLCurrency(totalValue)}</span>
               </div>
             </div>
           </div>
-        </CardHeader>
+        </div>
         
-        <CardContent className="pt-0 px-4">
+        <CardContent className="pt-4 px-3">
           <div
             ref={setNodeRef}
-            className="min-h-[500px] max-h-[600px] overflow-y-auto pr-2"
+            className="min-h-[500px] max-h-[600px] overflow-y-auto pr-1"
           >
             <SortableContext items={visibleLeads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
               {visibleLeads.map((lead) => (
@@ -92,6 +108,25 @@ export function KanbanColumn({
                 </Button>
               </div>
             )}
+          </div>
+          
+          {/* Pagination Controls in Footer */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Exibir por página:</span>
+              <Select value={paginationSize.toString()} onValueChange={handlePaginationChange}>
+                <SelectTrigger className="w-20 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="40">40</SelectItem>
+                  <SelectItem value="60">60</SelectItem>
+                  <SelectItem value="80">80</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>

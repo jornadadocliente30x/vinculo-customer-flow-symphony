@@ -8,15 +8,39 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/
 import { LeadCard } from './LeadCard';
 import { useToast } from '@/hooks/use-toast';
 
-export function KanbanBoard() {
+interface KanbanBoardProps {
+  searchTerm: string;
+  filterResponsible: string;
+  filterValue: string;
+}
+
+export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: KanbanBoardProps) {
   const [leads, setLeads] = useState<KanbanLead[]>(mockLeads);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<KanbanLead | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { toast } = useToast();
 
+  // Filter leads based on search and filters
+  const filteredLeads = leads.filter(lead => {
+    const matchesSearch = !searchTerm || 
+      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.phone.includes(searchTerm);
+
+    const matchesResponsible = filterResponsible === 'all' || 
+      lead.responsible.name.toLowerCase().includes(filterResponsible);
+
+    const matchesValue = filterValue === 'all' || 
+      (filterValue === 'low' && lead.value <= 10000) ||
+      (filterValue === 'medium' && lead.value > 10000 && lead.value <= 25000) ||
+      (filterValue === 'high' && lead.value > 25000);
+
+    return matchesSearch && matchesResponsible && matchesValue;
+  });
+
   const getLeadsByStage = (stageId: string) => {
-    return leads.filter(lead => lead.stage.id === stageId);
+    return filteredLeads.filter(lead => lead.stage.id === stageId);
   };
 
   const getTotalValueByStage = (stageId: string) => {
@@ -38,8 +62,9 @@ export function KanbanBoard() {
     const leadId = active.id as string;
     const newStageId = over.id as string;
     const newStage = funnelStages.find(stage => stage.id === newStageId);
+    const oldLead = leads.find(lead => lead.id === leadId);
     
-    if (!newStage) {
+    if (!newStage || !oldLead) {
       setActiveId(null);
       return;
     }
@@ -60,13 +85,12 @@ export function KanbanBoard() {
           : lead
       );
       
-      const lead = prevLeads.find(l => l.id === leadId);
-      if (lead) {
-        toast({
-          title: "Lead movido com sucesso!",
-          description: `${lead.name} foi movido para ${newStage.name}`,
-        });
-      }
+      // Enhanced notification with more details
+      toast({
+        title: "Lead movido com sucesso! 🎉",
+        description: `${oldLead.name} foi movido de "${oldLead.stage.name}" para "${newStage.name}"`,
+        duration: 4000,
+      });
       
       return updatedLeads;
     });
@@ -124,7 +148,7 @@ export function KanbanBoard() {
     const lead = leads.find(l => l.id === leadId);
     if (lead) {
       toast({
-        title: "Lead marcado como ganho!",
+        title: "Lead marcado como ganho! 🎉",
         description: `${lead.name} foi movido para Fechados.`,
       });
     }
@@ -158,7 +182,7 @@ export function KanbanBoard() {
   return (
     <>
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex space-x-6 overflow-x-auto pb-6 min-h-[700px]">
+        <div className="flex space-x-4 overflow-x-auto pb-6 min-h-[700px] px-2">
           {funnelStages.map((stage) => (
             <KanbanColumn
               key={stage.id}
