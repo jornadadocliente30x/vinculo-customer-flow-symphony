@@ -10,13 +10,13 @@ export function HeroSection() {
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Transforme{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Leads em Clientes
+              Leads em Pacientes
             </span>{" "}
             com Automação Inteligente
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            A plataforma completa de gestão da jornada do cliente para PMEs. 
+            A plataforma completa de gestão da jornada do pacientes para Odontologias. 
             Automatize WhatsApp, gerencie leads e aumente suas vendas em até 300%.
           </p>
 

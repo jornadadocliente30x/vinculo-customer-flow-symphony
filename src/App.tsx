@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -22,6 +21,11 @@ import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
 import WhatsAppChat from "./pages/dashboard/messages/WhatsAppChat";
 import AgentsPage from "./pages/dashboard/agents/AgentsPage";
 import ConnectPage from "./pages/dashboard/connect/ConnectPage";
+
+// Admin page
+import Admin from "./pages/admin/Admin";
+import UsuariosCadastros from './pages/admin/UsuariosCadastros';
+import UsuariosTipos from './pages/admin/UsuariosTipos';
 
 const queryClient = new QueryClient();
 
@@ -80,6 +84,25 @@ const App = () => (
         <Route path="/dashboard/messages/whatsapp" element={
           <ProtectedRoute>
             <WhatsAppChat />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin route */}
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin Usuários rotas aninhadas */}
+        <Route path="/admin/usuarios/cadastros" element={
+          <ProtectedRoute>
+            <UsuariosCadastros />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/usuarios/tipos" element={
+          <ProtectedRoute>
+            <UsuariosTipos />
           </ProtectedRoute>
         } />
 

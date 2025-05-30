@@ -13,6 +13,10 @@ import {
   Target, 
   TrendingUp
 } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import UsuariosCadastros from './UsuariosCadastros';
+import UsuariosTipos from './UsuariosTipos';
 
 const stats = [
   {
@@ -57,17 +61,17 @@ const stats = [
   }
 ];
 
-export default function Dashboard() {
+export default function Admin() {
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
         {/* Header */}
         <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl p-6 border border-gray-100 shadow-soft">
           <h1 className="text-4xl font-bold bg-gradient-brand bg-clip-text text-transparent">
-            Dashboard
+            Administração
           </h1>
           <p className="text-gray-600 mt-2 text-lg">
-            Visão geral das suas vendas e automações
+            Gerencie configurações, usuários e integrações da plataforma Vinculo.
           </p>
         </div>
 
@@ -156,7 +160,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-soft p-6">
           <h2 className="text-2xl font-semibold mb-6 flex items-center bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
             <div className="w-2 h-6 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full mr-3" />
-            Jornada do Paciente
+            Campanhas Recentes
           </h2>
           <RecentCampaigns />
         </div>

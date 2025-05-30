@@ -1,4 +1,3 @@
-
 export type AgentType = 'Atendimento' | 'Agendamento' | 'Suporte';
 
 export type AgentStatus = 'Ativo' | 'Inativo';
@@ -12,8 +11,11 @@ export interface Schedule {
 export interface PatientJourneyStep {
   id: string;
   title: string;
+  subject?: string;
   description: string;
   files?: File[];
+  delayValue?: string;
+  delayUnit?: 'minutos' | 'horas' | 'dias';
 }
 
 export interface Agent {

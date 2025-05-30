@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -43,11 +42,11 @@ const daysOfWeek = [
 ];
 
 const defaultJourneySteps: PatientJourneyStep[] = [
-  { id: 'step1', title: 'Assimilação', description: '', files: [] },
-  { id: 'step2', title: 'Utilização', description: '', files: [] },
-  { id: 'step3', title: 'Adoção', description: '', files: [] },
-  { id: 'step4', title: 'Expansão', description: '', files: [] },
-  { id: 'step5', title: 'Evangelismo', description: '', files: [] },
+  { id: 'step1', title: 'Assimilação', subject: '', description: '', files: [], delayValue: '', delayUnit: 'minutos' },
+  { id: 'step2', title: 'Utilização', subject: '', description: '', files: [], delayValue: '', delayUnit: 'minutos' },
+  { id: 'step3', title: 'Adoção', subject: '', description: '', files: [], delayValue: '', delayUnit: 'minutos' },
+  { id: 'step4', title: 'Expansão', subject: '', description: '', files: [], delayValue: '', delayUnit: 'minutos' },
+  { id: 'step5', title: 'Evangelismo', subject: '', description: '', files: [], delayValue: '', delayUnit: 'minutos' },
 ];
 
 export function AgentModal({ isOpen, onClose, onSave, agent }: AgentModalProps) {
@@ -97,7 +96,7 @@ export function AgentModal({ isOpen, onClose, onSave, agent }: AgentModalProps) 
     }));
   };
 
-  const handleJourneyStepChange = (stepId: string, field: 'description', value: string) => {
+  const handleJourneyStepChange = (stepId: string, field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       patientJourney: prev.patientJourney.map(step =>
@@ -349,12 +348,50 @@ export function AgentModal({ isOpen, onClose, onSave, agent }: AgentModalProps) 
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor={`subject-${step.id}`}>Assunto</Label>
+                      <Input
+                        id={`subject-${step.id}`}
+                        value={step.subject || ''}
+                        onChange={e => handleJourneyStepChange(step.id, 'subject', e.target.value)}
+                        placeholder="Digite o assunto desta etapa"
+                      />
+                    </div>
                     <Textarea
                       value={step.description}
                       onChange={(e) => handleJourneyStepChange(step.id, 'description', e.target.value)}
                       placeholder={`Descreva a mensagem para a etapa ${step.title}...`}
                       rows={3}
                     />
+                    <div className="flex gap-2 items-end">
+                      <div className="w-32">
+                        <Label htmlFor={`delayValue-${step.id}`}>Tempo de espera</Label>
+                        <Input
+                          id={`delayValue-${step.id}`}
+                          type="number"
+                          min={0}
+                          value={step.delayValue || ''}
+                          onChange={e => handleJourneyStepChange(step.id, 'delayValue', e.target.value)}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="w-32">
+                        <Label htmlFor={`delayUnit-${step.id}`}>Unidade</Label>
+                        <Select
+                          value={step.delayUnit || 'minutos'}
+                          onValueChange={value => handleJourneyStepChange(step.id, 'delayUnit', value)}
+                        >
+                          <SelectTrigger id={`delayUnit-${step.id}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="minutos">Minutos</SelectItem>
+                            <SelectItem value="horas">Horas</SelectItem>
+                            <SelectItem value="dias">Dias</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
                     <div className="space-y-2">
                       <Label>Upload de Arquivos para esta Etapa</Label>

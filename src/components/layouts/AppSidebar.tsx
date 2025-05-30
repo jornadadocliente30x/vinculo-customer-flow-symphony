@@ -1,12 +1,16 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users,
   Bot,
   MessageSquare,
-  Smartphone
+  Smartphone,
+  UserCog,
+  User,
+  ChevronDown,
+  UserPlus
 } from 'lucide-react';
+import { useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +29,7 @@ interface MenuItem {
   title: string;
   href: string;
   icon: React.ElementType;
+  children?: MenuItem[];
 }
 
 const menuItems: MenuItem[] = [
@@ -52,13 +57,37 @@ const menuItems: MenuItem[] = [
     title: 'Conversas',
     href: '/dashboard/messages/whatsapp',
     icon: MessageSquare
-  }
+  },
+  {
+    title: 'Administração',
+    href: '/admin',
+    icon: UserCog
+  },
+  {
+    title: 'Usuários',
+    href: '/admin/usuarios',
+    icon: User,
+    children: [
+      {
+        title: 'Cadastros',
+        href: '/admin/usuarios/cadastros',
+        icon: UserPlus
+      },
+      {
+        title: 'Tipos de Usuários',
+        href: '/admin/usuarios/tipos',
+        icon: UserCog
+      }
+    ]
+  },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
+  const [usersOpen, setUsersOpen] = useState(location.pathname.startsWith('/admin/usuarios'));
 
   const isActive = (href: string) => location.pathname === href;
+  const isUsersMenu = location.pathname.startsWith('/admin/usuarios');
 
   return (
     <Sidebar className="border-r border-gray-100">
@@ -77,7 +106,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 p-4">
-              {menuItems.map((item) => (
+              {menuItems.filter(item => !item.children).map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton 
                     asChild
@@ -102,6 +131,54 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={isUsersMenu}
+                  onClick={() => setUsersOpen(o => !o)}
+                  className={cn(
+                    "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden flex items-center justify-between",
+                    isUsersMenu ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                  )}
+                >
+                  <div className="flex items-center">
+                    <User className="w-5 h-5 mr-3" />
+                    <span className="font-medium">Usuários</span>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", usersOpen ? "rotate-180" : "")}/>
+                </SidebarMenuButton>
+                {usersOpen && (
+                  <div className="ml-8 mt-1 space-y-1">
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={location.pathname === '/admin/usuarios/cadastros'}
+                        className={cn(
+                          "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
+                          location.pathname === '/admin/usuarios/cadastros' ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                        )}
+                      >
+                        <Link to="/admin/usuarios/cadastros" className="flex items-center w-full">
+                          <UserPlus className="w-4 h-4 mr-2" /> Cadastros
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={location.pathname === '/admin/usuarios/tipos'}
+                        className={cn(
+                          "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
+                          location.pathname === '/admin/usuarios/tipos' ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                        )}
+                      >
+                        <Link to="/admin/usuarios/tipos" className="flex items-center w-full">
+                          <UserCog className="w-4 h-4 mr-2" /> Tipos de Usuários
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </div>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
