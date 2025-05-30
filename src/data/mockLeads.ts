@@ -1,12 +1,14 @@
 import { KanbanLead, FunnelStage, Service } from '@/types';
 
 export const funnelStages: FunnelStage[] = [
-  { id: 'transferred', name: 'Contatos Transferidos', color: 'from-gray-500 to-gray-600', order: 1 },
-  { id: 'awareness', name: 'Contato Consciência', color: 'from-blue-500 to-blue-600', order: 2 },
-  { id: 'contact2', name: 'Contato Feito 2', color: 'from-purple-500 to-purple-600', order: 3 },
-  { id: 'opportunity', name: 'Oportunidade', color: 'from-amber-500 to-orange-500', order: 4 },
-  { id: 'closed', name: 'Fechados', color: 'from-emerald-500 to-green-600', order: 5 },
-  { id: 'lost', name: 'Perdas', color: 'from-red-500 to-red-600', order: 6 },
+  { id: 'atendimento', name: 'Atendimento', color: 'from-purple-400 to-blue-500', order: 1 },
+  { id: 'agendamentos', name: 'Agendamentos', color: 'from-purple-400 to-blue-500', order: 2 },
+  { id: 'assimilacao', name: 'Assimilação', color: 'from-purple-400 to-blue-500', order: 3 },
+  { id: 'utilizacao', name: 'Utilização', color: 'from-purple-400 to-blue-500', order: 4 },
+  { id: 'adocao', name: 'Adoção', color: 'from-purple-400 to-blue-500', order: 5 },
+  { id: 'expansao', name: 'Expansão', color: 'from-purple-400 to-blue-500', order: 6 },
+  { id: 'evangelismo', name: 'Evangelismo', color: 'from-purple-400 to-blue-500', order: 7 },
+  { id: 'perdidos', name: 'Perdidos', color: 'from-red-400 to-red-600', order: 8 },
 ];
 
 export const mockServices: Service[] = [
@@ -18,7 +20,7 @@ export const mockServices: Service[] = [
 ];
 
 export const mockLeads: KanbanLead[] = [
-  // Contatos Transferidos
+  // Atendimento
   {
     id: '1',
     name: 'Maria Silva',
@@ -89,7 +91,7 @@ export const mockLeads: KanbanLead[] = [
     source: 'whatsapp',
   },
 
-  // Contato Consciência - adding more leads to test pagination
+  // Agendamentos
   {
     id: '6',
     name: 'Eduardo Costa',
@@ -132,6 +134,8 @@ export const mockLeads: KanbanLead[] = [
     createdAt: new Date('2024-01-08'),
     source: 'referral',
   },
+
+  // Assimilação
   {
     id: '9',
     name: 'Camila Souza',
@@ -142,7 +146,7 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
     services: [mockServices[2]],
     responsible: { name: 'Fernando Cruz', avatar: 'FC' },
-    stage: funnelStages[1],
+    stage: funnelStages[2],
     createdAt: new Date('2024-01-07'),
     source: 'whatsapp',
   },
@@ -156,12 +160,12 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[0]],
     responsible: { name: 'Sofia Ribeiro', avatar: 'SR' },
-    stage: funnelStages[1],
+    stage: funnelStages[2],
     createdAt: new Date('2024-01-06'),
     source: 'linkedin',
   },
 
-  // Contato Feito 2
+  // Utilização
   {
     id: '11',
     name: 'Lucas Pereira',
@@ -172,7 +176,7 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[1]],
     responsible: { name: 'Amanda Torres', avatar: 'AT' },
-    stage: funnelStages[2],
+    stage: funnelStages[3],
     createdAt: new Date('2024-01-05'),
     source: 'website',
   },
@@ -186,10 +190,12 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[0]],
     responsible: { name: 'Diego Fernandes', avatar: 'DF' },
-    stage: funnelStages[2],
+    stage: funnelStages[3],
     createdAt: new Date('2024-01-04'),
     source: 'whatsapp',
   },
+
+  // Adoção
   {
     id: '13',
     name: 'Rafael Barbosa',
@@ -200,7 +206,7 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[2]],
     responsible: { name: 'Carla Moreira', avatar: 'CM' },
-    stage: funnelStages[2],
+    stage: funnelStages[4],
     createdAt: new Date('2024-01-03'),
     source: 'facebook',
   },
@@ -214,10 +220,12 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[3]],
     responsible: { name: 'Bruno Silva', avatar: 'BS' },
-    stage: funnelStages[2],
+    stage: funnelStages[4],
     createdAt: new Date('2024-01-02'),
     source: 'linkedin',
   },
+
+  // Expansão
   {
     id: '15',
     name: 'Thiago Nascimento',
@@ -228,12 +236,10 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[0]],
     responsible: { name: 'Juliana Rocha', avatar: 'JR' },
-    stage: funnelStages[2],
+    stage: funnelStages[5],
     createdAt: new Date('2024-01-01'),
     source: 'instagram',
   },
-
-  // Oportunidade
   {
     id: '16',
     name: 'Larissa Dias',
@@ -244,10 +250,12 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[1]],
     responsible: { name: 'Marcos Santana', avatar: 'MS' },
-    stage: funnelStages[3],
+    stage: funnelStages[5],
     createdAt: new Date('2023-12-30'),
     source: 'linkedin',
   },
+
+  // Evangelismo
   {
     id: '17',
     name: 'Felipe Araújo',
@@ -258,7 +266,7 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[0]],
     responsible: { name: 'Natalia Campos', avatar: 'NC' },
-    stage: funnelStages[3],
+    stage: funnelStages[6],
     createdAt: new Date('2023-12-29'),
     source: 'instagram',
   },
@@ -272,10 +280,12 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[2]],
     responsible: { name: 'Victor Hugo', avatar: 'VH' },
-    stage: funnelStages[3],
+    stage: funnelStages[6],
     createdAt: new Date('2023-12-28'),
     source: 'whatsapp',
   },
+
+  // Perdidos
   {
     id: '19',
     name: 'Daniel Moura',
@@ -286,7 +296,7 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[3]],
     responsible: { name: 'Leticia Viana', avatar: 'LV' },
-    stage: funnelStages[3],
+    stage: funnelStages[7],
     createdAt: new Date('2023-12-27'),
     source: 'facebook',
   },
@@ -300,12 +310,10 @@ export const mockLeads: KanbanLead[] = [
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
     services: [mockServices[0]],
     responsible: { name: 'Gustavo Reis', avatar: 'GR' },
-    stage: funnelStages[3],
+    stage: funnelStages[7],
     createdAt: new Date('2023-12-26'),
     source: 'linkedin',
   },
-
-  // Fechados
   {
     id: '21',
     name: 'Renato Freitas',
@@ -376,8 +384,6 @@ export const mockLeads: KanbanLead[] = [
     createdAt: new Date('2023-12-21'),
     source: 'linkedin',
   },
-
-  // Perdas
   {
     id: '26',
     name: 'Helena Machado',

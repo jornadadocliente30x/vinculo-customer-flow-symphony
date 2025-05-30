@@ -58,22 +58,21 @@ export function KanbanColumn({
   return (
     <div className="flex-shrink-0 w-80">
       <Card className="h-full bg-gray-50/50 border border-gray-200 rounded-xl">
-        {/* New Header with Brand Colors */}
-        <div className={`bg-gradient-to-r ${stage.color} px-4 py-6 rounded-t-xl text-white`}>
-          <div className="space-y-3">
-            <h3 className="font-bold text-xl">{stage.name}</h3>
+        {/* Novo Header Compacto com Gradiente */}
+        <div className={`bg-gradient-to-r ${stage.color} px-4 py-3 rounded-t-xl text-white`}>
+          <div className="space-y-2">
+            <h3 className="font-bold text-lg">{stage.name}</h3>
             
             <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2">
-                <div className="bg-white/20 rounded-full px-3 py-1">
+              <div className="flex items-center space-x-1">
+                <div className="bg-white/20 rounded-full px-2 py-1">
                   <span className="font-semibold text-sm">{leads.length}</span>
                 </div>
-                <span className="text-sm opacity-90">contatos</span>
               </div>
               
-              <div className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 opacity-90" />
-                <span className="font-bold text-lg">{formatBRLCurrency(totalValue)}</span>
+              <div className="flex items-center space-x-1">
+                <DollarSign className="h-4 w-4 opacity-90" />
+                <span className="font-bold text-sm">{formatBRLCurrency(totalValue)}</span>
               </div>
             </div>
           </div>
