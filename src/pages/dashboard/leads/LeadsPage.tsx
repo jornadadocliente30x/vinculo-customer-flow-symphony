@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -62,6 +61,12 @@ export default function LeadsPage() {
     
     return matchesSearch && matchesStatus && matchesStage;
   });
+
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const leadsPerPage = 5;
+  const totalPages = Math.ceil(filteredLeads.length / leadsPerPage);
+  const paginatedLeads = filteredLeads.slice((currentPage - 1) * leadsPerPage, currentPage * leadsPerPage);
 
   const handleStatusChange = (leadId: string, newStatus: ChatStatus) => {
     setLeads(prev => prev.map(lead => 
@@ -149,6 +154,10 @@ export default function LeadsPage() {
     if (mode === 'kanban') {
       navigate('/dashboard/leads/funnel');
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -271,7 +280,7 @@ export default function LeadsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLeads.map((lead) => (
+              {paginatedLeads.map((lead) => (
                 <TableRow key={lead.id}>
                   <TableCell className="font-medium">
                     {lead.firstName} {lead.lastName}
@@ -347,6 +356,26 @@ export default function LeadsPage() {
             </div>
           )}
         </div>
+        {/* Paginação visual moderna */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6">
+            <nav className="inline-flex rounded-md shadow-sm bg-white border border-gray-200">
+              {[...Array(totalPages)].map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handlePageChange(idx + 1)}
+                  className={`px-4 py-2 text-sm font-medium border-r border-gray-200 last:border-0 transition-colors duration-150
+                    ${currentPage === idx + 1
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                  style={{ minWidth: 40 }}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
       </div>
 
       {/* Modals */}
