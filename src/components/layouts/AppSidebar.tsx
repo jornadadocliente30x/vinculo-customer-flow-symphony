@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users,
-  Bot,
   MessageSquare,
   Smartphone,
   UserCog,
@@ -60,7 +59,7 @@ const menuItems: MenuItem[] = [
   {
     title: 'Automação',
     href: '/dashboard/automations/agents',
-    icon: Bot
+    icon: MessageSquare
   },
   {
     title: 'Conectar',
@@ -110,7 +109,12 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-gray-100 p-6 bg-gradient-to-r from-brand-50 to-purple-50">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-brand">
-            <Bot className="w-6 h-6 text-white" />
+            <img 
+              src="/brand-logo.svg" 
+              alt="Vinculo Brand" 
+              className="w-6 h-6 text-white"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </div>
           <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
             Vinculo

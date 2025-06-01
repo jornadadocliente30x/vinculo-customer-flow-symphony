@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { FunnelStage } from '@/types/messages';
 
 interface StepsModalProps {
@@ -97,39 +98,41 @@ export function StepsModal({ isOpen, onClose, conversationId, currentStage, onUp
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3">
-          {journeyStages.map((stage) => (
-            <Button
-              key={stage.id}
-              variant={selectedStage?.id === stage.id ? "default" : "outline"}
-              onClick={() => handleStageSelect(stage)}
-              className="w-full justify-start p-4 h-auto text-left"
-              style={{
-                backgroundColor: selectedStage?.id === stage.id ? stage.color : 'transparent',
-                borderColor: stage.color,
-                color: selectedStage?.id === stage.id ? 'white' : stage.color,
-              }}
-            >
-              <div className="flex items-start space-x-3 w-full">
-                <div 
-                  className="w-4 h-4 rounded-full mt-0.5 flex-shrink-0"
-                  style={{ backgroundColor: stage.color }}
-                />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold">{stage.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      Etapa {stage.order}
-                    </Badge>
+        <ScrollArea className="h-80 pr-4">
+          <div className="space-y-3">
+            {journeyStages.map((stage) => (
+              <Button
+                key={stage.id}
+                variant={selectedStage?.id === stage.id ? "default" : "outline"}
+                onClick={() => handleStageSelect(stage)}
+                className="w-full justify-start p-4 h-auto text-left"
+                style={{
+                  backgroundColor: selectedStage?.id === stage.id ? stage.color : 'transparent',
+                  borderColor: stage.color,
+                  color: selectedStage?.id === stage.id ? 'white' : stage.color,
+                }}
+              >
+                <div className="flex items-start space-x-3 w-full">
+                  <div 
+                    className="w-4 h-4 rounded-full mt-0.5 flex-shrink-0"
+                    style={{ backgroundColor: stage.color }}
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold">{stage.name}</span>
+                      <Badge variant="outline" className="text-xs">
+                        Etapa {stage.order}
+                      </Badge>
+                    </div>
+                    <p className="text-xs opacity-80">
+                      {getStageDescription(stage.id)}
+                    </p>
                   </div>
-                  <p className="text-xs opacity-80">
-                    {getStageDescription(stage.id)}
-                  </p>
                 </div>
-              </div>
-            </Button>
-          ))}
-        </div>
+              </Button>
+            ))}
+          </div>
+        </ScrollArea>
 
         <div className="flex justify-end space-x-2 pt-4">
           <Button variant="outline" onClick={onClose}>
