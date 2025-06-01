@@ -17,10 +17,10 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               <Zap className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Vinculo
+              Dentis
             </span>
           </div>
-          <p className="text-gray-600">Plataforma de Automação de Vendas</p>
+          <p className="text-gray-600">Plataforma de Automação para Agendamentos e Atendimento para Odontologias</p>
         </div>
 
         {/* Content */}
@@ -30,7 +30,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Footer */}
         <div className="text-center mt-6 text-sm text-gray-500">
-          © 2024 Vinculo. Todos os direitos reservados.
+          © 2025 Dentis. Todos os direitos reservados.
         </div>
       </div>
     </div>

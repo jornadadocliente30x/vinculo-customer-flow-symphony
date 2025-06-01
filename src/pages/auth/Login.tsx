@@ -1,6 +1,23 @@
 
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, u        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Fazer Login</CardTitle>
+          <CardDescription>
+            Acesse sua conta da plataforma Dentis
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <Alert className="mb-4 border-blue-200 bg-blue-50">
+            <AlertDescription>
+              <strong>Demo:</strong> admin@dentis.com.br / 123456
+            </AlertDescription>
+          </Alert>'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
@@ -65,7 +82,7 @@ export default function Login() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Fazer Login</CardTitle>
           <CardDescription>
-            Acesse sua conta da plataforma Vinculo
+            Acesse sua conta da plataforma Dentis
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,7 +94,7 @@ export default function Login() {
 
           <Alert className="mb-4 border-blue-200 bg-blue-50">
             <AlertDescription>
-              <strong>Demo:</strong> admin@vinculo.com.br / 123456
+              <strong>Demo:</strong> admin@dentis.com.br / 123456
             </AlertDescription>
           </Alert>
 

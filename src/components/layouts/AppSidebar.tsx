@@ -111,13 +111,13 @@ export function AppSidebar() {
           <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-brand">
             <img 
               src="/brand-logo.svg" 
-              alt="Vinculo Brand" 
+              alt="Dentis Brand" 
               className="w-6 h-6 text-white"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
           </div>
           <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
-            Vinculo
+            Dentis
           </span>
         </div>
       </SidebarHeader>

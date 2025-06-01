@@ -1,5 +1,5 @@
 
-# Vinculo - Plataforma SaaS de Automação de Vendas
+# Dentis - Plataforma SaaS de Automação de Vendas
 
 Uma plataforma completa de gestão da jornada do cliente com foco em automação de comunicação e análise de resultados para PMEs brasileiras.
 
@@ -177,9 +177,9 @@ Este projeto está sob a licença MIT.
 
 ## 📞 Suporte
 
-- 📧 Email: contato@vinculo.com.br
+- 📧 Email: contato@dentis.com.br
 - 💬 WhatsApp: (11) 99999-9999
-- 🌐 Website: https://vinculo.com.br
+- 🌐 Website: https://dentis.com.br
 
 ---
 

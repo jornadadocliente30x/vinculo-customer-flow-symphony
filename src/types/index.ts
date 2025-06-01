@@ -1,5 +1,5 @@
 
-// Core Types for Vinculo Platform
+// Core Types for Dentis Platform
 
 export interface User {
   id: string;

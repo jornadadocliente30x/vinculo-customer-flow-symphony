@@ -87,10 +87,10 @@ interface Payment {
 
 const mockCompanyData: CompanyData = {
   responsible: 'Paulo Barreto',
-  email: 'contato@vinculo.com.br',
+  email: 'contato@dentis.com.br',
   phone: '(11) 99999-9999',
-  fantasia: 'Vinculo Tecnologia',
-  razaoSocial: 'Vinculo Tecnologia LTDA',
+  fantasia: 'Dentis Tecnologia',
+  razaoSocial: 'Dentis Tecnologia LTDA',
   cnpj: '12.345.678/0001-90',
   address: 'Rua das Flores, 123',
   neighborhood: 'Centro',
@@ -98,12 +98,12 @@ const mockCompanyData: CompanyData = {
   state: 'SP',
   cep: '01234-567',
   logo: '',
-  emailRemetente: 'noreply@vinculo.com.br',
-  instagram: '@vinculo_tech',
-  linkedin: '/company/vinculo-tech',
-  tiktok: '@vinculo_tech',
-  youtube: '/c/vinculo-tech',
-  website: 'https://vinculo.com.br'
+  emailRemetente: 'noreply@dentis.com.br',
+  instagram: '@dentis_tech',
+  linkedin: '/company/dentis-tech',
+  tiktok: '@dentis_tech',
+  youtube: '/c/dentis-tech',
+  website: 'https://dentis.com.br'
 };
 
 const mockPayments: Payment[] = [

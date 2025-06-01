@@ -44,7 +44,7 @@ export function ContactSection() {
   };
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent("Olá! Gostaria de saber mais sobre a plataforma Vinculo.");
+    const message = encodeURIComponent("Olá! Gostaria de saber mais sobre a plataforma Dentis.");
     window.open(`https://wa.me/5511999999999?text=${message}`, '_blank');
   };
 
@@ -59,7 +59,7 @@ export function ContactSection() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Entre em contato conosco e descubra como a Vinculo pode revolucionar seu negócio.
+            Entre em contato conosco e descubra como a Dentis pode revolucionar seu negócio.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Email</h4>
-                  <p className="text-gray-600">contato@vinculo.com.br</p>
+                  <p className="text-gray-600">contato@dentis.com.br</p>
                 </div>
               </div>
 

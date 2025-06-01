@@ -2,10 +2,10 @@
 // Application Constants
 
 export const APP_CONFIG = {
-  name: 'Vinculo',
+  name: 'Dentis',
   description: 'Plataforma de Automação de Vendas para PMEs',
   version: '1.0.0',
-  supportEmail: 'contato@vinculo.com.br',
+  supportEmail: 'contato@dentis.com.br',
   supportPhone: '+5511999999999'
 };
 
