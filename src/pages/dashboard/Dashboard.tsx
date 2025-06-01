@@ -2,6 +2,7 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { ControlsSection } from '@/components/dashboard/ControlsSection';
 import { OriginCard } from '@/components/dashboard/OriginCard';
+import { RevenueCard } from '@/components/dashboard/RevenueCard';
 import { SalesFunnel } from '@/components/dashboard/SalesFunnel';
 import { CustomerJourney } from '@/components/dashboard/CustomerJourney';
 import { ServiceMetrics } from '@/components/dashboard/ServiceMetrics';
@@ -16,7 +17,7 @@ import {
 
 const stats = [
   {
-    title: 'Total de Leads',
+    title: 'Total de Contatos',
     value: formatCounter(2847),
     change: formatPercentage(12),
     trend: 'up',
@@ -26,7 +27,7 @@ const stats = [
     gradient: 'brand'
   },
   {
-    title: 'Conversões',
+    title: 'Mensagens enviadas',
     value: formatCounter(543),
     change: formatPercentage(8),
     trend: 'up',
@@ -36,7 +37,7 @@ const stats = [
     gradient: 'success'
   },
   {
-    title: 'Mensagens Enviadas',
+    title: 'Mensagens recebidas',
     value: formatCounter(12459),
     change: formatPercentage(23),
     trend: 'up',
@@ -46,7 +47,7 @@ const stats = [
     gradient: 'info'
   },
   {
-    title: 'Taxa de Conversão',
+    title: 'Total de mensagens',
     value: '19,1%',
     change: formatPercentage(2),
     trend: 'down',
@@ -136,6 +137,9 @@ export default function Dashboard() {
             />
           </div>
         </div>
+
+        {/* Revenue Cards */}
+        <RevenueCard />
 
         {/* Sales Funnel */}
         <SalesFunnel />

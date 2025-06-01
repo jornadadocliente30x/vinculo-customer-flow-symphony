@@ -18,6 +18,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LeadsPage from "./pages/dashboard/leads/LeadsPage";
 import LeadsFunnel from "./pages/dashboard/leads/LeadsFunnel";
+import LeadsImportPage from "./pages/dashboard/leads/LeadsImportPage";
 import WhatsAppChat from "./pages/dashboard/messages/WhatsAppChat";
 import AgentsPage from "./pages/dashboard/agents/AgentsPage";
 import ConnectPage from "./pages/dashboard/connect/ConnectPage";
@@ -25,7 +26,11 @@ import ConnectPage from "./pages/dashboard/connect/ConnectPage";
 // Admin page
 import Admin from "./pages/admin/Admin";
 import UsuariosCadastros from './pages/admin/UsuariosCadastros';
+import UsuariosCadastrosPage from './pages/admin/UsuariosCadastrosPage';
 import UsuariosTipos from './pages/admin/UsuariosTipos';
+
+// Profile page
+import Profile from "./pages/dashboard/profile/Profile";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +68,12 @@ const App = () => (
           </ProtectedRoute>
         } />
 
+        <Route path="/dashboard/leads/import" element={
+          <ProtectedRoute>
+            <LeadsImportPage />
+          </ProtectedRoute>
+        } />
+
         <Route path="/dashboard/automations/agents" element={
           <ProtectedRoute>
             <AgentsPage />
@@ -87,6 +98,13 @@ const App = () => (
           </ProtectedRoute>
         } />
 
+        {/* Dashboard profile route */}
+        <Route path="/dashboard/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+
         {/* Admin route */}
         <Route path="/admin" element={
           <ProtectedRoute>
@@ -97,12 +115,19 @@ const App = () => (
         {/* Admin Usuários rotas aninhadas */}
         <Route path="/admin/usuarios/cadastros" element={
           <ProtectedRoute>
-            <UsuariosCadastros />
+            <UsuariosCadastrosPage />
           </ProtectedRoute>
         } />
         <Route path="/admin/usuarios/tipos" element={
           <ProtectedRoute>
             <UsuariosTipos />
+          </ProtectedRoute>
+        } />
+
+        {/* Legacy admin route for backwards compatibility */}
+        <Route path="/admin/usuarios" element={
+          <ProtectedRoute>
+            <UsuariosCadastros />
           </ProtectedRoute>
         } />
 

@@ -166,22 +166,22 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
   return (
     <TooltipProvider>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-gray-900">
               Scripts de Mensagem
             </DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="scripts-prontos" className="w-full">
+          <Tabs defaultValue="scripts-prontos" className="w-full flex-1 flex flex-col overflow-hidden">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="scripts-prontos">Scripts Prontos</TabsTrigger>
               <TabsTrigger value="criar-script">Criar Script</TabsTrigger>
             </TabsList>
 
             {/* Aba Scripts Prontos */}
-            <TabsContent value="scripts-prontos" className="space-y-4">
-              <div className="max-h-[50vh] overflow-y-auto space-y-3">
+            <TabsContent value="scripts-prontos" className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                 {scripts.map((script) => (
                   <Card 
                     key={script.id} 
@@ -241,33 +241,37 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                 ))}
               </div>
 
-              {selectedScript && (
-                <div className="border-t pt-4">
-                  <Label className="text-sm font-medium text-gray-900">Script Selecionado:</Label>
-                  <div className="mt-2 p-4 bg-brand-50 rounded-lg border border-brand-200">
-                    <h4 className="font-semibold text-brand-900">{selectedScript.title}</h4>
-                    <p className="text-sm text-brand-800 mt-2">{selectedScript.content}</p>
+              {/* Script Selecionado - Área Fixa */}
+              <div className="flex-shrink-0 mt-4 space-y-4">
+                {selectedScript && (
+                  <div className="border-t pt-4">
+                    <Label className="text-sm font-medium text-gray-900">Script Selecionado:</Label>
+                    <div className="mt-2 p-4 bg-brand-50 rounded-lg border border-brand-200">
+                      <h4 className="font-semibold text-brand-900">{selectedScript.title}</h4>
+                      <p className="text-sm text-brand-800 mt-2">{selectedScript.content}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="flex justify-end space-x-3 pt-4">
-                <Button variant="outline" onClick={onClose}>
-                  Fechar
-                </Button>
-                <Button 
-                  onClick={() => selectedScript && handleUseSelectedScript(selectedScript)}
-                  disabled={!selectedScript}
-                  className="bg-gradient-brand hover:opacity-90"
-                >
-                  Usar Script
-                </Button>
+                {/* Botões - Área Fixa */}
+                <div className="flex justify-end space-x-3 pt-4 border-t bg-white">
+                  <Button variant="outline" onClick={onClose}>
+                    Fechar
+                  </Button>
+                  <Button 
+                    onClick={() => selectedScript && handleUseSelectedScript(selectedScript)}
+                    disabled={!selectedScript}
+                    className="bg-gradient-brand hover:opacity-90"
+                  >
+                    Usar Script
+                  </Button>
+                </div>
               </div>
             </TabsContent>
 
             {/* Aba Criar Script */}
-            <TabsContent value="criar-script" className="space-y-4">
-              <div className="space-y-4">
+            <TabsContent value="criar-script" className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
                 <div>
                   <Label htmlFor="script-title" className="text-sm font-medium">Título do Script</Label>
                   <Input
@@ -377,7 +381,8 @@ export function ScriptsModal({ isOpen, onClose, onUseScript }: ScriptsModalProps
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4">
+              {/* Botões - Área Fixa */}
+              <div className="flex-shrink-0 flex justify-end space-x-3 pt-4 mt-4 border-t bg-white">
                 <Button variant="outline" onClick={onClose}>
                   Fechar
                 </Button>

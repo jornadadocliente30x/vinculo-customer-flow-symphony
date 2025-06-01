@@ -64,7 +64,7 @@ export default function LeadsPage() {
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
-  const leadsPerPage = 5;
+  const leadsPerPage = 10;
   const totalPages = Math.ceil(filteredLeads.length / leadsPerPage);
   const paginatedLeads = filteredLeads.slice((currentPage - 1) * leadsPerPage, currentPage * leadsPerPage);
 

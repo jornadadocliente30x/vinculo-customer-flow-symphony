@@ -11,6 +11,11 @@ export interface LeadContact {
   conversionDate: Date;
   tag: ContactTag;
   notes?: string;
+  birthDate?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  cpf?: string;
   createdAt: Date;
   updatedAt: Date;
 }

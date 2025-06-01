@@ -99,6 +99,57 @@ export function EditLeadModal({ isOpen, onClose, lead, onSave }: EditLeadModalPr
           </div>
 
           <div>
+            <Label htmlFor="birthDate">Data de Nascimento</Label>
+            <Input
+              id="birthDate"
+              type="date"
+              value={formData.birthDate || ''}
+              onChange={(e) => handleChange('birthDate', e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cpf">CPF</Label>
+            <Input
+              id="cpf"
+              value={formData.cpf || ''}
+              onChange={(e) => handleChange('cpf', e.target.value)}
+              placeholder="000.000.000-00"
+            />
+          </div>
+
+          <div className="col-span-2">
+            <Label htmlFor="address">Endereço</Label>
+            <Input
+              id="address"
+              value={formData.address || ''}
+              onChange={(e) => handleChange('address', e.target.value)}
+              placeholder="Rua, número, complemento"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="city">Cidade</Label>
+            <Input
+              id="city"
+              value={formData.city || ''}
+              onChange={(e) => handleChange('city', e.target.value)}
+              placeholder="Nome da cidade"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="state">Estado</Label>
+            <Input
+              id="state"
+              value={formData.state || ''}
+              onChange={(e) => handleChange('state', e.target.value)}
+              placeholder="UF"
+              maxLength={2}
+            />
+          </div>
+
+          <div>
             <Label>Etapa</Label>
             <Select 
               value={formData.stage || ''} 

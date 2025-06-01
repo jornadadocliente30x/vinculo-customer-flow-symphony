@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Upload, Plus, X, AlertTriangle } from 'lucide-react';
+import { Upload, Plus, X, AlertTriangle, Edit, Trash2 } from 'lucide-react';
 import { Contact, ContactService, TransferRequest } from '@/types/messages';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -44,8 +44,22 @@ export function NewContactModal({
   const [avatar, setAvatar] = useState<string>('');
   const [newServiceName, setNewServiceName] = useState('');
   const [newServiceType, setNewServiceType] = useState<ContactService['type']>('consultation');
+  const [showCreateServiceType, setShowCreateServiceType] = useState(false);
+  const [newServiceTypeName, setNewServiceTypeName] = useState('');
+  const [dynamicServiceTypes, setDynamicServiceTypes] = useState(serviceTypes);
   const [duplicateContact, setDuplicateContact] = useState<Contact | null>(null);
   const [showTransferRequest, setShowTransferRequest] = useState(false);
+  const [birthDate, setBirthDate] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [cpf, setCpf] = useState('');
+  
+  // Edit service states
+  const [editingService, setEditingService] = useState<string | null>(null);
+  const [editServiceName, setEditServiceName] = useState('');
+  const [editServiceType, setEditServiceType] = useState<ContactService['type']>('consultation');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   const checkForDuplicates = (phoneValue: string, emailValue: string) => {
     const duplicate = existingContacts.find(contact => 
@@ -85,6 +99,56 @@ export function NewContactModal({
     setServices(prev => prev.filter(s => s.id !== serviceId));
   };
 
+  const handleEditService = (service: ContactService) => {
+    setEditingService(service.id);
+    setEditServiceName(service.name);
+    setEditServiceType(service.type);
+  };
+
+  const handleSaveEditService = () => {
+    if (!editServiceName.trim()) return;
+
+    setServices(prev => prev.map(service => 
+      service.id === editingService 
+        ? { ...service, name: editServiceName, type: editServiceType }
+        : service
+    ));
+    
+    setEditingService(null);
+    setEditServiceName('');
+    setEditServiceType('consultation');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingService(null);
+    setEditServiceName('');
+    setEditServiceType('consultation');
+  };
+
+  const handleDeleteService = (serviceId: string) => {
+    setShowDeleteConfirm(serviceId);
+  };
+
+  const confirmDeleteService = () => {
+    if (showDeleteConfirm) {
+      setServices(prev => prev.filter(s => s.id !== showDeleteConfirm));
+      setShowDeleteConfirm(null);
+    }
+  };
+
+  const handleCreateServiceType = () => {
+    if (!newServiceTypeName.trim()) return;
+
+    const newType = {
+      value: newServiceTypeName.toLowerCase().replace(/\s+/g, '-'),
+      label: newServiceTypeName,
+    };
+
+    setDynamicServiceTypes(prev => [...prev, newType]);
+    setNewServiceTypeName('');
+    setShowCreateServiceType(false);
+  };
+
   const handleRequestTransfer = () => {
     // Aqui você implementaria a lógica de solicitação de transferência
     console.log('Requesting transfer for duplicate contact:', duplicateContact);
@@ -104,6 +168,11 @@ export function NewContactModal({
       description,
       services,
       avatar,
+      birthDate,
+      address,
+      city,
+      state,
+      cpf,
     });
 
     // Reset form
@@ -114,6 +183,11 @@ export function NewContactModal({
     setDescription('');
     setServices([]);
     setAvatar('');
+    setBirthDate('');
+    setAddress('');
+    setCity('');
+    setState('');
+    setCpf('');
     setDuplicateContact(null);
     setShowTransferRequest(false);
     onClose();
@@ -242,6 +316,60 @@ export function NewContactModal({
             </div>
           </div>
 
+          {/* Additional Personal Info */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="birthDate">Data de Nascimento</Label>
+              <Input
+                id="birthDate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="cpf">CPF</Label>
+              <Input
+                id="cpf"
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+                placeholder="000.000.000-00"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="address">Endereço</Label>
+            <Input
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Rua, número, complemento"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="city">Cidade</Label>
+              <Input
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Nome da cidade"
+              />
+            </div>
+            <div>
+              <Label htmlFor="state">Estado</Label>
+              <Input
+                id="state"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="UF"
+                maxLength={2}
+              />
+            </div>
+          </div>
+
           {/* Description */}
           <div>
             <Label htmlFor="description">Breve Descrição</Label>
@@ -254,65 +382,7 @@ export function NewContactModal({
             />
           </div>
 
-          {/* Services */}
-          <div>
-            <Label>Serviços Associados</Label>
-            
-            {/* Add new service */}
-            <div className="mt-2 space-y-3">
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="Nome do serviço"
-                  value={newServiceName}
-                  onChange={(e) => setNewServiceName(e.target.value)}
-                  className="flex-1"
-                />
-                <Select value={newServiceType} onValueChange={(value) => setNewServiceType(value as ContactService['type'])}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {serviceTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  onClick={handleAddService}
-                  disabled={!newServiceName.trim()}
-                  size="sm"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
 
-              {/* Services list */}
-              {services.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-sm">Serviços Selecionados:</Label>
-                  {services.map((service) => (
-                    <div key={service.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <div>
-                        <span className="font-medium">{service.name}</span>
-                        <span className="text-sm text-gray-500 ml-2">
-                          ({serviceTypes.find(t => t.value === service.type)?.label})
-                        </span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveService(service.id)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
 
           {/* Actions */}
           <div className="flex justify-end space-x-2 pt-4">
@@ -329,6 +399,36 @@ export function NewContactModal({
           </div>
         </div>
       </DialogContent>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-red-600">
+              <Trash2 className="w-5 h-5 mr-2" />
+              Excluir Serviço
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p>Tem certeza que deseja excluir este serviço?</p>
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmDeleteService}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Excluir
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

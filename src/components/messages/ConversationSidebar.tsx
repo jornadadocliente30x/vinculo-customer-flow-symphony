@@ -22,6 +22,7 @@ interface ConversationSidebarProps {
   onUpdateConversation: (id: string, updates: Partial<Conversation>) => void;
   activeFilter: ConversationCategory;
   onFilterChange: (filter: ConversationCategory) => void;
+  onMoveToAtendimento?: (conversationId: string) => void;
 }
 
 const categoryLabels = {
@@ -66,6 +67,7 @@ export function ConversationSidebar({
   onUpdateConversation,
   activeFilter,
   onFilterChange,
+  onMoveToAtendimento
 }: ConversationSidebarProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
@@ -367,6 +369,26 @@ export function ConversationSidebar({
                       <TooltipContent>Gerenciar Etapas do Funil</TooltipContent>
                     </Tooltip>
 
+                    {/* Conversar button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onFilterChange('atendimento');
+                            onSelectConversation(conversation.id);
+                            onMoveToAtendimento?.(conversation.id);
+                          }}
+                          className="flex-1 h-8 text-xs bg-green-500 hover:bg-green-600 text-white"
+                        >
+                          💬 Conversar
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Iniciar conversa</TooltipContent>
+                    </Tooltip>
+
                     {/* Tags button */}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -408,23 +430,7 @@ export function ConversationSidebar({
                       <TooltipContent>Marcar como {conversation.isRead ? 'Não Lida' : 'Lida'}</TooltipContent>
                     </Tooltip>
 
-                    {/* Scripts button */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsScriptsModalOpen(true);
-                          }}
-                          className="h-8 px-2 border-gray-200 hover:bg-brand-50"
-                        >
-                          <FileText className="w-3 h-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Scripts de Mensagem</TooltipContent>
-                    </Tooltip>
+
                   </div>
                 </div>
               </div>

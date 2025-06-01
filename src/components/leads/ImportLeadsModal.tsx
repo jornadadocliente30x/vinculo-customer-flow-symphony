@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, FileSpreadsheet } from 'lucide-react';
 import { ImportConfig, ChatStage, ContactTag } from '@/types/leads';
 import { stageLabels, tagLabels } from '@/data/mockLeadsData';
+import { mockAgents } from '@/data/mockAgents';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
 
 interface ImportLeadsModalProps {
@@ -111,7 +112,7 @@ export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModal
                 </div>
 
                 <div>
-                  <Label>Tag dos Contatos</Label>
+                  <Label>Chat</Label>
                   <Select value={selectedTag} onValueChange={(value: ContactTag) => setSelectedTag(value)}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
@@ -127,23 +128,7 @@ export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModal
                 </div>
 
                 <div>
-                  <Label>Agente de Automação</Label>
-                  <Select value={automationAgent} onValueChange={setAutomationAgent}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Selecionar agente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Sem automação</SelectItem>
-                      <SelectItem value="vendas">Agente de Vendas</SelectItem>
-                      <SelectItem value="suporte">Agente de Suporte</SelectItem>
-                      <SelectItem value="qualificacao">Agente de Qualificação</SelectItem>
-                      <SelectItem value="nutricao">Agente de Nutrição</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Etapa Inicial</Label>
+                  <Label>Etapa</Label>
                   <Select value={defaultStage} onValueChange={(value: ChatStage) => setDefaultStage(value)}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
@@ -152,6 +137,23 @@ export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModal
                       {Object.entries(stageLabels).map(([value, label]) => (
                         <SelectItem key={value} value={value}>
                           {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Agente</Label>
+                  <Select value={automationAgent} onValueChange={setAutomationAgent}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Selecionar agente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Sem automação</SelectItem>
+                      {mockAgents.map((agent) => (
+                        <SelectItem key={agent.id} value={agent.id}>
+                          {agent.title}
                         </SelectItem>
                       ))}
                     </SelectContent>

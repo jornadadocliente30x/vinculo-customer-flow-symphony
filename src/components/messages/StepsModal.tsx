@@ -13,37 +13,55 @@ interface StepsModalProps {
   onUpdateStage: (stage: FunnelStage) => void;
 }
 
-// Etapas atualizadas da jornada do paciente
+// Etapas atualizadas da jornada do paciente - ordem corrigida
 const journeyStages: FunnelStage[] = [
+  {
+    id: 'atendimentos',
+    name: 'Atendimentos',
+    color: '#F97316', // orange-500
+    order: 1,
+  },
+  {
+    id: 'agendamentos',
+    name: 'Agendamentos',
+    color: '#06B6D4', // cyan-500
+    order: 2,
+  },
   {
     id: 'assimilacao',
     name: 'Assimilação',
     color: '#3B82F6', // blue-500
-    order: 1,
+    order: 3,
   },
   {
     id: 'utilizacao',
     name: 'Utilização',
     color: '#10B981', // green-500
-    order: 2,
+    order: 4,
   },
   {
     id: 'adocao',
     name: 'Adoção',
     color: '#F59E0B', // yellow-500
-    order: 3,
+    order: 5,
   },
   {
     id: 'expansao',
     name: 'Expansão',
     color: '#8B5CF6', // purple-500
-    order: 4,
+    order: 6,
   },
   {
     id: 'evangelismo',
     name: 'Evangelismo',
     color: '#EF4444', // red-500
-    order: 5,
+    order: 7,
+  },
+  {
+    id: 'perdidos',
+    name: 'Perdidos',
+    color: '#6B7280', // gray-500
+    order: 8,
   },
 ];
 
@@ -58,11 +76,14 @@ export function StepsModal({ isOpen, onClose, conversationId, currentStage, onUp
 
   const getStageDescription = (stageId: string) => {
     const descriptions = {
+      atendimentos: 'Paciente em processo de atendimento clínico',
+      agendamentos: 'Paciente com consultas e procedimentos agendados',
       assimilacao: 'Paciente conhece a clínica e serviços oferecidos',
       utilizacao: 'Paciente utiliza os serviços pela primeira vez',
       adocao: 'Paciente adota os serviços de forma regular',
       expansao: 'Paciente contrata serviços adicionais ou premium',
-      evangelismo: 'Paciente recomenda a clínica para outros'
+      evangelismo: 'Paciente recomenda a clínica para outros',
+      perdidos: 'Paciente que parou de utilizar os serviços'
     };
     return descriptions[stageId as keyof typeof descriptions] || '';
   };

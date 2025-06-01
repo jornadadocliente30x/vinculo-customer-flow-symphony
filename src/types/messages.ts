@@ -98,6 +98,11 @@ export interface Contact {
   services: ContactService[];
   avatar?: string;
   assignedUser?: string;
+  birthDate?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  cpf?: string;
 }
 
 export interface ContactService {

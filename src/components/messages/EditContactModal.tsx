@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { ToothSelector } from './ToothSelector';
 import { Upload, Plus, Edit, Trash2, Calendar, Star, FileText, Save, X } from 'lucide-react';
 import { Contact } from '@/types/messages';
@@ -59,11 +60,20 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
   const [email, setEmail] = useState(contact?.email || '');
   const [description, setDescription] = useState(contact?.description || '');
   const [avatar, setAvatar] = useState(contact?.avatar || '');
+  const [birthDate, setBirthDate] = useState(contact?.birthDate || '');
+  const [address, setAddress] = useState(contact?.address || '');
+  const [city, setCity] = useState(contact?.city || '');
+  const [state, setState] = useState(contact?.state || '');
+  const [cpf, setCpf] = useState(contact?.cpf || '');
   
   // States for editing
   const [editingRecord, setEditingRecord] = useState<string | null>(null);
   const [editingTreatment, setEditingTreatment] = useState<string | null>(null);
   const [editingPayment, setEditingPayment] = useState<string | null>(null);
+
+  // Odontograma state - armazena o estado de cada dente
+  const [toothStates, setToothStates] = useState<Record<number, 'normal' | 'carie' | 'restauracao' | 'ausente'>>({});
+  const [selectedToothColor, setSelectedToothColor] = useState<'normal' | 'carie' | 'restauracao' | 'ausente'>('normal');
 
   // Mock data with editable states
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([
@@ -120,9 +130,46 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
   const [newPayment, setNewPayment] = useState({
     amount: '',
     service: '',
+    status: 'pending' as Payment['status'],
     rating: 0,
     feedback: ''
   });
+
+  // Mock data for medical services (doctors with their services)
+  const mockDoctors = [
+    { id: '1', name: 'Dr. João Pereira', specialty: 'Clínico Geral', service: 'Consulta Geral', duration: 30, price: 150 },
+    { id: '2', name: 'Dra. Ana Costa', specialty: 'Ortodontista', service: 'Limpeza Dental', duration: 45, price: 120 },
+    { id: '3', name: 'Dr. Carlos Silva', specialty: 'Cirurgião', service: 'Extração', duration: 60, price: 200 },
+    { id: '4', name: 'Dra. Maria Santos', specialty: 'Endodontista', service: 'Canal', duration: 90, price: 400 },
+    { id: '5', name: 'Dra. Ana Furtado', specialty: 'Ortodontista', service: 'Ortodontia', duration: 60, price: 300 }
+  ];
+
+  // State for medical service selection
+  const [selectedMedicalService, setSelectedMedicalService] = useState('');
+
+  // Generate medical service options
+  const getMedicalServiceOptions = () => {
+    return mockDoctors.map(doctor => ({
+      id: `${doctor.service}-${doctor.id}`,
+      label: `${doctor.service} ${doctor.duration}min R$${doctor.price.toFixed(2).replace('.', ',')} - ${doctor.name}`,
+      service: doctor.service,
+      price: doctor.price,
+      doctorName: doctor.name
+    }));
+  };
+
+  // Handle medical service selection
+  const handleMedicalServiceChange = (value: string) => {
+    setSelectedMedicalService(value);
+    const option = getMedicalServiceOptions().find(opt => opt.id === value);
+    if (option) {
+      setNewPayment(prev => ({
+        ...prev,
+        service: option.service,
+        amount: `R$ ${option.price.toFixed(2).replace('.', ',')}`
+      }));
+    }
+  };
 
   const handleSubmit = () => {
     if (!contact || !firstName || !phone) return;
@@ -135,6 +182,11 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
       email,
       description,
       avatar,
+      birthDate,
+      address,
+      city,
+      state,
+      cpf,
     };
 
     onSaveContact(updatedContact);
@@ -211,13 +263,14 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
       date: new Date(),
       amount: parseCurrencyToNumber(newPayment.amount),
       service: newPayment.service,
-      status: 'paid',
+      status: newPayment.status,
       rating: newPayment.rating,
       feedback: newPayment.feedback
     };
     
     setPayments(prev => [payment, ...prev]);
-    setNewPayment({ amount: '', service: '', rating: 0, feedback: '' });
+    setNewPayment({ amount: '', service: '', status: 'pending', rating: 0, feedback: '' });
+    setSelectedMedicalService('');
   };
 
   const deletePayment = (id: string) => {
@@ -227,6 +280,34 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
   const savePaymentEdit = (id: string, updatedPayment: Partial<Payment>) => {
     setPayments(prev => prev.map(p => p.id === id ? { ...p, ...updatedPayment } : p));
     setEditingPayment(null);
+  };
+
+  // Odontograma functions
+  const handleToothClick = (toothNumber: number) => {
+    setToothStates(prev => ({
+      ...prev,
+      [toothNumber]: selectedToothColor
+    }));
+  };
+
+  const getToothColorClass = (toothNumber: number) => {
+    const state = toothStates[toothNumber] || 'normal';
+    switch (state) {
+      case 'normal':
+        return 'bg-white border-gray-400';
+      case 'carie':
+        return 'bg-red-200 border-red-400';
+      case 'restauracao':
+        return 'bg-blue-200 border-blue-400';
+      case 'ausente':
+        return 'bg-gray-400 border-gray-600';
+      default:
+        return 'bg-white border-gray-400';
+    }
+  };
+
+  const resetOdontogram = () => {
+    setToothStates({});
   };
 
   const handlePaymentAmountChange = (value: string) => {
@@ -288,9 +369,10 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
         </DialogHeader>
 
         <Tabs defaultValue="contato" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="contato">Contato</TabsTrigger>
             <TabsTrigger value="prontuario">Prontuário</TabsTrigger>
+            <TabsTrigger value="anamnese">Anamnese</TabsTrigger>
             <TabsTrigger value="tratamentos">Tratamentos</TabsTrigger>
             <TabsTrigger value="pagamentos">Pagamentos</TabsTrigger>
           </TabsList>
@@ -369,6 +451,60 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
               </div>
             </div>
 
+            {/* Additional Personal Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="birthDate">Data de Nascimento</Label>
+                <Input
+                  id="birthDate"
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cpf">CPF</Label>
+                <Input
+                  id="cpf"
+                  value={cpf}
+                  onChange={(e) => setCpf(e.target.value)}
+                  placeholder="000.000.000-00"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="address">Endereço</Label>
+              <Input
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Rua, número, complemento"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="city">Cidade</Label>
+                <Input
+                  id="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Nome da cidade"
+                />
+              </div>
+              <div>
+                <Label htmlFor="state">Estado</Label>
+                <Input
+                  id="state"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="UF"
+                  maxLength={2}
+                />
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="description">Descrição</Label>
               <Textarea
@@ -382,12 +518,6 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
           </TabsContent>
 
           <TabsContent value="prontuario" className="space-y-4">
-            {/* Tooth Selector */}
-            <ToothSelector 
-              selectedTeeth={newRecord.selectedTeeth} 
-              onTeethChange={(teeth) => setNewRecord(prev => ({ ...prev, selectedTeeth: teeth }))}
-            />
-
             {/* Add new record */}
             <Card>
               <CardHeader>
@@ -503,7 +633,323 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
             </ScrollArea>
           </TabsContent>
 
+          <TabsContent value="anamnese" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <FileText className="w-5 h-5 mr-2" />
+                  Anamnese Odontológica
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Informações Gerais */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 border-b pb-2">Informações Gerais</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Motivo da consulta</Label>
+                      <Textarea
+                        placeholder="Descreva o motivo principal da consulta"
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <Label>Última consulta odontológica</Label>
+                      <Input
+                        type="date"
+                        placeholder="Data da última consulta"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Histórico Médico */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 border-b pb-2">Histórico Médico</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label>Problemas de saúde atuais</Label>
+                      <Textarea
+                        placeholder="Diabetes, hipertensão, doenças cardíacas, etc."
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <Label>Medicamentos em uso</Label>
+                      <Textarea
+                        placeholder="Liste todos os medicamentos e dosagens"
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <Label>Alergias conhecidas</Label>
+                      <Textarea
+                        placeholder="Medicamentos, materiais odontológicos, alimentos, etc."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Histórico Odontológico */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 border-b pb-2">Histórico Odontológico</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Frequência de escovação</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a frequência" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1x">1x ao dia</SelectItem>
+                          <SelectItem value="2x">2x ao dia</SelectItem>
+                          <SelectItem value="3x">3x ao dia</SelectItem>
+                          <SelectItem value="irregular">Irregular</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Uso de fio dental</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Frequência do fio dental" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="diario">Diário</SelectItem>
+                          <SelectItem value="ocasional">Ocasional</SelectItem>
+                          <SelectItem value="nunca">Nunca</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label>Problemas dentários anteriores</Label>
+                      <Textarea
+                        placeholder="Cáries, extrações, tratamentos de canal, etc."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sintomas e Queixas */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 border-b pb-2">Sintomas e Queixas</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <Label>Sintomas atuais (marque os que se aplicam)</Label>
+                      <div className="space-y-2">
+                        {[
+                          'Dor de dente',
+                          'Sensibilidade',
+                          'Sangramento gengival',
+                          'Mau hálito',
+                          'Dificuldade para mastigar',
+                          'Bruxismo/Ranger de dentes'
+                        ].map((symptom) => (
+                          <div key={symptom} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={symptom}
+                              className="rounded border-gray-300"
+                            />
+                            <label htmlFor={symptom} className="text-sm text-gray-700">
+                              {symptom}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Outras observações</Label>
+                      <Textarea
+                        placeholder="Descreva outros sintomas ou observações relevantes"
+                        rows={6}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hábitos */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 border-b pb-2">Hábitos</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Tabagismo</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Situação do tabagismo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nunca">Nunca fumou</SelectItem>
+                          <SelectItem value="atual">Fumante atual</SelectItem>
+                          <SelectItem value="ex">Ex-fumante</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Consumo de álcool</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Frequência de consumo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nunca">Nunca</SelectItem>
+                          <SelectItem value="ocasional">Ocasional</SelectItem>
+                          <SelectItem value="regular">Regular</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Consumo de açúcar</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Frequência de consumo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="baixo">Baixo</SelectItem>
+                          <SelectItem value="moderado">Moderado</SelectItem>
+                          <SelectItem value="alto">Alto</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botão de salvar */}
+                <div className="flex justify-end pt-4">
+                  <Button className="bg-brand-500 hover:bg-brand-600">
+                    <Save className="w-4 h-4 mr-2" />
+                    Salvar Anamnese
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="tratamentos" className="space-y-4">
+            {/* Dental Odontogram */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <FileText className="w-5 h-5 mr-2" />
+                  Odontograma Interativo
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Color Selector */}
+                <div className="flex items-center justify-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                  <span className="text-sm font-medium text-gray-700">Selecione a cor:</span>
+                  <div className="flex space-x-2">
+                    {[
+                      { id: 'normal', label: 'Normal', color: 'bg-white border-gray-400' },
+                      { id: 'carie', label: 'Cárie', color: 'bg-red-200 border-red-400' },
+                      { id: 'restauracao', label: 'Restauração', color: 'bg-blue-200 border-blue-400' },
+                      { id: 'ausente', label: 'Ausente', color: 'bg-gray-400 border-gray-600' },
+                    ].map((colorOption) => (
+                      <button
+                        key={colorOption.id}
+                        onClick={() => setSelectedToothColor(colorOption.id as typeof selectedToothColor)}
+                        className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all ${
+                          selectedToothColor === colorOption.id
+                            ? 'border-brand-500 bg-brand-50 text-brand-700'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded border-2 ${colorOption.color} inline-block mr-2`}></div>
+                        {colorOption.label}
+                      </button>
+                    ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={resetOdontogram}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    Limpar
+                  </Button>
+                </div>
+
+                {/* Dental Chart Visualization */}
+                <div className="bg-gray-50 p-6 rounded-lg border-2 border-dashed border-gray-300">
+                  <div className="text-center space-y-4">
+                    {/* Upper Teeth */}
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-2">Arcada Superior</p>
+                      <div className="flex justify-center space-x-1">
+                        {[18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28].map((tooth) => (
+                          <div
+                            key={tooth}
+                            onClick={() => handleToothClick(tooth)}
+                            className={`w-8 h-8 border-2 rounded flex items-center justify-center text-xs font-medium cursor-pointer hover:shadow-lg transition-all duration-200 ${getToothColorClass(tooth)} hover:scale-110`}
+                            title={`Dente ${tooth} - Clique para alterar`}
+                          >
+                            {tooth}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Lower Teeth */}
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-2">Arcada Inferior</p>
+                      <div className="flex justify-center space-x-1">
+                        {[48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38].map((tooth) => (
+                          <div
+                            key={tooth}
+                            onClick={() => handleToothClick(tooth)}
+                            className={`w-8 h-8 border-2 rounded flex items-center justify-center text-xs font-medium cursor-pointer hover:shadow-lg transition-all duration-200 ${getToothColorClass(tooth)} hover:scale-110`}
+                            title={`Dente ${tooth} - Clique para alterar`}
+                          >
+                            {tooth}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Legend */}
+                    <div className="flex justify-center space-x-6 mt-4 text-xs">
+                      <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 bg-white border-2 border-gray-400 rounded"></div>
+                        <span>Normal</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 bg-red-200 border-2 border-red-400 rounded"></div>
+                        <span>Cárie</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 bg-blue-200 border-2 border-blue-400 rounded"></div>
+                        <span>Restauração</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <div className="w-4 h-4 bg-gray-400 border-2 border-gray-600 rounded"></div>
+                        <span>Ausente</span>
+                      </div>
+                    </div>
+
+                    {/* Summary */}
+                    {Object.keys(toothStates).length > 0 && (
+                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                          <strong>Alterações registradas:</strong> {Object.keys(toothStates).length} dente(s)
+                        </p>
+                        <div className="text-xs text-blue-700 mt-1">
+                          {Object.entries(toothStates).map(([tooth, state]) => (
+                            <span key={tooth} className="inline-block mr-2">
+                              {tooth}: {state}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Add new treatment */}
             <Card>
               <CardHeader>
@@ -628,6 +1074,21 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div>
+                  <Label>Serviço Médico</Label>
+                  <Select value={selectedMedicalService} onValueChange={handleMedicalServiceChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um serviço médico" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getMedicalServiceOptions().map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Serviço</Label>
@@ -644,6 +1105,26 @@ export function EditContactModal({ isOpen, onClose, contact, onSaveContact }: Ed
                       onChange={(e) => handlePaymentAmountChange(e.target.value)}
                       placeholder="R$ 0,00"
                     />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <Label htmlFor="payment-status" className="text-sm font-medium">
+                    Status do Pagamento
+                  </Label>
+                  <div className="flex items-center space-x-3">
+                    <span className={`text-sm ${newPayment.status === 'pending' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                      Não Pago
+                    </span>
+                    <Switch
+                      id="payment-status"
+                      checked={newPayment.status === 'paid'}
+                      onCheckedChange={(checked) => 
+                        setNewPayment(prev => ({ ...prev, status: checked ? 'paid' : 'pending' }))
+                      }
+                    />
+                    <span className={`text-sm ${newPayment.status === 'paid' ? 'text-green-700 font-medium' : 'text-gray-500'}`}>
+                      Pago
+                    </span>
                   </div>
                 </div>
                 <div>

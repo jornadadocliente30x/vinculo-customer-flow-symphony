@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { ChatMessage } from '@/types/messages';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MessageAttachmentComponent } from './MessageAttachment';
 import { AudioPlayer } from './AudioPlayer';
 import { QuickReplyModal } from './QuickReplyModal';
+import { EditMessageModal } from './EditMessageModal';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, MoreHorizontal, Reply } from 'lucide-react';
+import { Check, CheckCheck, MoreHorizontal, Reply, Edit } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -15,6 +17,7 @@ interface MessageBubbleProps {
   contactName?: string;
   contactAvatar?: string;
   onSendReply?: (reply: string, replyTo?: ChatMessage) => void;
+  onEditMessage?: (messageId: string, newContent: string) => void;
 }
 
 export function MessageBubble({ 
@@ -22,9 +25,11 @@ export function MessageBubble({
   isConsecutive = false, 
   contactName = '',
   contactAvatar,
-  onSendReply
+  onSendReply,
+  onEditMessage
 }: MessageBubbleProps) {
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const isOutbound = message.direction === 'outbound';
   
   const formatTime = (date: Date) => {
@@ -53,6 +58,12 @@ export function MessageBubble({
     }
   };
 
+  const handleEditMessage = (messageId: string, newContent: string) => {
+    if (onEditMessage) {
+      onEditMessage(messageId, newContent);
+    }
+  };
+
   const hasAttachments = message.attachments && message.attachments.length > 0;
   const isAudioMessage = message.type === 'audio' || 
     (hasAttachments && message.attachments?.some(att => att.type === 'audio'));
@@ -74,18 +85,33 @@ export function MessageBubble({
       {!isOutbound && isConsecutive && <div className="w-8" />}
 
       <div className="max-w-xs lg:max-w-md relative">
-        {/* Reply Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "absolute -top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 h-6 w-6 p-0",
-            isOutbound ? "-left-8" : "-right-8"
-          )}
-          onClick={() => setIsReplyModalOpen(true)}
-        >
-          <MoreHorizontal className="h-3 w-3 text-gray-500" />
-        </Button>
+        {/* Dropdown Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "absolute -top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 h-6 w-6 p-0",
+                isOutbound ? "-left-8" : "-right-8"
+              )}
+            >
+              <MoreHorizontal className="h-3 w-3 text-gray-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align={isOutbound ? "end" : "start"} className="w-40">
+            <DropdownMenuItem onClick={() => setIsReplyModalOpen(true)}>
+              <Reply className="mr-2 h-4 w-4" />
+              Responder
+            </DropdownMenuItem>
+            {isOutbound && (
+              <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Editar Mensagem
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Reply Reference */}
         {message.replyTo && (
@@ -153,6 +179,14 @@ export function MessageBubble({
         originalMessage={message.content}
         contactName={contactName}
         onSendReply={handleReply}
+      />
+
+      {/* Edit Message Modal */}
+      <EditMessageModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        message={message}
+        onEditMessage={handleEditMessage}
       />
     </div>
   );

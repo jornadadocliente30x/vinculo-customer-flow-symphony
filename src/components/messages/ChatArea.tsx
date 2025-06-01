@@ -20,6 +20,7 @@ interface ChatAreaProps {
   onSendMessage: (content: string, type: 'text' | 'audio', replyTo?: ChatMessage) => void;
   onAttachFile: (file: File, type: 'image' | 'video' | 'document') => void;
   onUpdateConversation: (id: string, updates: Partial<Conversation>) => void;
+  onEditMessage?: (messageId: string, newContent: string) => void;
   activeFilter: string;
 }
 
@@ -29,6 +30,7 @@ export function ChatArea({
   onSendMessage, 
   onAttachFile,
   onUpdateConversation,
+  onEditMessage,
   activeFilter
 }: ChatAreaProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -176,6 +178,7 @@ export function ChatArea({
                   contactName={conversation.contactName}
                   contactAvatar={conversation.avatar}
                   onSendReply={handleSendReply}
+                  onEditMessage={onEditMessage}
                 />
               );
             })}

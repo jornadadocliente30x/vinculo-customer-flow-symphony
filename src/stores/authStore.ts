@@ -9,6 +9,7 @@ export interface User {
   company?: string;
   role: 'admin' | 'manager' | 'agent' | 'viewer';
   avatar?: string;
+  phone?: string;
   createdAt: Date;
 }
 
@@ -22,6 +23,7 @@ interface AuthState {
   logout: () => void;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (token: string, password: string) => Promise<boolean>;
+  updateUser: (updates: Partial<User>) => void;
   setHydrated: () => void;
 }
 
@@ -141,6 +143,14 @@ export const useAuthStore = create<AuthState>()(
         
         set({ isLoading: false });
         return true;
+      },
+
+      updateUser: (updates: Partial<User>) => {
+        const currentUser = get().user;
+        if (currentUser) {
+          const updatedUser = { ...currentUser, ...updates };
+          set({ user: updatedUser });
+        }
       }
     }),
     {

@@ -89,11 +89,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate('/dashboard/settings/account')}>
+                      <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
                         <User className="mr-2 h-4 w-4" />
                         <span>Perfil</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
+                      <DropdownMenuItem onClick={() => navigate('/admin/usuarios/cadastros')}>
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Configurações</span>
                       </DropdownMenuItem>

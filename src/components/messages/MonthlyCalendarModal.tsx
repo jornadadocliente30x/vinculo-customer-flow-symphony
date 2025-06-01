@@ -11,6 +11,7 @@ interface ScheduledPatient {
   name: string;
   time: string;
   service: string;
+  doctorName: string;
 }
 
 interface DaySchedule {
@@ -29,19 +30,19 @@ export function MonthlyCalendarModal({ isOpen, onClose }: MonthlyCalendarModalPr
   // Mock data para demonstração
   const scheduleData: Record<number, ScheduledPatient[]> = {
     5: [
-      { id: '1', name: 'Maria Silva', time: '09:00', service: 'Consulta' },
-      { id: '2', name: 'João Santos', time: '14:30', service: 'Fisioterapia' }
+      { id: '1', name: 'Maria Silva', time: '09:00', service: 'Consulta', doctorName: 'Dr. João Pereira' },
+      { id: '2', name: 'João Santos', time: '14:30', service: 'Fisioterapia', doctorName: 'Dra. Ana Costa' }
     ],
     12: [
-      { id: '3', name: 'Ana Costa', time: '10:15', service: 'Exame' }
+      { id: '3', name: 'Ana Costa', time: '10:15', service: 'Exame', doctorName: 'Dr. Carlos Silva' }
     ],
     18: [
-      { id: '4', name: 'Pedro Lima', time: '08:30', service: 'Consulta' },
-      { id: '5', name: 'Carla Souza', time: '11:00', service: 'Retorno' },
-      { id: '6', name: 'Paulo Silva', time: '16:45', service: 'Fisioterapia' }
+      { id: '4', name: 'Pedro Lima', time: '08:30', service: 'Consulta', doctorName: 'Dr. João Pereira' },
+      { id: '5', name: 'Carla Souza', time: '11:00', service: 'Retorno', doctorName: 'Dra. Maria Santos' },
+      { id: '6', name: 'Paulo Silva', time: '16:45', service: 'Fisioterapia', doctorName: 'Dra. Ana Costa' }
     ],
     25: [
-      { id: '7', name: 'Lucia Santos', time: '13:20', service: 'Consulta' }
+      { id: '7', name: 'Lucia Santos', time: '13:20', service: 'Consulta', doctorName: 'Dr. Carlos Silva' }
     ]
   };
 
@@ -184,7 +185,7 @@ export function MonthlyCalendarModal({ isOpen, onClose }: MonthlyCalendarModalPr
                           <div
                             key={patient.id}
                             className="text-xs p-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-lg cursor-pointer hover:from-blue-100 hover:to-purple-100 transition-all duration-200 shadow-sm"
-                            title={`${patient.name} - ${patient.time} - ${patient.service}`}
+                            title={`${patient.name} - ${patient.time} - ${patient.service} - ${patient.doctorName}`}
                           >
                             <div className="flex items-center space-x-2 mb-1">
                               <User className="w-3 h-3 text-blue-600 flex-shrink-0" />
@@ -192,11 +193,14 @@ export function MonthlyCalendarModal({ isOpen, onClose }: MonthlyCalendarModalPr
                                 {patient.name}
                               </span>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 mb-1">
                               <Clock className="w-3 h-3 text-purple-600 flex-shrink-0" />
                               <span className="text-purple-700 font-medium">
                                 {patient.time}
                               </span>
+                            </div>
+                            <div className="text-xs text-gray-600 font-medium truncate">
+                              {patient.doctorName}
                             </div>
                           </div>
                         ))}

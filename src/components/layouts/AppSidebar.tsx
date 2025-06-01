@@ -8,7 +8,9 @@ import {
   UserCog,
   User,
   ChevronDown,
-  UserPlus
+  UserPlus,
+  Upload,
+  Contact
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -41,7 +43,19 @@ const menuItems: MenuItem[] = [
   {
     title: 'Leads',
     href: '/dashboard/leads',
-    icon: Users
+    icon: Users,
+    children: [
+      {
+        title: 'Contatos',
+        href: '/dashboard/leads',
+        icon: Contact
+      },
+      {
+        title: 'Importar',
+        href: '/dashboard/leads/import',
+        icon: Upload
+      }
+    ]
   },
   {
     title: 'Automação',
@@ -85,9 +99,11 @@ const menuItems: MenuItem[] = [
 export function AppSidebar() {
   const location = useLocation();
   const [usersOpen, setUsersOpen] = useState(location.pathname.startsWith('/admin/usuarios'));
+  const [leadsOpen, setLeadsOpen] = useState(location.pathname.startsWith('/dashboard/leads'));
 
   const isActive = (href: string) => location.pathname === href;
   const isUsersMenu = location.pathname.startsWith('/admin/usuarios');
+  const isLeadsMenu = location.pathname.startsWith('/dashboard/leads');
 
   return (
     <Sidebar className="border-r border-gray-100">
@@ -106,31 +122,86 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 p-4">
-              {menuItems.filter(item => !item.children).map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.href)}
-                    className={cn(
-                      "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden",
-                      isActive(item.href) 
-                        ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" 
-                        : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
-                    )}
-                  >
-                    <Link to={item.href} className="flex items-center w-full">
-                      <item.icon className={cn(
-                        "w-5 h-5 mr-3",
-                        isActive(item.href) ? "text-white" : ""
-                      )} />
-                      <span className={cn(
-                        "font-medium",
-                        isActive(item.href) ? "text-white" : ""
-                      )}>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {menuItems.filter(item => !item.children || item.title === 'Leads').map((item) => {
+                if (item.title === 'Leads') {
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        isActive={isLeadsMenu}
+                        onClick={() => setLeadsOpen(o => !o)}
+                        className={cn(
+                          "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden flex items-center justify-between",
+                          isLeadsMenu ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                        )}
+                      >
+                        <div className="flex items-center">
+                          <item.icon className="w-5 h-5 mr-3" />
+                          <span className="font-medium">{item.title}</span>
+                        </div>
+                        <ChevronDown className={cn("w-4 h-4 transition-transform", leadsOpen ? "rotate-180" : "")}/>
+                      </SidebarMenuButton>
+                      {leadsOpen && (
+                        <div className="ml-8 mt-1 space-y-1">
+                          <SidebarMenuItem>
+                            <SidebarMenuButton
+                              asChild
+                              isActive={location.pathname === '/dashboard/leads'}
+                              className={cn(
+                                "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
+                                location.pathname === '/dashboard/leads' ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                              )}
+                            >
+                              <Link to="/dashboard/leads" className="flex items-center w-full">
+                                <Contact className="w-4 h-4 mr-2" /> Contatos
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                          <SidebarMenuItem>
+                            <SidebarMenuButton
+                              asChild
+                              isActive={location.pathname === '/dashboard/leads/import'}
+                              className={cn(
+                                "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
+                                location.pathname === '/dashboard/leads/import' ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                              )}
+                            >
+                              <Link to="/dashboard/leads/import" className="flex items-center w-full">
+                                <Upload className="w-4 h-4 mr-2" /> Importar
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        </div>
+                      )}
+                    </SidebarMenuItem>
+                  );
+                }
+                
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton 
+                      asChild
+                      isActive={isActive(item.href)}
+                      className={cn(
+                        "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden",
+                        isActive(item.href) 
+                          ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" 
+                          : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                      )}
+                    >
+                      <Link to={item.href} className="flex items-center w-full">
+                        <item.icon className={cn(
+                          "w-5 h-5 mr-3",
+                          isActive(item.href) ? "text-white" : ""
+                        )} />
+                        <span className={cn(
+                          "font-medium",
+                          isActive(item.href) ? "text-white" : ""
+                        )}>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={isUsersMenu}

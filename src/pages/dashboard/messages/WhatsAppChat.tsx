@@ -111,9 +111,37 @@ export default function WhatsAppChat() {
     });
   };
 
+  const handleEditMessage = (messageId: string, newContent: string) => {
+    setMessages(prev => 
+      prev.map(msg => 
+        msg.id === messageId ? { ...msg, content: newContent } : msg
+      )
+    );
+
+    toast({
+      title: "Mensagem editada",
+      description: "A mensagem foi atualizada com sucesso",
+    });
+  };
+
   const handleFilterChange = (filter: ConversationCategory) => {
     setActiveFilter(filter);
     setSelectedConversationId(null);
+  };
+
+  const handleMoveToAtendimento = (conversationId: string) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === conversationId 
+          ? { ...conv, category: 'atendimento' as ConversationCategory }
+          : conv
+      )
+    );
+
+    toast({
+      title: "Conversa movida",
+      description: "A conversa foi movida para Atendimentos",
+    });
   };
 
   const handleAISummary = () => {
@@ -183,6 +211,7 @@ export default function WhatsAppChat() {
           onUpdateConversation={handleUpdateConversation}
           activeFilter={activeFilter}
           onFilterChange={handleFilterChange}
+          onMoveToAtendimento={handleMoveToAtendimento}
         />
 
         <div className="flex-1 flex flex-col">
@@ -218,6 +247,7 @@ export default function WhatsAppChat() {
             onSendMessage={handleSendMessage}
             onAttachFile={handleAttachFile}
             onUpdateConversation={handleUpdateConversation}
+            onEditMessage={handleEditMessage}
             activeFilter={activeFilter}
           />
         </div>
