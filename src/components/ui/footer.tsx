@@ -1,5 +1,5 @@
 
-import { Zap, Instagram, Linkedin, Youtube, Mail } from "lucide-react";
+import { Instagram, Linkedin, Youtube, Mail } from "lucide-react";
 
 export function Footer() {
   return (
@@ -9,9 +9,11 @@ export function Footer() {
           {/* Logo and Description */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
+              <img 
+                src="/brand-logo.svg" 
+                alt="Dentis Brand" 
+                className="w-8 h-8"
+              />
               <span className="text-xl font-bold">Dentis</span>
             </div>
             <p className="text-gray-400 text-sm">

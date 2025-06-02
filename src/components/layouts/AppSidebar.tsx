@@ -112,12 +112,11 @@ export function AppSidebar() {
             <img 
               src="/brand-logo.svg" 
               alt="Dentis Brand" 
-              className="w-6 h-6 text-white"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              className="w-6 h-6"
             />
           </div>
           <span className="text-2xl font-bold bg-gradient-brand bg-clip-text text-transparent">
-            Dentis
+            Odontomy
           </span>
         </div>
       </SidebarHeader>

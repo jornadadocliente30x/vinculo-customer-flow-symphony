@@ -1,6 +1,5 @@
 
 import { ReactNode } from 'react';
-import { Zap } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: ReactNode;

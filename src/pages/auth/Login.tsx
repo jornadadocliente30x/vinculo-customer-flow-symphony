@@ -1,23 +1,5 @@
-
 import { useState } from 'react';
-import { Link, useNavigate, u        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Fazer Login</CardTitle>
-          <CardDescription>
-            Acesse sua conta da plataforma Dentis
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <Alert className="mb-4 border-blue-200 bg-blue-50">
-            <AlertDescription>
-              <strong>Demo:</strong> admin@dentis.com.br / 123456
-            </AlertDescription>
-          </Alert>'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { AuthLayout } from '@/components/layouts/AuthLayout';
 import { Button } from '@/components/ui/button';
@@ -58,11 +40,12 @@ export default function Login() {
       if (success) {
         console.log('Login successful, navigating to:', from);
         toast({
-          title: 'Login realizado com sucesso!',
-          description: 'Redirecionando para o dashboard...',
+          title: 'Login realizado!',
+          description: 'Bem-vindo de volta!',
         });
         navigate(from, { replace: true });
       } else {
+        console.log('Login failed');
         setError('Email ou senha incorretos');
         toast({
           title: 'Erro no login',
@@ -123,13 +106,12 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
+                  className="pr-10"
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -137,13 +119,13 @@ export default function Login() {
                   ) : (
                     <Eye className="h-4 w-4" />
                   )}
-                </Button>
+                </button>
               </div>
             </div>
 
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
               disabled={isLoading}
             >
               {isLoading ? (
@@ -158,18 +140,21 @@ export default function Login() {
           </form>
 
           <div className="mt-6 text-center space-y-2">
+            <p className="text-sm text-gray-600">
+              Ainda não tem uma conta?{' '}
+              <Link 
+                to="/auth/register" 
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Criar conta
+              </Link>
+            </p>
             <Link 
               to="/auth/forgot-password" 
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-gray-500 hover:text-gray-700 block"
             >
-              Esqueceu sua senha?
+              Esqueci minha senha
             </Link>
-            <div className="text-sm text-gray-600">
-              Não tem uma conta?{' '}
-              <Link to="/auth/register" className="text-blue-600 hover:underline">
-                Cadastre-se
-              </Link>
-            </div>
           </div>
         </CardContent>
       </Card>
