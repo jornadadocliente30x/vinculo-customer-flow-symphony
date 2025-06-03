@@ -24,7 +24,8 @@ import {
   Filter
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Lead, ImportConfig, ExportConfig, CreateLeadData } from '@/types/database';
+import { Lead, CreateLeadData } from '@/types/database';
+import { ImportConfig, ExportConfig } from '@/types/leads';
 import { 
   mockLeadsDatabase, 
   mockEtapasJornada, 
@@ -146,8 +147,8 @@ export default function LeadsPage() {
     });
   };
 
-  const handleConfirmDelete = (leadId: string) => {
-    setLeads(prev => prev.filter(lead => lead.id.toString() !== leadId));
+  const handleConfirmDelete = (leadId: number) => {
+    setLeads(prev => prev.filter(lead => lead.id !== leadId));
     
     toast({
       title: "Lead excluído",

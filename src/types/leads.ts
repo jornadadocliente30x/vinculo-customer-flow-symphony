@@ -1,6 +1,6 @@
 
 // Usando as interfaces do banco de dados
-export { 
+export type { 
   Lead, 
   EtapaJornada, 
   StatusLead, 
@@ -26,6 +26,10 @@ export interface ExportConfig {
     end: Date;
   };
 }
+
+// Tipos auxiliares para o frontend
+export type ContactTag = 'lead' | 'cliente';
+export type ChatStage = 'assimilacao' | 'utilizacao' | 'adoracao' | 'expansao' | 'evangelismo';
 
 // Mapeamento para compatibilidade (será removido quando migrarmos completamente)
 export interface LeadContact extends Lead {

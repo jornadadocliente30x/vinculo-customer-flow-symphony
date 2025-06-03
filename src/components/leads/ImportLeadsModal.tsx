@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, FileSpreadsheet } from 'lucide-react';
-import { ImportConfig, ChatStage, ContactTag } from '@/types/leads';
-import { stageLabels, tagLabels } from '@/data/mockLeadsData';
+import { ImportConfig, ContactTag, ChatStage } from '@/types/leads';
+import { mockEtapasJornada } from '@/data/mockDatabaseData';
 import { mockAgents } from '@/data/mockAgents';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
 
@@ -17,11 +17,24 @@ interface ImportLeadsModalProps {
   onImport: (config: ImportConfig) => void;
 }
 
+const tagLabels = {
+  lead: 'Lead',
+  cliente: 'Cliente',
+};
+
+const stageLabels = {
+  assimilacao: 'Assimilação',
+  utilizacao: 'Utilização',
+  adoracao: 'Adoração',
+  expansao: 'Expansão',
+  evangelismo: 'Evangelismo',
+};
+
 export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModalProps) {
   const [importName, setImportName] = useState('');
   const [selectedTag, setSelectedTag] = useState<ContactTag>('lead');
   const [automationAgent, setAutomationAgent] = useState('');
-  const [defaultStage, setDefaultStage] = useState<ChatStage>('assimilacao');
+  const [defaultStage, setDefaultStage] = useState<number>(1); // Agora usa ID da etapa
   const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = () => {
@@ -43,7 +56,7 @@ export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModal
     setImportName('');
     setSelectedTag('lead');
     setAutomationAgent('');
-    setDefaultStage('assimilacao');
+    setDefaultStage(1);
     setFile(null);
     onClose();
   };
@@ -129,14 +142,14 @@ export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModal
 
                 <div>
                   <Label>Etapa</Label>
-                  <Select value={defaultStage} onValueChange={(value: ChatStage) => setDefaultStage(value)}>
+                  <Select value={defaultStage.toString()} onValueChange={(value) => setDefaultStage(parseInt(value))}>
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(stageLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
+                      {mockEtapasJornada.map((etapa) => (
+                        <SelectItem key={etapa.id} value={etapa.id.toString()}>
+                          {etapa.nome}
                         </SelectItem>
                       ))}
                     </SelectContent>

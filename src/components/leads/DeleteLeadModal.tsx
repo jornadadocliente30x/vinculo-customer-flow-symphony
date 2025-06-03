@@ -2,13 +2,13 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Trash2, AlertTriangle } from 'lucide-react';
-import { LeadContact } from '@/types/leads';
+import { Lead } from '@/types/database';
 
 interface DeleteLeadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lead: LeadContact | null;
-  onDelete: (leadId: string) => void;
+  lead: Lead | null;
+  onDelete: (leadId: number) => void;
 }
 
 export function DeleteLeadModal({ isOpen, onClose, lead, onDelete }: DeleteLeadModalProps) {
@@ -46,10 +46,10 @@ export function DeleteLeadModal({ isOpen, onClose, lead, onDelete }: DeleteLeadM
 
           <div className="p-4 bg-gray-50 rounded-lg">
             <p className="font-medium text-gray-900">
-              {lead.firstName} {lead.lastName}
+              {lead.nome}
             </p>
-            <p className="text-sm text-gray-600">{lead.email}</p>
-            <p className="text-sm text-gray-600">{lead.phone}</p>
+            <p className="text-sm text-gray-600">{lead.email || 'Sem email'}</p>
+            <p className="text-sm text-gray-600">{lead.telefone}</p>
           </div>
 
           <div className="flex space-x-2 pt-4">
