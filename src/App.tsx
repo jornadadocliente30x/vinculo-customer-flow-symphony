@@ -82,7 +82,14 @@ function App() {
             </ProtectedRoute>
           } />
           
+          {/* Messages/Conversas Routes */}
           <Route path="/dashboard/messages" element={
+            <ProtectedRoute>
+              <WhatsAppChat />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dashboard/messages/whatsapp" element={
             <ProtectedRoute>
               <WhatsAppChat />
             </ProtectedRoute>
@@ -94,7 +101,14 @@ function App() {
             </ProtectedRoute>
           } />
           
+          {/* Agents/Automação Routes */}
           <Route path="/dashboard/agents" element={
+            <ProtectedRoute>
+              <AgentsPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dashboard/automations/agents" element={
             <ProtectedRoute>
               <AgentsPage />
             </ProtectedRoute>
@@ -131,6 +145,15 @@ function App() {
             </ProtectedRoute>
           } />
           
+          {/* Admin User Routes - Matching sidebar links */}
+          <Route path="/admin/usuarios/cadastros" element={
+            <ProtectedRoute>
+              <AdminProtectedRoute>
+                <UsuariosCadastros />
+              </AdminProtectedRoute>
+            </ProtectedRoute>
+          } />
+          
           <Route path="/admin/usuarios-cadastros" element={
             <ProtectedRoute>
               <AdminProtectedRoute>
@@ -143,6 +166,14 @@ function App() {
             <ProtectedRoute>
               <AdminProtectedRoute>
                 <UsuariosCadastrosPage />
+              </AdminProtectedRoute>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/usuarios/tipos" element={
+            <ProtectedRoute>
+              <AdminProtectedRoute>
+                <UsuariosTipos />
               </AdminProtectedRoute>
             </ProtectedRoute>
           } />

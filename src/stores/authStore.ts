@@ -41,20 +41,21 @@ interface RegisterData {
 }
 
 // Função para determinar o role baseado no nivel_usuario_id
+// Ajustada para permitir que nível 1 tenha acesso admin
 const getRoleFromNivelUsuario = (nivelUsuarioId?: number): 'admin' | 'manager' | 'agent' | 'viewer' => {
   if (!nivelUsuarioId) return 'viewer';
   
   // Baseado na estrutura do banco, assumindo:
-  // 1 = viewer/básico, 2 = agent, 3 = manager, 4+ = admin
+  // 1 = admin (primeiro usuário do sistema), 2 = manager, 3 = agent, 4+ = viewer
   switch (nivelUsuarioId) {
     case 1:
-      return 'viewer';
+      return 'admin'; // Mudança aqui: nível 1 é admin
     case 2:
-      return 'agent';
-    case 3:
       return 'manager';
+    case 3:
+      return 'agent';
     default:
-      return nivelUsuarioId >= 4 ? 'admin' : 'viewer';
+      return 'viewer';
   }
 };
 
@@ -121,6 +122,8 @@ export const useAuthStore = create<AuthState>()(
               : usuario?.empresa;
 
             const role = getRoleFromNivelUsuario(usuario?.nivel_usuario_id);
+
+            console.log('User role determined:', role, 'for nivel_usuario_id:', usuario?.nivel_usuario_id);
 
             const appUser: AppUser = {
               id: data.user.id,

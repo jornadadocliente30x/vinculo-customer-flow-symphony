@@ -10,8 +10,20 @@ interface AdminProtectedRouteProps {
 export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   const { user, isAuthenticated } = useAuthStore();
 
+  console.log('AdminProtectedRoute - Auth check:', { 
+    isAuthenticated, 
+    user: user ? {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      nivelUsuarioId: user.nivelUsuarioId,
+      empresaId: user.empresaId
+    } : null 
+  });
+
   // Verificar se o usuário está logado
   if (!isAuthenticated || !user) {
+    console.log('AdminProtectedRoute - User not authenticated');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md mx-auto text-center">
@@ -25,10 +37,20 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
     );
   }
 
-  // Verificar se o usuário tem permissões de admin baseado no role
-  const isAdmin = user.role === 'admin' || user.role === 'manager';
+  // Verificar se o usuário tem permissões de admin
+  // Permitir acesso para roles admin e manager, ou usuários com nivel_usuario_id 1
+  const isAdmin = user.role === 'admin' || 
+                  user.role === 'manager' || 
+                  user.nivelUsuarioId === 1;
+
+  console.log('AdminProtectedRoute - Admin check:', { 
+    isAdmin, 
+    role: user.role, 
+    nivelUsuarioId: user.nivelUsuarioId 
+  });
 
   if (!isAdmin) {
+    console.log('AdminProtectedRoute - User does not have admin access');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md mx-auto text-center">
@@ -43,11 +65,13 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
             <p><strong>Empresa:</strong> {user.company || 'Não informada'}</p>
             <p><strong>Nível:</strong> {user.role}</p>
             <p><strong>Nível ID:</strong> {user.nivelUsuarioId}</p>
+            <p><strong>Empresa ID:</strong> {user.empresaId}</p>
           </div>
         </Card>
       </div>
     );
   }
 
+  console.log('AdminProtectedRoute - Access granted');
   return <>{children}</>;
 }
