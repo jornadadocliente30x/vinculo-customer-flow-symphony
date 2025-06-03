@@ -51,7 +51,7 @@ export default function Register() {
     if (success) {
       toast({
         title: 'Conta criada com sucesso!',
-        description: 'Bem-vindo ao Dentis',
+        description: 'Bem-vindo ao Odontomy',
       });
       navigate('/dashboard');
     } else {

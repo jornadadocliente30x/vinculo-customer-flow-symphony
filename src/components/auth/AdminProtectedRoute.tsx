@@ -24,19 +24,19 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
     );
   }
 
-  // Verificar se o usuário é da empresa Dentis
-  const isDentisUser = user.company?.toLowerCase().includes('dentis') || 
-                       user.email.includes('@dentis.com.br') ||
+  // Verificar se o usuário é da empresa Odontomy
+  const isOdontomyUser = user.company?.toLowerCase().includes('odontomy') || 
+                       user.email.includes('@odontomy.com.br') ||
                        user.role === 'admin';
 
-  if (!isDentisUser) {
+  if (!isOdontomyUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md mx-auto text-center">
           <ShieldAlert className="w-16 h-16 text-orange-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Acesso Restrito</h2>
           <p className="text-gray-600 mb-4">
-            Esta área é exclusiva para usuários da empresa Dentis.
+            Esta área é exclusiva para usuários da empresa Odontomy.
           </p>
           <div className="text-sm text-gray-500 bg-gray-100 p-3 rounded-lg">
             <p><strong>Usuário:</strong> {user.name}</p>

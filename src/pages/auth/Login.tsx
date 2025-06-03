@@ -65,7 +65,7 @@ export default function Login() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Fazer Login</CardTitle>
           <CardDescription>
-            Acesse sua conta da plataforma Dentis
+            Acesse sua conta da plataforma Odontomy
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,7 +77,7 @@ export default function Login() {
 
           <Alert className="mb-4 border-blue-200 bg-blue-50">
             <AlertDescription>
-              <strong>Demo:</strong> admin@dentis.com.br / 123456
+              <strong>Demo:</strong> admin@odontomy.com.br / 123456
             </AlertDescription>
           </Alert>
 

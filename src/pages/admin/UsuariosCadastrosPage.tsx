@@ -87,10 +87,10 @@ interface Payment {
 
 const mockCompanyData: CompanyData = {
   responsible: 'Paulo Barreto',
-  email: 'contato@dentis.com.br',
+  email: 'contato@odontomy.com.br',
   phone: '(11) 99999-9999',
-  fantasia: 'Dentis Tecnologia',
-  razaoSocial: 'Dentis Tecnologia LTDA',
+  fantasia: 'Odontomy Tecnologia',
+  razaoSocial: 'Odontomy Tecnologia LTDA',
   cnpj: '12.345.678/0001-90',
   address: 'Rua das Flores, 123',
   neighborhood: 'Centro',
@@ -98,12 +98,12 @@ const mockCompanyData: CompanyData = {
   state: 'SP',
   cep: '01234-567',
   logo: '',
-  emailRemetente: 'noreply@dentis.com.br',
-  instagram: '@dentis_tech',
-  linkedin: '/company/dentis-tech',
-  tiktok: '@dentis_tech',
-  youtube: '/c/dentis-tech',
-  website: 'https://dentis.com.br'
+  emailRemetente: 'noreply@odontomy.com.br',
+  instagram: '@odontomy_tech',
+  linkedin: '/company/odontomy-tech',
+  tiktok: '@odontomy_tech',
+  youtube: '/c/odontomy-tech',
+  website: 'https://odontomy.com.br'
 };
 
 const mockPayments: Payment[] = [

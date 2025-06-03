@@ -63,7 +63,7 @@ export function ContactSection() {
   };
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent("Olá! Gostaria de saber mais sobre a plataforma Dentis.");
+    const message = encodeURIComponent("Olá! Gostaria de saber mais sobre a plataforma Odontomy.");
     window.open(`https://wa.me/5511999999999?text=${message}`, '_blank');
   };
 

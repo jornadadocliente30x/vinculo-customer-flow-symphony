@@ -111,7 +111,7 @@ export function AppSidebar() {
           <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-brand">
             <img 
               src="/brand-logo.svg" 
-              alt="Dentis Brand" 
+              alt="Odontomy Brand" 
               className="w-6 h-6"
             />
           </div>

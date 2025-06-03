@@ -1,7 +1,9 @@
 
-# Dentis - Plataforma SaaS de Automação de Vendas
+# Odontomy - Plataforma SaaS de Automação de Vendas
 
-Uma plataforma completa de gestão da jornada do cliente com foco em automação de comunicação e análise de resultados para PMEs brasileiras.
+Uma plataforma completa de gestão da jornada do cliente com foco em automação de comunicação e análise de resultados para PME- 📧 Email: contato@odontomy.com.br
+- 📱 WhatsApp: +55 (11) 99999-9999
+- 🌐 Website: https://odontomy.com.brrasileiras.
 
 ## 🚀 Tecnologias
 
@@ -177,9 +179,9 @@ Este projeto está sob a licença MIT.
 
 ## 📞 Suporte
 
-- 📧 Email: contato@dentis.com.br
+- 📧 Email: contato@odontomy.com.br
 - 💬 WhatsApp: (11) 99999-9999
-- 🌐 Website: https://dentis.com.br
+- 🌐 Website: https://odontomy.com.br
 
 ---
 

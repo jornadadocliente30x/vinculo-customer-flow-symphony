@@ -1,5 +1,5 @@
 
-// Core Types for Dentis Platform
+// Core Types for Odontomy Platform
 
 export interface User {
   id: string;

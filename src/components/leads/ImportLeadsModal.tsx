@@ -106,7 +106,7 @@ export function ImportLeadsModal({ isOpen, onClose, onImport }: ImportLeadsModal
                     id="importName"
                     value={importName}
                     onChange={(e) => setImportName(e.target.value)}
-                    placeholder="Ex: Leads Janeiro 2024"
+                    placeholder="Ex: Leads Janeiro 2025"
                     className="mt-1"
                   />
                 </div>

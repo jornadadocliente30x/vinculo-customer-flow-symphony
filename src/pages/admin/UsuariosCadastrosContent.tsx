@@ -16,9 +16,9 @@ interface User {
 }
 
 const initialUsers: User[] = [
-  { id: 1, name: 'Paulo Barreto', email: 'paulo@dentis.com', phone: '(11) 99999-9999', type: 'Administrador' },
-  { id: 2, name: 'Maria Silva', email: 'maria@dentis.com', phone: '(11) 88888-8888', type: 'Cliente' },
-  { id: 3, name: 'João Souza', email: 'joao@dentis.com', phone: '(11) 77777-7777', type: 'Cliente' },
+  { id: 1, name: 'Paulo Barreto', email: 'paulo@odontomy.com', phone: '(11) 99999-9999', type: 'Administrador' },
+  { id: 2, name: 'Maria Silva', email: 'maria@odontomy.com', phone: '(11) 88888-8888', type: 'Cliente' },
+  { id: 3, name: 'João Souza', email: 'joao@odontomy.com', phone: '(11) 77777-7777', type: 'Cliente' },
 ];
 
 export default function UsuariosCadastrosContent() {

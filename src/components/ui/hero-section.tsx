@@ -46,7 +46,7 @@ export function HeroSection() {
               <div className="w-3 h-3 bg-red-400 rounded-full"></div>
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
               <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <span className="ml-4 text-sm text-gray-600">Dentis - Plataforma de Automação</span>
+              <span className="ml-4 text-sm text-gray-600">Odontomy - Plataforma de Automação</span>
             </div>
             <div className="h-96 bg-gradient-to-br from-blue-100 to-purple-100 flex">
               {/* Tela do Chat */}
@@ -71,7 +71,7 @@ export function HeroSection() {
                       <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">D</span>
                       </div>
-                      <span className="text-xs font-medium">IA Dentis</span>
+                      <span className="text-xs font-medium">IA Odontomy</span>
                     </div>
                     <p className="text-xs text-gray-700">Claro! Que dia seria melhor para você?</p>
                   </div>

@@ -2,10 +2,10 @@
 // Application Constants
 
 export const APP_CONFIG = {
-  name: 'Dentis',
+  name: 'Odontomy',
   description: 'Plataforma de Automação de Vendas para PMEs',
   version: '1.0.0',
-  supportEmail: 'contato@dentis.com.br',
+  supportEmail: 'contato@odontomy.com.br',
   supportPhone: '+5511999999999'
 };
 

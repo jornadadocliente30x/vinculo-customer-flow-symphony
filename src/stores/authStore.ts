@@ -38,9 +38,9 @@ interface RegisterData {
 const mockUsers: User[] = [
   {
     id: '1',
-    email: 'admin@dentis.com.br',
+    email: 'admin@odontomy.com.br',
     name: 'João Silva',
-    company: 'Dentis Admin',
+    company: 'Odontomy Admin',
     role: 'admin',
     createdAt: new Date('2024-01-01')
   },

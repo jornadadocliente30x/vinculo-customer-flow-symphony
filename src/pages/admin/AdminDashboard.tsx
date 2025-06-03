@@ -157,7 +157,7 @@ export default function AdminDashboard() {
             Dashboard Administrativo
           </h1>
           <p className="text-gray-600 mt-2">
-            Visão geral do negócio e gestão de clientes Dentis
+            Visão geral do negócio e gestão de clientes Odontomy
           </p>
         </div>
         <div className="flex gap-3">

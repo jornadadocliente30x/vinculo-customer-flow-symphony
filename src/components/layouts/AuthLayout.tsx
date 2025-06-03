@@ -15,12 +15,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <img 
                 src="/brand-logo.svg" 
-                alt="Dentis Brand" 
+                alt="Odontomy Brand" 
                 className="w-6 h-6"
               />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Dentis
+              Odontomy
             </span>
           </div>
           <p className="text-gray-600">Plataforma de Automação para Agendamentos e Atendimento para Odontologias</p>
@@ -33,7 +33,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Footer */}
         <div className="text-center mt-6 text-sm text-gray-500">
-          © 2025 Dentis. Todos os direitos reservados.
+          © {new Date().getFullYear()} Odontomy. Todos os direitos reservados.
         </div>
       </div>
     </div>
