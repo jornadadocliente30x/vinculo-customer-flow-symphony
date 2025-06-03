@@ -32,6 +32,7 @@ interface AuthState {
   updateUser: (userData: Partial<UserProfile>) => void;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (token: string, password: string) => Promise<boolean>;
+  loadUserProfile: (userId: string) => Promise<UserProfile | null>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -45,6 +46,24 @@ export const useAuthStore = create<AuthState>()(
       isHydrated: false,
 
       setHydrated: () => set({ isHydrated: true }),
+
+      loadUserProfile: async (userId: string) => {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+          
+          return data ? {
+            id: data.id,
+            email: data.email || '',
+            name: data.nome || '',
+          } : null;
+        } catch (error) {
+          return null;
+        }
+      },
 
       signIn: async (email: string, password: string) => {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -141,24 +160,6 @@ export const useAuthStore = create<AuthState>()(
       resetPassword: async (token: string, password: string) => {
         const { error } = await supabase.auth.updateUser({ password });
         return !error;
-      },
-
-      loadUserProfile: async (userId: string) => {
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-          
-          return data ? {
-            id: data.id,
-            email: data.email || '',
-            name: data.nome || '',
-          } : null;
-        } catch (error) {
-          return null;
-        }
       },
 
       initialize: async () => {
