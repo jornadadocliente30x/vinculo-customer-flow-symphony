@@ -1,222 +1,168 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { supabase } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
 
-interface UserProfile {
+export interface User {
   id: string;
   email: string;
-  name?: string;
-  avatar?: string;
+  name: string;
   company?: string;
+  role: 'admin' | 'manager' | 'agent' | 'viewer';
+  avatar?: string;
   phone?: string;
-  role?: string;
+  createdAt: Date;
 }
 
 interface AuthState {
   user: User | null;
-  session: Session | null;
-  userProfile: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrated: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: any }>;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: { name: string; email: string; password: string; company?: string }) => Promise<boolean>;
-  signOut: () => Promise<void>;
-  logout: () => Promise<void>;
-  initialize: () => Promise<void>;
-  setHydrated: () => void;
-  updateUser: (userData: Partial<UserProfile>) => void;
+  register: (data: RegisterData) => Promise<boolean>;
+  logout: () => void;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (token: string, password: string) => Promise<boolean>;
-  loadUserProfile: (userId: string) => Promise<UserProfile | null>;
+  updateUser: (updates: Partial<User>) => void;
+  setHydrated: () => void;
 }
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  company?: string;
+}
+
+// Mock user data
+const mockUsers: User[] = [
+  {
+    id: '1',
+    email: 'admin@odontomy.com.br',
+    name: 'João Silva',
+    company: 'Odontomy Admin',
+    role: 'admin',
+    createdAt: new Date('2024-01-01')
+  },
+  {
+    id: '2',
+    email: 'demo@empresa.com.br',
+    name: 'Maria Santos',
+    company: 'Empresa Demo',
+    role: 'manager',
+    createdAt: new Date('2024-01-15')
+  }
+];
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      session: null,
-      userProfile: null,
       isAuthenticated: false,
-      isLoading: true,
+      isLoading: false,
       isHydrated: false,
 
-      setHydrated: () => set({ isHydrated: true }),
-
-      loadUserProfile: async (userId: string) => {
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-          
-          return data ? {
-            id: data.id,
-            email: data.email || '',
-            name: data.nome || '',
-          } : null;
-        } catch (error) {
-          return null;
-        }
-      },
-
-      signIn: async (email: string, password: string) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (data.session && data.user) {
-          set({
-            user: data.user,
-            session: data.session,
-            isAuthenticated: true,
-          });
-          
-          // Load user profile
-          const profileData = await get().loadUserProfile(data.user.id);
-          set({ userProfile: profileData });
-        }
-
-        return { error };
+      setHydrated: () => {
+        console.log('AuthStore hydrated');
+        set({ isHydrated: true });
       },
 
       login: async (email: string, password: string) => {
-        const result = await get().signIn(email, password);
-        return !result.error;
-      },
-
-      signUp: async (email: string, password: string, name?: string) => {
-        const redirectUrl = `${window.location.origin}/`;
+        console.log('Login attempt for:', email);
+        set({ isLoading: true });
         
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              name: name || email.split('@')[0],
-            },
-          },
-        });
-
-        if (data.session && data.user) {
-          set({
-            user: data.user,
-            session: data.session,
-            isAuthenticated: true,
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const user = mockUsers.find(u => u.email === email);
+        
+        if (user && password === '123456') {
+          console.log('Login successful for user:', user.name);
+          set({ 
+            user, 
+            isAuthenticated: true, 
+            isLoading: false 
           });
-          
-          // Create user profile
-          const profileData = {
-            id: data.user.id,
-            email: data.user.email!,
-            name: name || email.split('@')[0],
-          };
-          set({ userProfile: profileData });
+          return true;
         }
-
-        return { error };
+        
+        console.log('Login failed');
+        set({ isLoading: false });
+        return false;
       },
 
-      register: async (userData: { name: string; email: string; password: string; company?: string }) => {
-        const result = await get().signUp(userData.email, userData.password, userData.name);
-        return !result.error;
-      },
-
-      signOut: async () => {
-        await supabase.auth.signOut();
-        set({
-          user: null,
-          session: null,
-          userProfile: null,
-          isAuthenticated: false,
+      register: async (data: RegisterData) => {
+        console.log('Register attempt for:', data.email);
+        set({ isLoading: true });
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const newUser: User = {
+          id: Math.random().toString(),
+          email: data.email,
+          name: data.name,
+          company: data.company,
+          role: 'agent',
+          createdAt: new Date()
+        };
+        
+        mockUsers.push(newUser);
+        console.log('Registration successful for user:', newUser.name);
+        set({ 
+          user: newUser, 
+          isAuthenticated: true, 
+          isLoading: false 
         });
+        return true;
       },
 
-      logout: async () => {
-        await get().signOut();
-      },
-
-      updateUser: (userData: Partial<UserProfile>) => {
-        const currentProfile = get().userProfile;
-        if (currentProfile) {
-          set({
-            userProfile: { ...currentProfile, ...userData }
-          });
-        }
+      logout: () => {
+        console.log('User logged out');
+        set({ 
+          user: null, 
+          isAuthenticated: false 
+        });
       },
 
       forgotPassword: async (email: string) => {
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
-        return !error;
+        set({ isLoading: true });
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        set({ isLoading: false });
+        return true;
       },
 
       resetPassword: async (token: string, password: string) => {
-        const { error } = await supabase.auth.updateUser({ password });
-        return !error;
-      },
-
-      initialize: async () => {
         set({ isLoading: true });
-
-        // Set up auth state listener
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          if (session?.user) {
-            const profileData = await get().loadUserProfile(session.user.id);
-            set({
-              session,
-              user: session.user,
-              userProfile: profileData,
-              isAuthenticated: true,
-              isLoading: false,
-              isHydrated: true,
-            });
-          } else {
-            set({
-              session: null,
-              user: null,
-              userProfile: null,
-              isAuthenticated: false,
-              isLoading: false,
-              isHydrated: true,
-            });
-          }
-        });
-
-        // Check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const profileData = await get().loadUserProfile(session.user.id);
-          set({
-            session,
-            user: session.user,
-            userProfile: profileData,
-            isAuthenticated: true,
-            isLoading: false,
-            isHydrated: true,
-          });
-        } else {
-          set({
-            isLoading: false,
-            isHydrated: true,
-          });
-        }
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        set({ isLoading: false });
+        return true;
       },
+
+      updateUser: (updates: Partial<User>) => {
+        const currentUser = get().user;
+        if (currentUser) {
+          const updatedUser = { ...currentUser, ...updates };
+          set({ user: updatedUser });
+        }
+      }
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        session: state.session,
-        userProfile: state.userProfile,
-        isAuthenticated: state.isAuthenticated,
+      partialize: (state) => ({ 
+        user: state.user, 
+        isAuthenticated: state.isAuthenticated 
       }),
+      onRehydrateStorage: () => (state) => {
+        console.log('Rehydrating auth store:', state);
+        state?.setHydrated();
+      },
     }
   )
 );
