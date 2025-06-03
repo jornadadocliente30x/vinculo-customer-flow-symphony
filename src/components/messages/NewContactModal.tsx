@@ -8,11 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus } from 'lucide-react';
 import { CreateLeadData } from '@/types/database';
-import { 
-  mockEtapasJornada, 
-  mockStatusLead, 
-  mockOrigensLead 
-} from '@/data/mockDatabaseData';
+import { useLeads } from '@/hooks/useLeads';
 
 interface NewContactModalProps {
   isOpen: boolean;
@@ -21,6 +17,8 @@ interface NewContactModalProps {
 }
 
 export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProps) {
+  const { etapas, statusOptions, origens, isLoading } = useLeads();
+  
   const [formData, setFormData] = useState<Partial<CreateLeadData>>({
     nome: '',
     primeiro_nome: '',
@@ -33,9 +31,21 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
     cpf: '',
     data_nascimento: '',
     observacoes: '',
-    status_lead_id: 1, // Default: Atendimento
-    origem_lead_id: 2, // Default: WhatsApp
-    etapa_jornada_id: 1, // Default: Assimilação
+    status_lead_id: undefined,
+    origem_lead_id: undefined,
+    etapa_jornada_id: undefined,
+  });
+
+  // Set default values when data is loaded
+  useState(() => {
+    if (statusOptions.length > 0 && origens.length > 0 && etapas.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        status_lead_id: prev.status_lead_id || statusOptions[0]?.id,
+        origem_lead_id: prev.origem_lead_id || origens.find(o => o.nome.toLowerCase().includes('whatsapp'))?.id || origens[0]?.id,
+        etapa_jornada_id: prev.etapa_jornada_id || etapas[0]?.id,
+      }));
+    }
   });
 
   const handleSubmit = () => {
@@ -78,9 +88,9 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
       cpf: '',
       data_nascimento: '',
       observacoes: '',
-      status_lead_id: 1,
-      origem_lead_id: 2,
-      etapa_jornada_id: 1,
+      status_lead_id: statusOptions[0]?.id,
+      origem_lead_id: origens.find(o => o.nome.toLowerCase().includes('whatsapp'))?.id || origens[0]?.id,
+      etapa_jornada_id: etapas[0]?.id,
     });
     onClose();
   };
@@ -91,6 +101,21 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
       [field]: value,
     }));
   };
+
+  if (isLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-2xl">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Carregando dados...</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -215,7 +240,7 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
                 <SelectValue placeholder="Selecione uma etapa" />
               </SelectTrigger>
               <SelectContent>
-                {mockEtapasJornada.map((etapa) => (
+                {etapas.map((etapa) => (
                   <SelectItem key={etapa.id} value={etapa.id.toString()}>
                     {etapa.nome}
                   </SelectItem>
@@ -234,7 +259,7 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
                 <SelectValue placeholder="Selecione um status" />
               </SelectTrigger>
               <SelectContent>
-                {mockStatusLead.map((status) => (
+                {statusOptions.map((status) => (
                   <SelectItem key={status.id} value={status.id.toString()}>
                     {status.nome}
                   </SelectItem>
@@ -253,7 +278,7 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
                 <SelectValue placeholder="Selecione uma origem" />
               </SelectTrigger>
               <SelectContent>
-                {mockOrigensLead.map((origem) => (
+                {origens.map((origem) => (
                   <SelectItem key={origem.id} value={origem.id.toString()}>
                     {origem.nome}
                   </SelectItem>
