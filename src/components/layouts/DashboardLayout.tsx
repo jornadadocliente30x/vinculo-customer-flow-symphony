@@ -41,8 +41,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     navigate('/auth/login');
   };
 
-  // Verificar se usuário tem acesso admin
-  const hasAdminAccess = user?.role === 'admin' || user?.role === 'manager';
+  // Verificar se usuário tem acesso admin - padronizada com AppSidebar
+  const hasAdminAccess = user && (
+    user.role === 'admin' || 
+    user.role === 'manager' || 
+    user.nivelUsuarioId === 1
+  );
+
+  console.log('DashboardLayout - Admin access check:', { 
+    hasAdminAccess, 
+    userRole: user?.role, 
+    nivelUsuarioId: user?.nivelUsuarioId 
+  });
 
   return (
     <TooltipProvider>
@@ -99,11 +109,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         <User className="mr-2 h-4 w-4" />
                         <span>Perfil</span>
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Configurações</span>
+                      </DropdownMenuItem>
                       {hasAdminAccess && (
-                        <DropdownMenuItem onClick={() => navigate('/admin')}>
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>Administração</span>
-                        </DropdownMenuItem>
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => navigate('/admin')}>
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Administração</span>
+                          </DropdownMenuItem>
+                        </>
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout}>

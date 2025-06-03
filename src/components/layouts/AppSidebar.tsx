@@ -112,7 +112,7 @@ export function AppSidebar() {
   const isUsersMenu = location.pathname.startsWith('/admin/usuarios');
   const isLeadsMenu = location.pathname.startsWith('/dashboard/leads');
 
-  // Verificar se o usuário tem acesso admin
+  // Verificar se o usuário tem acesso admin - padronizada
   const hasAdminAccess = user && (
     user.role === 'admin' || 
     user.role === 'manager' || 
@@ -122,7 +122,14 @@ export function AppSidebar() {
   console.log('AppSidebar - Admin access check:', { 
     hasAdminAccess, 
     userRole: user?.role, 
-    nivelUsuarioId: user?.nivelUsuarioId 
+    nivelUsuarioId: user?.nivelUsuarioId,
+    user: user ? {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      nivelUsuarioId: user.nivelUsuarioId,
+      empresaId: user.empresaId
+    } : null 
   });
 
   // Filtrar itens do menu baseado nas permissões do usuário
@@ -132,6 +139,8 @@ export function AppSidebar() {
     }
     return true;
   });
+
+  console.log('AppSidebar - Filtered menu items:', filteredMenuItems.map(item => item.title));
 
   return (
     <Sidebar className="border-r border-gray-100">
@@ -154,8 +163,9 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 p-4">
-              {filteredMenuItems.filter(item => !item.children || item.title === 'Leads').map((item) => {
-                if (item.title === 'Leads') {
+              {filteredMenuItems.map((item) => {
+                // Handle Leads menu with children
+                if (item.title === 'Leads' && item.children) {
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
@@ -174,116 +184,101 @@ export function AppSidebar() {
                       </SidebarMenuButton>
                       {leadsOpen && (
                         <div className="ml-8 mt-1 space-y-1">
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              asChild
-                              isActive={location.pathname === '/dashboard/leads'}
-                              className={cn(
-                                "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
-                                location.pathname === '/dashboard/leads' ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
-                              )}
-                            >
-                              <Link to="/dashboard/leads" className="flex items-center w-full">
-                                <Contact className="w-4 h-4 mr-2" /> Contatos
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              asChild
-                              isActive={location.pathname === '/dashboard/leads/import'}
-                              className={cn(
-                                "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
-                                location.pathname === '/dashboard/leads/import' ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
-                              )}
-                            >
-                              <Link to="/dashboard/leads/import" className="flex items-center w-full">
-                                <Upload className="w-4 h-4 mr-2" /> Importar
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
+                          {item.children.map((child) => (
+                            <SidebarMenuItem key={child.href}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={location.pathname === child.href}
+                                className={cn(
+                                  "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
+                                  location.pathname === child.href ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                                )}
+                              >
+                                <Link to={child.href} className="flex items-center w-full">
+                                  <child.icon className="w-4 h-4 mr-2" /> {child.title}
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
                         </div>
                       )}
                     </SidebarMenuItem>
                   );
                 }
-                
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton 
-                      asChild
-                      isActive={isActive(item.href)}
-                      className={cn(
-                        "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden",
-                        isActive(item.href) 
-                          ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" 
-                          : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+
+                // Handle Usuários menu with children (only if has admin access)
+                if (item.title === 'Usuários' && item.children && hasAdminAccess) {
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        isActive={isUsersMenu}
+                        onClick={() => setUsersOpen(o => !o)}
+                        className={cn(
+                          "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden flex items-center justify-between",
+                          isUsersMenu ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                        )}
+                      >
+                        <div className="flex items-center">
+                          <item.icon className="w-5 h-5 mr-3" />
+                          <span className="font-medium">{item.title}</span>
+                        </div>
+                        <ChevronDown className={cn("w-4 h-4 transition-transform", usersOpen ? "rotate-180" : "")}/>
+                      </SidebarMenuButton>
+                      {usersOpen && (
+                        <div className="ml-8 mt-1 space-y-1">
+                          {item.children.map((child) => (
+                            <SidebarMenuItem key={child.href}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={location.pathname.includes(child.href)}
+                                className={cn(
+                                  "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
+                                  location.pathname.includes(child.href) ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                                )}
+                              >
+                                <Link to={child.href} className="flex items-center w-full">
+                                  <child.icon className="w-4 h-4 mr-2" /> {child.title}
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </div>
                       )}
-                    >
-                      <Link to={item.href} className="flex items-center w-full">
-                        <item.icon className={cn(
-                          "w-5 h-5 mr-3",
-                          isActive(item.href) ? "text-white" : ""
-                        )} />
-                        <span className={cn(
-                          "font-medium",
-                          isActive(item.href) ? "text-white" : ""
-                        )}>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
+                    </SidebarMenuItem>
+                  );
+                }
+
+                // Handle all other menu items (single level)
+                if (!item.children) {
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton 
+                        asChild
+                        isActive={isActive(item.href)}
+                        className={cn(
+                          "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden",
+                          isActive(item.href) 
+                            ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" 
+                            : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
+                        )}
+                      >
+                        <Link to={item.href} className="flex items-center w-full">
+                          <item.icon className={cn(
+                            "w-5 h-5 mr-3",
+                            isActive(item.href) ? "text-white" : ""
+                          )} />
+                          <span className={cn(
+                            "font-medium",
+                            isActive(item.href) ? "text-white" : ""
+                          )}>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                }
+
+                return null;
               })}
-              {hasAdminAccess && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={isUsersMenu}
-                    onClick={() => setUsersOpen(o => !o)}
-                    className={cn(
-                      "h-12 text-base rounded-xl transition-all duration-200 group relative overflow-hidden flex items-center justify-between",
-                      isUsersMenu ? "bg-gradient-brand text-white shadow-brand hover:shadow-lg" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
-                    )}
-                  >
-                    <div className="flex items-center">
-                      <User className="w-5 h-5 mr-3" />
-                      <span className="font-medium">Usuários</span>
-                    </div>
-                    <ChevronDown className={cn("w-4 h-4 transition-transform", usersOpen ? "rotate-180" : "")}/>
-                  </SidebarMenuButton>
-                  {usersOpen && (
-                    <div className="ml-8 mt-1 space-y-1">
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={location.pathname.includes('/admin/usuarios/cadastros')}
-                          className={cn(
-                            "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
-                            location.pathname.includes('/admin/usuarios/cadastros') ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
-                          )}
-                        >
-                          <Link to="/admin/usuarios/cadastros" className="flex items-center w-full">
-                            <UserPlus className="w-4 h-4 mr-2" /> Cadastros
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={location.pathname.includes('/admin/usuarios/tipos')}
-                          className={cn(
-                            "h-10 text-base rounded-lg transition-all duration-200 group relative overflow-hidden",
-                            location.pathname.includes('/admin/usuarios/tipos') ? "bg-gradient-brand text-white" : "hover:bg-white hover:shadow-soft text-gray-700 hover:text-gray-900"
-                          )}
-                        >
-                          <Link to="/admin/usuarios/tipos" className="flex items-center w-full">
-                            <UserCog className="w-4 h-4 mr-2" /> Tipos de Usuários
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </div>
-                  )}
-                </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
