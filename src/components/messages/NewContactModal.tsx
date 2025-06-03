@@ -6,190 +6,110 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Upload, Plus, X, AlertTriangle, Edit, Trash2 } from 'lucide-react';
-import { Contact, ContactService, TransferRequest } from '@/types/messages';
+import { Upload, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CreateLeadData } from '@/types/database';
+import { 
+  mockEtapasJornada, 
+  mockStatusLead, 
+  mockOrigensLead,
+  mockLeadsDatabase 
+} from '@/data/mockDatabaseData';
 
 interface NewContactModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveContact: (contact: Omit<Contact, 'id'>) => void;
-  existingContacts?: Contact[];
+  onSaveContact: (leadData: CreateLeadData) => void;
 }
-
-const serviceTypes = [
-  { value: 'consultation', label: 'Consulta Médica' },
-  { value: 'exam', label: 'Exames' },
-  { value: 'surgery', label: 'Cirurgia' },
-  { value: 'therapy', label: 'Fisioterapia' },
-  { value: 'nutrition', label: 'Nutrição' },
-  { value: 'psychology', label: 'Psicologia' },
-  { value: 'custom', label: 'Personalizado' },
-];
 
 export function NewContactModal({ 
   isOpen, 
   onClose, 
-  onSaveContact, 
-  existingContacts = [] 
+  onSaveContact
 }: NewContactModalProps) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [nome, setNome] = useState('');
+  const [primeiroNome, setPrimeiroNome] = useState('');
+  const [ultimoNome, setUltimoNome] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
-  const [description, setDescription] = useState('');
-  const [services, setServices] = useState<ContactService[]>([]);
-  const [avatar, setAvatar] = useState<string>('');
-  const [newServiceName, setNewServiceName] = useState('');
-  const [newServiceType, setNewServiceType] = useState<ContactService['type']>('consultation');
-  const [showCreateServiceType, setShowCreateServiceType] = useState(false);
-  const [newServiceTypeName, setNewServiceTypeName] = useState('');
-  const [dynamicServiceTypes, setDynamicServiceTypes] = useState(serviceTypes);
-  const [duplicateContact, setDuplicateContact] = useState<Contact | null>(null);
-  const [showTransferRequest, setShowTransferRequest] = useState(false);
-  const [birthDate, setBirthDate] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
+  const [endereco, setEndereco] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [cpf, setCpf] = useState('');
-  
-  // Edit service states
-  const [editingService, setEditingService] = useState<string | null>(null);
-  const [editServiceName, setEditServiceName] = useState('');
-  const [editServiceType, setEditServiceType] = useState<ContactService['type']>('consultation');
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [dataNascimento, setDataNascimento] = useState('');
+  const [observacoes, setObservacoes] = useState('');
+  const [statusLeadId, setStatusLeadId] = useState<number>(1); // Default: Atendimento
+  const [origemLeadId, setOrigemLeadId] = useState<number>(2); // Default: WhatsApp
+  const [etapaJornadaId, setEtapaJornadaId] = useState<number | undefined>(1); // Default: Assimilação
+  const [avatar, setAvatar] = useState<string>('');
+  const [duplicateContact, setDuplicateContact] = useState<any>(null);
 
   const checkForDuplicates = (phoneValue: string, emailValue: string) => {
-    const duplicate = existingContacts.find(contact => 
-      contact.phone === phoneValue || 
-      (emailValue && contact.email === emailValue)
+    const duplicate = mockLeadsDatabase.find(lead => 
+      lead.telefone === phoneValue || 
+      (emailValue && lead.email === emailValue)
     );
     
     setDuplicateContact(duplicate || null);
-    setShowTransferRequest(!!duplicate);
   };
 
   const handlePhoneChange = (value: string) => {
-    setPhone(value);
+    setTelefone(value);
     checkForDuplicates(value, email);
   };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
-    checkForDuplicates(phone, value);
-  };
-
-  const handleAddService = () => {
-    if (!newServiceName.trim()) return;
-
-    const newService: ContactService = {
-      id: Date.now().toString(),
-      name: newServiceName,
-      type: newServiceType,
-    };
-
-    setServices(prev => [...prev, newService]);
-    setNewServiceName('');
-    setNewServiceType('consultation');
-  };
-
-  const handleRemoveService = (serviceId: string) => {
-    setServices(prev => prev.filter(s => s.id !== serviceId));
-  };
-
-  const handleEditService = (service: ContactService) => {
-    setEditingService(service.id);
-    setEditServiceName(service.name);
-    setEditServiceType(service.type);
-  };
-
-  const handleSaveEditService = () => {
-    if (!editServiceName.trim()) return;
-
-    setServices(prev => prev.map(service => 
-      service.id === editingService 
-        ? { ...service, name: editServiceName, type: editServiceType }
-        : service
-    ));
-    
-    setEditingService(null);
-    setEditServiceName('');
-    setEditServiceType('consultation');
-  };
-
-  const handleCancelEdit = () => {
-    setEditingService(null);
-    setEditServiceName('');
-    setEditServiceType('consultation');
-  };
-
-  const handleDeleteService = (serviceId: string) => {
-    setShowDeleteConfirm(serviceId);
-  };
-
-  const confirmDeleteService = () => {
-    if (showDeleteConfirm) {
-      setServices(prev => prev.filter(s => s.id !== showDeleteConfirm));
-      setShowDeleteConfirm(null);
-    }
-  };
-
-  const handleCreateServiceType = () => {
-    if (!newServiceTypeName.trim()) return;
-
-    const newType = {
-      value: newServiceTypeName.toLowerCase().replace(/\s+/g, '-'),
-      label: newServiceTypeName,
-    };
-
-    setDynamicServiceTypes(prev => [...prev, newType]);
-    setNewServiceTypeName('');
-    setShowCreateServiceType(false);
+    checkForDuplicates(telefone, value);
   };
 
   const handleRequestTransfer = () => {
-    // Aqui você implementaria a lógica de solicitação de transferência
     console.log('Requesting transfer for duplicate contact:', duplicateContact);
-    // Simular notificação para o usuário responsável
-    alert(`Solicitação de transferência enviada para ${duplicateContact?.assignedUser || 'usuário responsável'}`);
+    alert(`Solicitação de transferência enviada para o usuário responsável`);
     onClose();
   };
 
   const handleSubmit = () => {
-    if (!firstName || !phone || duplicateContact) return;
+    if (!nome || !telefone || duplicateContact) return;
 
-    onSaveContact({
-      firstName,
-      lastName,
-      phone,
-      email,
-      description,
-      services,
-      avatar,
-      birthDate,
-      address,
-      city,
-      state,
-      cpf,
-    });
+    const leadData: CreateLeadData = {
+      nome,
+      primeiro_nome: primeiroNome || undefined,
+      ultimo_nome: ultimoNome || undefined,
+      telefone,
+      email: email || undefined,
+      endereco: endereco || undefined,
+      cidade: cidade || undefined,
+      estado: estado || undefined,
+      cpf: cpf || undefined,
+      data_nascimento: dataNascimento || undefined,
+      observacoes: observacoes || undefined,
+      status_lead_id: statusLeadId,
+      origem_lead_id: origemLeadId,
+      etapa_jornada_id: etapaJornadaId,
+      usuario_responsavel_id: undefined
+    };
+
+    onSaveContact(leadData);
 
     // Reset form
-    setFirstName('');
-    setLastName('');
-    setPhone('');
+    setNome('');
+    setPrimeiroNome('');
+    setUltimoNome('');
+    setTelefone('');
     setEmail('');
-    setDescription('');
-    setServices([]);
-    setAvatar('');
-    setBirthDate('');
-    setAddress('');
-    setCity('');
-    setState('');
+    setEndereco('');
+    setCidade('');
+    setEstado('');
     setCpf('');
+    setDataNascimento('');
+    setObservacoes('');
+    setStatusLeadId(1);
+    setOrigemLeadId(2);
+    setEtapaJornadaId(1);
+    setAvatar('');
     setDuplicateContact(null);
-    setShowTransferRequest(false);
     onClose();
   };
 
@@ -204,7 +124,7 @@ export function NewContactModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Contato</DialogTitle>
+          <DialogTitle>Novo Lead</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -215,8 +135,7 @@ export function NewContactModal({
               <AlertDescription>
                 <div className="space-y-2">
                   <p>
-                    Já existe um contato com este {duplicateContact.phone === phone ? 'telefone' : 'email'} 
-                    sendo atendido por <strong>{duplicateContact.assignedUser || 'outro usuário'}</strong>.
+                    Já existe um lead com este {duplicateContact.telefone === telefone ? 'telefone' : 'email'}.
                   </p>
                   <div className="flex space-x-2">
                     <Button
@@ -231,7 +150,6 @@ export function NewContactModal({
                       size="sm"
                       onClick={() => {
                         setDuplicateContact(null);
-                        setShowTransferRequest(false);
                       }}
                     >
                       Cancelar
@@ -247,11 +165,11 @@ export function NewContactModal({
             <Avatar className="h-20 w-20">
               <AvatarImage src={avatar} />
               <AvatarFallback className="text-lg">
-                {firstName[0]?.toUpperCase() || '?'}
+                {nome[0]?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar>
             <div>
-              <Label>Foto do Contato</Label>
+              <Label>Foto do Lead</Label>
               <div className="mt-1">
                 <label htmlFor="avatar-upload" className="cursor-pointer">
                   <Button variant="outline" size="sm" asChild>
@@ -272,34 +190,45 @@ export function NewContactModal({
             </div>
           </div>
 
-          {/* Personal Info */}
+          {/* Informações Pessoais */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">Nome *</Label>
+            <div className="col-span-2">
+              <Label htmlFor="nome">Nome Completo *</Label>
               <Input
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Nome"
+                id="nome"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                placeholder="Nome completo do lead"
               />
             </div>
+
             <div>
-              <Label htmlFor="lastName">Sobrenome</Label>
+              <Label htmlFor="primeiro_nome">Primeiro Nome</Label>
               <Input
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Sobrenome"
+                id="primeiro_nome"
+                value={primeiroNome}
+                onChange={(e) => setPrimeiroNome(e.target.value)}
+                placeholder="Primeiro nome"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="ultimo_nome">Último Nome</Label>
+              <Input
+                id="ultimo_nome"
+                value={ultimoNome}
+                onChange={(e) => setUltimoNome(e.target.value)}
+                placeholder="Último nome"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="phone">Telefone *</Label>
+              <Label htmlFor="telefone">Telefone *</Label>
               <Input
-                id="phone"
-                value={phone}
+                id="telefone"
+                value={telefone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+55 11 99999-9999"
               />
@@ -316,15 +245,14 @@ export function NewContactModal({
             </div>
           </div>
 
-          {/* Additional Personal Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="birthDate">Data de Nascimento</Label>
+              <Label htmlFor="data_nascimento">Data de Nascimento</Label>
               <Input
-                id="birthDate"
+                id="data_nascimento"
                 type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
+                value={dataNascimento}
+                onChange={(e) => setDataNascimento(e.target.value)}
               />
             </div>
             <div>
@@ -339,50 +267,108 @@ export function NewContactModal({
           </div>
 
           <div>
-            <Label htmlFor="address">Endereço</Label>
+            <Label htmlFor="endereco">Endereço</Label>
             <Input
-              id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              id="endereco"
+              value={endereco}
+              onChange={(e) => setEndereco(e.target.value)}
               placeholder="Rua, número, complemento"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="city">Cidade</Label>
+              <Label htmlFor="cidade">Cidade</Label>
               <Input
-                id="city"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
+                id="cidade"
+                value={cidade}
+                onChange={(e) => setCidade(e.target.value)}
                 placeholder="Nome da cidade"
               />
             </div>
             <div>
-              <Label htmlFor="state">Estado</Label>
+              <Label htmlFor="estado">Estado</Label>
               <Input
-                id="state"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
+                id="estado"
+                value={estado}
+                onChange={(e) => setEstado(e.target.value)}
                 placeholder="UF"
                 maxLength={2}
               />
             </div>
           </div>
 
-          {/* Description */}
+          {/* Configurações do Lead */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Status *</Label>
+              <Select 
+                value={statusLeadId.toString()} 
+                onValueChange={(value) => setStatusLeadId(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockStatusLead.map((status) => (
+                    <SelectItem key={status.id} value={status.id.toString()}>
+                      {status.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Origem *</Label>
+              <Select 
+                value={origemLeadId.toString()} 
+                onValueChange={(value) => setOrigemLeadId(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockOrigensLead.map((origem) => (
+                    <SelectItem key={origem.id} value={origem.id.toString()}>
+                      {origem.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div>
-            <Label htmlFor="description">Breve Descrição</Label>
+            <Label>Etapa da Jornada</Label>
+            <Select 
+              value={etapaJornadaId?.toString() || ''} 
+              onValueChange={(value) => setEtapaJornadaId(parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma etapa" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockEtapasJornada.map((etapa) => (
+                  <SelectItem key={etapa.id} value={etapa.id.toString()}>
+                    {etapa.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Observações */}
+          <div>
+            <Label htmlFor="observacoes">Observações</Label>
             <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Informações adicionais sobre o contato"
+              id="observacoes"
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              placeholder="Informações adicionais sobre o lead"
               rows={3}
             />
           </div>
-
-
 
           {/* Actions */}
           <div className="flex justify-end space-x-2 pt-4">
@@ -391,44 +377,14 @@ export function NewContactModal({
             </Button>
             <Button 
               onClick={handleSubmit}
-              disabled={!firstName || !phone || !!duplicateContact}
+              disabled={!nome || !telefone || !!duplicateContact}
               className="bg-gradient-brand hover:opacity-90"
             >
-              Salvar Contato
+              Salvar Lead
             </Button>
           </div>
         </div>
       </DialogContent>
-
-      {/* Delete confirmation dialog */}
-      <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center text-red-600">
-              <Trash2 className="w-5 h-5 mr-2" />
-              Excluir Serviço
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>Tem certeza que deseja excluir este serviço?</p>
-            <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteConfirm(null)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={confirmDeleteService}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Excluir
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </Dialog>
   );
 }

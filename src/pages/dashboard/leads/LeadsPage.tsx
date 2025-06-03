@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -23,8 +24,16 @@ import {
   Filter
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LeadContact, ChatStatus, ImportConfig, ExportConfig } from '@/types/leads';
-import { mockLeadsData, stageLabels, statusLabels, originLabels, tagLabels } from '@/data/mockLeadsData';
+import { Lead, ImportConfig, ExportConfig, CreateLeadData } from '@/types/database';
+import { 
+  mockLeadsDatabase, 
+  mockEtapasJornada, 
+  mockStatusLead, 
+  mockOrigensLead,
+  getEtapaJornadaById,
+  getStatusLeadById,
+  getOrigemLeadById
+} from '@/data/mockDatabaseData';
 import { ImportLeadsModal } from '@/components/leads/ImportLeadsModal';
 import { ExportReportModal } from '@/components/leads/ExportReportModal';
 import { EditLeadModal } from '@/components/leads/EditLeadModal';
@@ -36,10 +45,10 @@ type ViewMode = 'list' | 'kanban';
 export default function LeadsPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [leads, setLeads] = useState<LeadContact[]>(mockLeadsData);
+  const [leads, setLeads] = useState<Lead[]>(mockLeadsDatabase);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterStage, setFilterStage] = useState<string>('all');
+  const [filterEtapa, setFilterEtapa] = useState<string>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   
   // Modal states
@@ -47,19 +56,18 @@ export default function LeadsPage() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<LeadContact | null>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = 
-      lead.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.phone.includes(searchTerm);
+      lead.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      lead.telefone.includes(searchTerm);
     
-    const matchesStatus = filterStatus === 'all' || lead.status === filterStatus;
-    const matchesStage = filterStage === 'all' || lead.stage === filterStage;
+    const matchesStatus = filterStatus === 'all' || lead.status_lead_id.toString() === filterStatus;
+    const matchesEtapa = filterEtapa === 'all' || lead.etapa_jornada_id?.toString() === filterEtapa;
     
-    return matchesSearch && matchesStatus && matchesStage;
+    return matchesSearch && matchesStatus && matchesEtapa;
   });
 
   // Paginação
@@ -68,10 +76,10 @@ export default function LeadsPage() {
   const totalPages = Math.ceil(filteredLeads.length / leadsPerPage);
   const paginatedLeads = filteredLeads.slice((currentPage - 1) * leadsPerPage, currentPage * leadsPerPage);
 
-  const handleStatusChange = (leadId: string, newStatus: ChatStatus) => {
+  const handleStatusChange = (leadId: number, newStatusId: number) => {
     setLeads(prev => prev.map(lead => 
       lead.id === leadId 
-        ? { ...lead, status: newStatus, updatedAt: new Date() }
+        ? { ...lead, status_lead_id: newStatusId, updated_at: new Date().toISOString() }
         : lead
     ));
     
@@ -97,17 +105,17 @@ export default function LeadsPage() {
     console.log('Export config:', config);
   };
 
-  const handleEditLead = (lead: LeadContact) => {
+  const handleEditLead = (lead: Lead) => {
     setSelectedLead(lead);
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteLead = (lead: LeadContact) => {
+  const handleDeleteLead = (lead: Lead) => {
     setSelectedLead(lead);
     setIsDeleteModalOpen(true);
   };
 
-  const handleSaveLead = (updatedLead: LeadContact) => {
+  const handleSaveLead = (updatedLead: Lead) => {
     setLeads(prev => prev.map(lead => 
       lead.id === updatedLead.id ? updatedLead : lead
     ));
@@ -118,8 +126,28 @@ export default function LeadsPage() {
     });
   };
 
+  const handleCreateLead = (leadData: CreateLeadData) => {
+    const newLead: Lead = {
+      id: Math.max(...leads.map(l => l.id)) + 1,
+      ...leadData,
+      empresa_id: 1, // Sempre empresa_id = 1
+      ativo: true,
+      deleted: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_updated_at: null
+    };
+
+    setLeads(prev => [newLead, ...prev]);
+    
+    toast({
+      title: "Lead criado",
+      description: "Novo lead foi criado com sucesso.",
+    });
+  };
+
   const handleConfirmDelete = (leadId: string) => {
-    setLeads(prev => prev.filter(lead => lead.id !== leadId));
+    setLeads(prev => prev.filter(lead => lead.id.toString() !== leadId));
     
     toast({
       title: "Lead excluído",
@@ -128,25 +156,15 @@ export default function LeadsPage() {
     });
   };
 
-  const getStatusBadgeColor = (status: ChatStatus) => {
-    const colors = {
-      atendimento: 'bg-blue-100 text-blue-800 hover:bg-blue-100',
-      finalizados: 'bg-green-100 text-green-800 hover:bg-green-100',
-      agendamentos: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
-      conversa_ia: 'bg-purple-100 text-purple-800 hover:bg-purple-100',
-    };
-    return colors[status];
+  const getStatusBadgeColor = (statusId: number) => {
+    const status = getStatusLeadById(statusId);
+    return `bg-blue-100 text-blue-800 hover:bg-blue-100`;
   };
 
-  const getStageBadgeColor = (stage: string) => {
-    const colors = {
-      assimilacao: 'bg-gray-100 text-gray-800 hover:bg-gray-100',
-      utilizacao: 'bg-blue-100 text-blue-800 hover:bg-blue-100',
-      adoracao: 'bg-purple-100 text-purple-800 hover:bg-purple-100',
-      expansao: 'bg-orange-100 text-orange-800 hover:bg-orange-100',
-      evangelismo: 'bg-green-100 text-green-800 hover:bg-green-100',
-    };
-    return colors[stage as keyof typeof colors] || 'bg-gray-100 text-gray-800 hover:bg-gray-100';
+  const getEtapaBadgeColor = (etapaId?: number) => {
+    if (!etapaId) return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
+    const etapa = getEtapaJornadaById(etapaId);
+    return 'bg-purple-100 text-purple-800 hover:bg-purple-100';
   };
 
   const handleViewModeChange = (mode: ViewMode) => {
@@ -237,24 +255,24 @@ export default function LeadsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os status</SelectItem>
-                  {Object.entries(statusLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
+                  {mockStatusLead.map((status) => (
+                    <SelectItem key={status.id} value={status.id.toString()}>
+                      {status.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={filterStage} onValueChange={setFilterStage}>
+              <Select value={filterEtapa} onValueChange={setFilterEtapa}>
                 <SelectTrigger className="w-full sm:w-48">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Etapa" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as etapas</SelectItem>
-                  {Object.entries(stageLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
+                  {mockEtapasJornada.map((etapa) => (
+                    <SelectItem key={etapa.id} value={etapa.id.toString()}>
+                      {etapa.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -274,79 +292,75 @@ export default function LeadsPage() {
                 <TableHead>Etapa</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Origem</TableHead>
-                <TableHead>Data Conversão</TableHead>
-                <TableHead>Tag</TableHead>
+                <TableHead>Data Criação</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedLeads.map((lead) => (
-                <TableRow key={lead.id}>
-                  <TableCell className="font-medium">
-                    {lead.firstName} {lead.lastName}
-                  </TableCell>
-                  <TableCell>{lead.phone}</TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell>
-                    <Badge className={getStageBadgeColor(lead.stage)}>
-                      {stageLabels[lead.stage]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={lead.status}
-                      onValueChange={(value: ChatStatus) => handleStatusChange(lead.id, value)}
-                    >
-                      <SelectTrigger className="w-auto">
-                        <Badge className={getStatusBadgeColor(lead.status)}>
-                          {statusLabels[lead.status]}
+              {paginatedLeads.map((lead) => {
+                const etapa = getEtapaJornadaById(lead.etapa_jornada_id || 0);
+                const status = getStatusLeadById(lead.status_lead_id);
+                const origem = getOrigemLeadById(lead.origem_lead_id);
+                
+                return (
+                  <TableRow key={lead.id}>
+                    <TableCell className="font-medium">
+                      {lead.nome}
+                    </TableCell>
+                    <TableCell>{lead.telefone}</TableCell>
+                    <TableCell>{lead.email || '-'}</TableCell>
+                    <TableCell>
+                      {etapa && (
+                        <Badge className={getEtapaBadgeColor(lead.etapa_jornada_id)}>
+                          {etapa.nome}
                         </Badge>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(statusLabels).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>{originLabels[lead.origin]}</TableCell>
-                  <TableCell>
-                    {lead.conversionDate.toLocaleDateString('pt-BR')}
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      className={
-                        lead.tag === 'cliente' 
-                          ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                          : 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-                      }
-                    >
-                      {tagLabels[lead.tag]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditLead(lead)}
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={lead.status_lead_id.toString()}
+                        onValueChange={(value) => handleStatusChange(lead.id, parseInt(value))}
                       >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteLead(lead)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <SelectTrigger className="w-auto">
+                          <Badge className={getStatusBadgeColor(lead.status_lead_id)}>
+                            {status?.nome}
+                          </Badge>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mockStatusLead.map((statusOption) => (
+                            <SelectItem key={statusOption.id} value={statusOption.id.toString()}>
+                              {statusOption.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>{origem?.nome}</TableCell>
+                    <TableCell>
+                      {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditLead(lead)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteLead(lead)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
 
@@ -356,6 +370,7 @@ export default function LeadsPage() {
             </div>
           )}
         </div>
+
         {/* Paginação visual moderna */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-6">

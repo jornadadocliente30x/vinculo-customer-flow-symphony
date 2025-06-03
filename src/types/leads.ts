@@ -1,36 +1,21 @@
 
-export interface LeadContact {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email: string;
-  stage: ChatStage;
-  status: ChatStatus;
-  origin: ContactOrigin;
-  conversionDate: Date;
-  tag: ContactTag;
-  notes?: string;
-  birthDate?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  cpf?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Usando as interfaces do banco de dados
+export { 
+  Lead, 
+  EtapaJornada, 
+  StatusLead, 
+  OrigemLead,
+  CreateLeadData,
+  UpdateLeadData 
+} from './database';
 
-export type ChatStage = 'assimilacao' | 'utilizacao' | 'adoracao' | 'expansao' | 'evangelismo';
-export type ChatStatus = 'atendimento' | 'finalizados' | 'agendamentos' | 'conversa_ia';
-export type ContactOrigin = 'instagram' | 'messenger' | 'google' | 'linkedin' | 'tiktok' | 'site' | 'whatsapp';
-export type ContactTag = 'cliente' | 'lead';
-
+// Mantendo compatibilidade com interfaces existentes
 export interface ImportConfig {
   fileName: string;
   importName: string;
-  selectedTag: ContactTag;
+  selectedTag: string;
   automationAgent?: string;
-  defaultStage: ChatStage;
+  defaultStage: number; // Agora é ID da etapa
 }
 
 export interface ExportConfig {
@@ -40,4 +25,20 @@ export interface ExportConfig {
     start: Date;
     end: Date;
   };
+}
+
+// Mapeamento para compatibilidade (será removido quando migrarmos completamente)
+export interface LeadContact extends Lead {
+  firstName: string;
+  lastName: string;
+  stage: string;
+  status: string;
+  origin: string;
+  conversionDate: Date;
+  tag: string;
+  notes?: string;
+  birthDate?: string;
+  address?: string;
+  city?: string;
+  state?: string;
 }
