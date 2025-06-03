@@ -1,4 +1,5 @@
 
+
 import { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -92,36 +93,38 @@ export function ChatArea({
     });
   };
 
-  const handleNewContact = async (contactData: any) => {
+  const handleNewContact = async (contactData: CreateLeadData) => {
     try {
       console.log('Creating new contact:', contactData);
       
-      // Converter os dados do modal para o formato CreateLeadData
-      const leadData: CreateLeadData = {
-        nome: contactData.firstName + (contactData.lastName ? ` ${contactData.lastName}` : ''),
-        primeiro_nome: contactData.firstName,
-        ultimo_nome: contactData.lastName || '',
-        telefone: contactData.phone,
-        email: contactData.email || '',
-        endereco: contactData.address || '',
-        cidade: contactData.city || '',
-        estado: contactData.state || '',
-        cpf: contactData.cpf || '',
-        data_nascimento: contactData.birthDate ? contactData.birthDate : undefined,
-        observacoes: contactData.description || '',
-        status_lead_id: 1, // Status padrão
-        origem_lead_id: 1, // Origem padrão
-        etapa_jornada_id: 1, // Etapa padrão
-      };
+      // Validar se o telefone não está vazio
+      if (!contactData.telefone || contactData.telefone.trim() === '') {
+        toast({
+          title: "Erro de validação",
+          description: "O telefone é obrigatório para criar um contato.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validar se o nome não está vazio
+      if (!contactData.nome || contactData.nome.trim() === '') {
+        toast({
+          title: "Erro de validação", 
+          description: "O nome é obrigatório para criar um contato.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Salvar no banco de dados usando o leadsService
-      const newLead = await leadsService.createLead(leadData);
+      const newLead = await leadsService.createLead(contactData);
       
       console.log('Lead created successfully:', newLead);
       
       toast({
         title: "Contato criado",
-        description: `O contato ${leadData.nome} foi criado com sucesso.`,
+        description: `O contato ${contactData.nome} foi criado com sucesso.`,
       });
 
       // Fechar o modal
@@ -314,3 +317,4 @@ export function ChatArea({
     </TooltipProvider>
   );
 }
+
