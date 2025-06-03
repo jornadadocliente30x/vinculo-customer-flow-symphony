@@ -70,11 +70,12 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (data.user && data.session) {
-            // Buscar dados do usuário na tabela usuario
+            // Buscar dados do usuário na tabela profiles
             const { data: profileData } = await supabase
               .from('profiles')
               .select(`
                 usuario_id,
+                nome,
                 usuario:usuario_id (
                   id,
                   nome,
@@ -85,15 +86,14 @@ export const useAuthStore = create<AuthState>()(
               .eq('id', data.user.id)
               .single();
 
-            // Fix: Access the first element of the usuario array
-            const usuario = Array.isArray(profileData?.usuario) 
-              ? profileData.usuario[0] 
-              : profileData?.usuario;
+            console.log('Profile data retrieved:', profileData);
+
+            const usuario = profileData?.usuario;
 
             const appUser: AppUser = {
               id: data.user.id,
               email: data.user.email!,
-              name: usuario?.nome || data.user.email!,
+              name: profileData?.nome || data.user.email!,
               role: 'agent', // Default role
               createdAt: new Date(data.user.created_at),
               usuarioId: usuario?.id,
@@ -239,6 +239,7 @@ supabase.auth.onAuthStateChange((event, session) => {
             .from('profiles')
             .select(`
               usuario_id,
+              nome,
               usuario:usuario_id (
                 id,
                 nome,
@@ -249,15 +250,14 @@ supabase.auth.onAuthStateChange((event, session) => {
             .eq('id', session.user.id)
             .single();
 
-          // Fix: Access the first element of the usuario array
-          const usuario = Array.isArray(profileData?.usuario) 
-            ? profileData.usuario[0] 
-            : profileData?.usuario;
+          console.log('Auth state change - Profile data:', profileData);
+
+          const usuario = profileData?.usuario;
 
           const appUser: AppUser = {
             id: session.user.id,
             email: session.user.email!,
-            name: usuario?.nome || session.user.email!,
+            name: profileData?.nome || session.user.email!,
             role: 'agent',
             createdAt: new Date(session.user.created_at),
             usuarioId: usuario?.id,
