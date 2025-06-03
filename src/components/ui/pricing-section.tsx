@@ -5,24 +5,7 @@ import { Link } from "react-router-dom";
 
 const plans = [
   {
-    name: "Starter",
-    price: "R$ 197",
-    period: "/mês",
-    description: "Perfeito para começar a automatizar",
-    features: [
-      "Até 5.000 contatos",
-      "1 Agente IA para automação",
-      "WhatsApp + Email integrados",
-      "CRM intuitivo",
-      "Dashboard básico",
-      "Jornada do Paciente",
-      "Agendamento automático"
-    ],
-    popular: false,
-    cta: "Começar Teste Grátis"
-  },
-  {
-    name: "Professional",
+    name: "Escalável",
     price: "R$ 297",
     period: "/mês",
     description: "Para empresas em crescimento",
@@ -40,7 +23,7 @@ const plans = [
     cta: "Começar Teste Grátis"
   },
   {
-    name: "Enterprise",
+    name: "Crescimento",
     price: "R$ 397",
     period: "/mês",
     description: "Para grandes operações",
@@ -77,7 +60,7 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}

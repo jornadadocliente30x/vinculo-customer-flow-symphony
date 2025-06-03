@@ -41,7 +41,7 @@ export function Navigation() {
               <Link to="/auth/login">Login</Link>
             </Button>
             <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              <Link to="/auth/register">Teste Grátis</Link>
+              <a href="#pricing">Teste Grátis</a>
             </Button>
           </div>
 
@@ -83,7 +83,7 @@ export function Navigation() {
                   <Link to="/auth/login">Login</Link>
                 </Button>
                 <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  <Link to="/auth/register">Teste Grátis</Link>
+                  <a href="#pricing">Teste Grátis</a>
                 </Button>
               </div>
             </div>

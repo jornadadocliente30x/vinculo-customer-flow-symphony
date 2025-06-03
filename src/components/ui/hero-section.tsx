@@ -46,13 +46,71 @@ export function HeroSection() {
               <div className="w-3 h-3 bg-red-400 rounded-full"></div>
               <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
               <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+              <span className="ml-4 text-sm text-gray-600">Dentis - Plataforma de Automação</span>
             </div>
-            <div className="h-96 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-white text-2xl font-bold">D</span>
+            <div className="h-96 bg-gradient-to-br from-blue-100 to-purple-100 flex">
+              {/* Tela do Chat */}
+              <div className="flex-1 border-r border-gray-200 p-6">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <span className="text-white text-xl">💬</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800">Chat Inteligente</h3>
+                  <p className="text-sm text-gray-600">Atendimento automatizado</p>
                 </div>
-                <p className="text-gray-600 text-lg">Dashboard Preview</p>
+                <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 shadow-sm">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
+                      <span className="text-xs font-medium">Paciente</span>
+                    </div>
+                    <p className="text-xs text-gray-700">Gostaria de agendar uma consulta</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3 shadow-sm ml-4">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">D</span>
+                      </div>
+                      <span className="text-xs font-medium">IA Dentis</span>
+                    </div>
+                    <p className="text-xs text-gray-700">Claro! Que dia seria melhor para você?</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Tela de Criar Agentes IA */}
+              <div className="flex-1 p-6">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full mx-auto mb-2 flex items-center justify-center">
+                    <span className="text-white text-xl">🤖</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800">Agentes IA</h3>
+                  <p className="text-sm text-gray-600">Configuração inteligente</p>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 shadow-sm border-2 border-purple-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-purple-700">Agente de Agendamento</span>
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    </div>
+                    <p className="text-xs text-gray-600">Automação para consultas</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-700">Agente de Suporte</span>
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    </div>
+                    <p className="text-xs text-gray-600">Atendimento especializado</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-700">+ Criar Novo</span>
+                      <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">+</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -1,11 +1,11 @@
 
-import { Bot, MessageSquare, BarChart3, Zap, Users, Target } from "lucide-react";
+import { Bot, MessageSquare, BarChart3, Zap, Users, Calendar, FileText, Activity } from "lucide-react";
 
 const features = [
   {
-    icon: MessageSquare,
-    title: "WhatsApp Automático",
-    description: "Automatize conversas, envie mensagens em massa e gerencie todos os chats em uma única plataforma.",
+    icon: Calendar,
+    title: "Agendamentos automáticos",
+    description: "Ganhe tempo, reduza demora no atendimento com Inteligencia artificial.",
     color: "from-green-500 to-emerald-600"
   },
   {
@@ -16,26 +16,26 @@ const features = [
   },
   {
     icon: Bot,
-    title: "Funis de Automação",
-    description: "Crie sequências automáticas personalizadas que nutrem leads e convertem em vendas.",
+    title: "Agentes de IAs NLM",
+    description: "Crie agentes de IA com modelo de lingagem neural de forma humanizada",
     color: "from-purple-500 to-violet-600"
   },
   {
-    icon: BarChart3,
-    title: "Analytics Avançado",
+    icon: Activity,
+    title: "Dashboard avançada",
     description: "Relatórios detalhados de performance, ROI e métricas que importam para seu negócio.",
     color: "from-orange-500 to-red-600"
   },
   {
-    icon: Target,
-    title: "Landing Pages",
-    description: "Construtor visual de páginas de captura com alta conversão e integração nativa.",
+    icon: FileText,
+    title: "Prontuário e Tratamento",
+    description: "Acompanhe toda a jornada do paciente de forma ágil e prática.",
     color: "from-pink-500 to-rose-600"
   },
   {
     icon: Zap,
     title: "Integrações",
-    description: "Conecte com suas ferramentas favoritas: Zapier, webhooks, APIs e muito mais.",
+    description: "Conecte seu ERP com webhooks, APIs, integrações muito mais.",
     color: "from-indigo-500 to-blue-600"
   }
 ];

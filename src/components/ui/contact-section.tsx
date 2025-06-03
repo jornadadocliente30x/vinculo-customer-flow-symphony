@@ -22,9 +22,24 @@ export function ContactSection() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Simular envio de email
+      const emailData = {
+        to_email: 'contato@odontomay.com.br',
+        from_name: formData.name,
+        from_email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        message: formData.message,
+        subject: `Novo contato de ${formData.name} - Odontomy`
+      };
+
+      // Aqui você pode integrar com EmailJS, SendGrid ou outra API de email
+      console.log('Enviando email para:', emailData);
+      
+      // Simular delay de envio
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       alert("Mensagem enviada com sucesso! Entraremos em contato em breve.");
       setFormData({
         name: "",
@@ -33,7 +48,11 @@ export function ContactSection() {
         company: "",
         message: ""
       });
-    }, 2000);
+    } catch (error) {
+      alert("Erro ao enviar mensagem. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
