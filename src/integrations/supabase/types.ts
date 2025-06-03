@@ -375,51 +375,75 @@ export type Database = {
       lead: {
         Row: {
           ativo: boolean | null
+          cidade: string | null
           cpf: string | null
           created_at: string | null
+          data_nascimento: string | null
           deleted: boolean | null
           email: string | null
           empresa_id: number
+          endereco: string | null
+          estado: string | null
+          etapa_jornada_id: number | null
           id: number
           nome: string
           observacoes: string | null
           origem_lead_id: number
+          primeiro_nome: string | null
           status_lead_id: number
           telefone: string
+          ultimo_nome: string | null
           updated_at: string | null
           user_updated_at: number | null
+          usuario_responsavel_id: number | null
         }
         Insert: {
           ativo?: boolean | null
+          cidade?: string | null
           cpf?: string | null
           created_at?: string | null
+          data_nascimento?: string | null
           deleted?: boolean | null
           email?: string | null
           empresa_id: number
+          endereco?: string | null
+          estado?: string | null
+          etapa_jornada_id?: number | null
           id?: number
           nome: string
           observacoes?: string | null
           origem_lead_id: number
+          primeiro_nome?: string | null
           status_lead_id: number
           telefone: string
+          ultimo_nome?: string | null
           updated_at?: string | null
           user_updated_at?: number | null
+          usuario_responsavel_id?: number | null
         }
         Update: {
           ativo?: boolean | null
+          cidade?: string | null
           cpf?: string | null
           created_at?: string | null
+          data_nascimento?: string | null
           deleted?: boolean | null
           email?: string | null
           empresa_id?: number
+          endereco?: string | null
+          estado?: string | null
+          etapa_jornada_id?: number | null
           id?: number
           nome?: string
           observacoes?: string | null
           origem_lead_id?: number
+          primeiro_nome?: string | null
           status_lead_id?: number
           telefone?: string
+          ultimo_nome?: string | null
           updated_at?: string | null
           user_updated_at?: number | null
+          usuario_responsavel_id?: number | null
         }
         Relationships: [
           {
@@ -441,6 +465,20 @@ export type Database = {
             columns: ["status_lead_id"]
             isOneToOne: false
             referencedRelation: "status_lead"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_etapa_jornada_id_fkey"
+            columns: ["etapa_jornada_id"]
+            isOneToOne: false
+            referencedRelation: "etapa_jornada"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_usuario_responsavel_id_fkey"
+            columns: ["usuario_responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "usuario"
             referencedColumns: ["id"]
           },
         ]
@@ -685,6 +723,41 @@ export type Database = {
             columns: ["status_pagamento_id"]
             isOneToOne: false
             referencedRelation: "status_pagamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          nome: string | null
+          updated_at: string | null
+          usuario_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          nome?: string | null
+          updated_at?: string | null
+          usuario_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome?: string | null
+          updated_at?: string | null
+          usuario_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuario"
             referencedColumns: ["id"]
           },
         ]
@@ -1207,7 +1280,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_empresa_id: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
