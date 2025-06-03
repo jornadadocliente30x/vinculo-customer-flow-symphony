@@ -222,7 +222,7 @@ export function ChatArea({
         <NewContactModal
           isOpen={isNewContactModalOpen}
           onClose={() => setIsNewContactModalOpen(false)}
-          onSaveContact={handleNewContact}
+          onSave={handleNewContact}
         />
 
         <TagsModal
