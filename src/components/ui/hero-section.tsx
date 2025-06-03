@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function HeroSection() {
   return (
@@ -10,32 +11,26 @@ export function HeroSection() {
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Transforme{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Leads em Pacientes
+              a Jornada de Pacientes
             </span>{" "}
             com Automação Inteligente
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            A plataforma completa de gestão da jornada do pacientes para Odontologias. 
-            Automatize WhatsApp, gerencie leads e aumente suas vendas em até 300%.
+            A plataforma mais completa em gestão da jornada do paciente para Clínicas Odontológicas. 
+            Agentes de IA para Automatizar Atendimentos, Agendamentos, gerenciar pacientes, vender e crescer até 300%.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
+              asChild
               size="lg" 
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg"
             >
-              Começar Teste Grátis
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 text-lg"
-            >
-              <Play className="mr-2 w-5 h-5" />
-              Ver Demo
+              <Link to="/auth/register">
+                Começar Teste Grátis
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
             </Button>
           </div>
 
@@ -55,7 +50,7 @@ export function HeroSection() {
             <div className="h-96 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-white text-2xl font-bold">V</span>
+                  <span className="text-white text-2xl font-bold">D</span>
                 </div>
                 <p className="text-gray-600 text-lg">Dashboard Preview</p>
               </div>

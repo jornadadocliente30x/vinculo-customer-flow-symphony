@@ -1,38 +1,40 @@
 
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
     name: "Starter",
-    price: "R$ 97",
+    price: "R$ 197",
     period: "/mês",
     description: "Perfeito para começar a automatizar",
     features: [
-      "Até 1.000 contatos",
-      "5 funis de automação",
-      "WhatsApp integrado",
-      "CRM básico",
-      "Suporte por email",
-      "Landing pages ilimitadas"
+      "Até 5.000 contatos",
+      "1 Agente IA para automação",
+      "WhatsApp + Email integrados",
+      "CRM intuitivo",
+      "Dashboard básico",
+      "Jornada do Paciente",
+      "Agendamento automático"
     ],
     popular: false,
     cta: "Começar Teste Grátis"
   },
   {
     name: "Professional",
-    price: "R$ 197",
+    price: "R$ 297",
     period: "/mês",
     description: "Para empresas em crescimento",
     features: [
-      "Até 5.000 contatos",
-      "Funis ilimitados",
-      "WhatsApp + Email + SMS",
-      "CRM avançado",
-      "Analytics detalhado",
-      "API e webhooks",
-      "Suporte prioritário",
-      "White label"
+      "Até 7.000 contatos",
+      "2 Agentes IA para automação",
+      "WhatsApp + Email integrados",
+      "CRM intuitivo",
+      "Dashboard avançado",
+      "Suporte exclusivo",
+      "Agendamento automático",
+      "Relatórios personalizados"
     ],
     popular: true,
     cta: "Começar Teste Grátis"
@@ -43,13 +45,15 @@ const plans = [
     period: "/mês",
     description: "Para grandes operações",
     features: [
-      "Contatos ilimitados",
-      "Tudo do Professional",
-      "Múltiplas equipes",
-      "Integrações customizadas",
-      "Gerente de sucesso",
-      "SLA garantido",
-      "Treinamento incluído",
+        "Contatos ilimitados",
+      "3 Agentes IA para automação",
+      "WhatsApp + Email integrados",
+      "CRM intuitivo",
+      "Dashboard avançado",
+      "API e webhooks",
+      "Suporte exclusivo",
+      "Agendamento automático",
+      "Relatórios personalizados",
       "Backup e segurança avançada"
     ],
     popular: false,
@@ -69,7 +73,7 @@ export function PricingSection() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Escolha o plano ideal para seu negócio. Todos incluem 14 dias de teste grátis.
+            Escolha o plano ideal para a sua Odontológica crescer mais. Todos incluem 14 dias de teste grátis.
           </p>
         </div>
 
@@ -111,13 +115,18 @@ export function PricingSection() {
               </ul>
 
               <Button
+                asChild
                 className={`w-full py-3 ${
                   plan.popular
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     : "bg-gray-900 hover:bg-gray-800 text-white"
                 }`}
               >
-                {plan.cta}
+                {plan.cta === "Começar Teste Grátis" ? (
+                  <Link to="/auth/register">{plan.cta}</Link>
+                ) : (
+                  <a href="#contact">{plan.cta}</a>
+                )}
               </Button>
             </div>
           ))}

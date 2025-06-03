@@ -14,11 +14,11 @@ export function Footer() {
                 alt="Dentis Brand" 
                 className="w-8 h-8"
               />
-              <span className="text-xl font-bold">Dentis</span>
+              <span className="text-xl font-bold">Odontomy</span>
             </div>
             <p className="text-gray-400 text-sm">
-              A plataforma completa de automação de vendas para PMEs brasileiras. 
-              Transforme leads em clientes com inteligência artificial.
+              A plataforma mais completa para Atendimento e Agendamento automático com Agentes de IA para Clínicas Odontológicas. 
+              Transforme leads em pacientes com inteligência artificial.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -76,7 +76,7 @@ export function Footer() {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Dentis. Todos os direitos reservados.
+              © 2024 Odontomy. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">

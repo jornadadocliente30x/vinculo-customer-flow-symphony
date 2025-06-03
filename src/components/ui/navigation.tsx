@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,11 +37,11 @@ export function Navigation() {
             <a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors">
               Contato
             </a>
-            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-              Login
+            <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+              <Link to="/auth/login">Login</Link>
             </Button>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              Teste Grátis
+            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              <Link to="/auth/register">Teste Grátis</Link>
             </Button>
           </div>
 
@@ -78,11 +79,11 @@ export function Navigation() {
                 Contato
               </a>
               <div className="flex flex-col space-y-2 px-3 pt-2">
-                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                  Login
+                <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <Link to="/auth/login">Login</Link>
                 </Button>
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  Teste Grátis
+                <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Link to="/auth/register">Teste Grátis</Link>
                 </Button>
               </div>
             </div>

@@ -55,11 +55,11 @@ export function ContactSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Pronto para{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              transformar suas vendas?
+              transformar a Jornada do paciente?
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Entre em contato conosco e descubra como a Dentis pode revolucionar seu negócio.
+            Entre em contato conosco e descubra como a Odontomy pode revolucionar sua clínica odontológica.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export function ContactSection() {
               </h3>
               <p className="text-gray-600 text-lg mb-8">
                 Nossa equipe está pronta para ajudar você a escolher o melhor plano 
-                e configurar sua automação de vendas.
+                e configurar seu atendimento e agendamentos automáticos e venda mais para seus pacientes.
               </p>
             </div>
 
@@ -83,7 +83,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">WhatsApp</h4>
-                  <p className="text-gray-600">(11) 99999-9999</p>
+                  <p className="text-gray-600">(48) 99803-1208</p>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-green-600 hover:text-green-700"
@@ -100,7 +100,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Email</h4>
-                  <p className="text-gray-600">contato@dentis.com.br</p>
+                  <p className="text-gray-600">contato@odontomy.com.br</p>
                 </div>
               </div>
 
@@ -110,7 +110,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Telefone</h4>
-                  <p className="text-gray-600">(11) 3000-0000</p>
+                  <p className="text-gray-600">(48) 99803-1208</p>
                 </div>
               </div>
 
@@ -120,7 +120,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Endereço</h4>
-                  <p className="text-gray-600">São Paulo, SP - Brasil</p>
+                  <p className="text-gray-600">Palhoça, SC - Brasil</p>
                 </div>
               </div>
             </div>
