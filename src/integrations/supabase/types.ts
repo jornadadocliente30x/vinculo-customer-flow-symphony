@@ -1280,6 +1280,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_user_empresa_id: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_current_usuario_id: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_user_empresa_id: {
         Args: Record<PropertyKey, never>
         Returns: number

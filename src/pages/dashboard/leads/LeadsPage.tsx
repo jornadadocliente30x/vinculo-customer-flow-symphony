@@ -21,32 +21,33 @@ import {
   Trash2, 
   List,
   Kanban,
-  Filter
+  Filter,
+  Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Lead, CreateLeadData } from '@/types/database';
-import { ImportConfig, ExportConfig } from '@/types/leads';
-import { 
-  mockLeadsDatabase, 
-  mockEtapasJornada, 
-  mockStatusLead, 
-  mockOrigensLead,
-  getEtapaJornadaById,
-  getStatusLeadById,
-  getOrigemLeadById
-} from '@/data/mockDatabaseData';
+import { useLeads } from '@/hooks/useLeads';
 import { ImportLeadsModal } from '@/components/leads/ImportLeadsModal';
 import { ExportReportModal } from '@/components/leads/ExportReportModal';
 import { EditLeadModal } from '@/components/leads/EditLeadModal';
 import { DeleteLeadModal } from '@/components/leads/DeleteLeadModal';
-import { useToast } from '@/hooks/use-toast';
+import type { Lead } from '@/types/database';
+import type { ImportConfig, ExportConfig } from '@/types/leads';
 
 type ViewMode = 'list' | 'kanban';
 
 export default function LeadsPage() {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [leads, setLeads] = useState<Lead[]>(mockLeadsDatabase);
+  const {
+    leads,
+    etapas,
+    statusOptions,
+    origens,
+    isLoading,
+    createLead,
+    updateLead,
+    deleteLead,
+  } = useLeads();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterEtapa, setFilterEtapa] = useState<string>('all');
@@ -78,31 +79,20 @@ export default function LeadsPage() {
   const paginatedLeads = filteredLeads.slice((currentPage - 1) * leadsPerPage, currentPage * leadsPerPage);
 
   const handleStatusChange = (leadId: number, newStatusId: number) => {
-    setLeads(prev => prev.map(lead => 
-      lead.id === leadId 
-        ? { ...lead, status_lead_id: newStatusId, updated_at: new Date().toISOString() }
-        : lead
-    ));
-    
-    toast({
-      title: "Status atualizado",
-      description: "O status do lead foi atualizado com sucesso.",
-    });
+    const lead = leads.find(l => l.id === leadId);
+    if (lead) {
+      updateLead({
+        ...lead,
+        status_lead_id: newStatusId,
+      });
+    }
   };
 
   const handleImport = (config: ImportConfig) => {
-    toast({
-      title: "Importação iniciada",
-      description: `Processando arquivo ${config.fileName}...`,
-    });
     console.log('Import config:', config);
   };
 
   const handleExport = (config: ExportConfig) => {
-    toast({
-      title: "Relatório gerado",
-      description: "O download do relatório será iniciado em breve.",
-    });
     console.log('Export config:', config);
   };
 
@@ -117,55 +107,22 @@ export default function LeadsPage() {
   };
 
   const handleSaveLead = (updatedLead: Lead) => {
-    setLeads(prev => prev.map(lead => 
-      lead.id === updatedLead.id ? updatedLead : lead
-    ));
-    
-    toast({
-      title: "Lead atualizado",
-      description: "As informações do lead foram atualizadas com sucesso.",
-    });
-  };
-
-  const handleCreateLead = (leadData: CreateLeadData) => {
-    const newLead: Lead = {
-      id: Math.max(...leads.map(l => l.id)) + 1,
-      ...leadData,
-      empresa_id: 1, // Sempre empresa_id = 1
-      ativo: true,
-      deleted: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      user_updated_at: null
-    };
-
-    setLeads(prev => [newLead, ...prev]);
-    
-    toast({
-      title: "Lead criado",
-      description: "Novo lead foi criado com sucesso.",
-    });
+    updateLead(updatedLead);
   };
 
   const handleConfirmDelete = (leadId: number) => {
-    setLeads(prev => prev.filter(lead => lead.id !== leadId));
-    
-    toast({
-      title: "Lead excluído",
-      description: "O lead foi removido com sucesso.",
-      variant: "destructive",
-    });
+    deleteLead(leadId);
   };
 
   const getStatusBadgeColor = (statusId: number) => {
-    const status = getStatusLeadById(statusId);
-    return `bg-blue-100 text-blue-800 hover:bg-blue-100`;
+    const status = statusOptions.find(s => s.id === statusId);
+    return status?.cor ? `bg-[${status.cor}] text-white` : 'bg-blue-100 text-blue-800';
   };
 
   const getEtapaBadgeColor = (etapaId?: number) => {
-    if (!etapaId) return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
-    const etapa = getEtapaJornadaById(etapaId);
-    return 'bg-purple-100 text-purple-800 hover:bg-purple-100';
+    if (!etapaId) return 'bg-gray-100 text-gray-800';
+    const etapa = etapas.find(e => e.id === etapaId);
+    return etapa?.cor ? `bg-[${etapa.cor}] text-white` : 'bg-purple-100 text-purple-800';
   };
 
   const handleViewModeChange = (mode: ViewMode) => {
@@ -178,6 +135,19 @@ export default function LeadsPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Carregando leads...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -256,7 +226,7 @@ export default function LeadsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os status</SelectItem>
-                  {mockStatusLead.map((status) => (
+                  {statusOptions.map((status) => (
                     <SelectItem key={status.id} value={status.id.toString()}>
                       {status.nome}
                     </SelectItem>
@@ -271,7 +241,7 @@ export default function LeadsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as etapas</SelectItem>
-                  {mockEtapasJornada.map((etapa) => (
+                  {etapas.map((etapa) => (
                     <SelectItem key={etapa.id} value={etapa.id.toString()}>
                       {etapa.nome}
                     </SelectItem>
@@ -299,9 +269,9 @@ export default function LeadsPage() {
             </TableHeader>
             <TableBody>
               {paginatedLeads.map((lead) => {
-                const etapa = getEtapaJornadaById(lead.etapa_jornada_id || 0);
-                const status = getStatusLeadById(lead.status_lead_id);
-                const origem = getOrigemLeadById(lead.origem_lead_id);
+                const etapa = etapas.find(e => e.id === lead.etapa_jornada_id);
+                const status = statusOptions.find(s => s.id === lead.status_lead_id);
+                const origem = origens.find(o => o.id === lead.origem_lead_id);
                 
                 return (
                   <TableRow key={lead.id}>
@@ -328,7 +298,7 @@ export default function LeadsPage() {
                           </Badge>
                         </SelectTrigger>
                         <SelectContent>
-                          {mockStatusLead.map((statusOption) => (
+                          {statusOptions.map((statusOption) => (
                             <SelectItem key={statusOption.id} value={statusOption.id.toString()}>
                               {statusOption.nome}
                             </SelectItem>

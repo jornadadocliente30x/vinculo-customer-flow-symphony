@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isHydrated, setHydrated } = useAuthStore();
+  const { isAuthenticated, isHydrated, setHydrated, session } = useAuthStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -33,9 +33,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  console.log('ProtectedRoute check - isAuthenticated:', isAuthenticated, 'isHydrated:', isHydrated);
+  console.log('ProtectedRoute check - isAuthenticated:', isAuthenticated, 'isHydrated:', isHydrated, 'session:', !!session);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !session) {
     console.log('User not authenticated, redirecting to login');
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }

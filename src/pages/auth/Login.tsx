@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
@@ -74,12 +75,6 @@ export default function Login() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-
-          <Alert className="mb-4 border-blue-200 bg-blue-50">
-            <AlertDescription>
-              <strong>Demo:</strong> admin@odontomy.com.br / 123456
-            </AlertDescription>
-          </Alert>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
