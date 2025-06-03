@@ -15,6 +15,7 @@ export interface AppUser {
   createdAt: Date;
   usuarioId?: number;
   empresaId?: number;
+  nivelUsuarioId?: number;
 }
 
 interface AuthState {
@@ -38,6 +39,24 @@ interface RegisterData {
   password: string;
   company?: string;
 }
+
+// Função para determinar o role baseado no nivel_usuario_id
+const getRoleFromNivelUsuario = (nivelUsuarioId?: number): 'admin' | 'manager' | 'agent' | 'viewer' => {
+  if (!nivelUsuarioId) return 'viewer';
+  
+  // Baseado na estrutura do banco, assumindo:
+  // 1 = viewer/básico, 2 = agent, 3 = manager, 4+ = admin
+  switch (nivelUsuarioId) {
+    case 1:
+      return 'viewer';
+    case 2:
+      return 'agent';
+    case 3:
+      return 'manager';
+    default:
+      return nivelUsuarioId >= 4 ? 'admin' : 'viewer';
+  }
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -70,7 +89,7 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (data.user && data.session) {
-            // Buscar dados do usuário na tabela profiles
+            // Buscar dados completos do usuário incluindo empresa
             const { data: profileData } = await supabase
               .from('profiles')
               .select(`
@@ -80,7 +99,11 @@ export const useAuthStore = create<AuthState>()(
                   id,
                   nome,
                   empresa_id,
-                  nivel_usuario_id
+                  nivel_usuario_id,
+                  empresa:empresa_id (
+                    id,
+                    nome
+                  )
                 )
               `)
               .eq('id', data.user.id)
@@ -93,17 +116,25 @@ export const useAuthStore = create<AuthState>()(
               ? profileData.usuario[0] 
               : profileData?.usuario;
 
+            const empresa = Array.isArray(usuario?.empresa)
+              ? usuario.empresa[0]
+              : usuario?.empresa;
+
+            const role = getRoleFromNivelUsuario(usuario?.nivel_usuario_id);
+
             const appUser: AppUser = {
               id: data.user.id,
               email: data.user.email!,
               name: profileData?.nome || data.user.email!,
-              role: 'agent', // Default role
+              company: empresa?.nome,
+              role: role,
               createdAt: new Date(data.user.created_at),
               usuarioId: usuario?.id,
               empresaId: usuario?.empresa_id,
+              nivelUsuarioId: usuario?.nivel_usuario_id,
             };
 
-            console.log('Login successful for user:', appUser.name);
+            console.log('Login successful for user:', appUser.name, 'Role:', appUser.role);
             set({ 
               user: appUser, 
               session: data.session,
@@ -141,6 +172,14 @@ export const useAuthStore = create<AuthState>()(
 
           if (error) {
             console.error('Registration error:', error);
+            
+            // Verificar se é erro de usuário já existente
+            if (error.message.includes('User already registered')) {
+              console.log('User already exists, this is expected behavior');
+              set({ isLoading: false });
+              return false;
+            }
+            
             set({ isLoading: false });
             return false;
           }
@@ -247,7 +286,11 @@ supabase.auth.onAuthStateChange((event, session) => {
                 id,
                 nome,
                 empresa_id,
-                nivel_usuario_id
+                nivel_usuario_id,
+                empresa:empresa_id (
+                  id,
+                  nome
+                )
               )
             `)
             .eq('id', session.user.id)
@@ -260,14 +303,22 @@ supabase.auth.onAuthStateChange((event, session) => {
             ? profileData.usuario[0] 
             : profileData?.usuario;
 
+          const empresa = Array.isArray(usuario?.empresa)
+            ? usuario.empresa[0]
+            : usuario?.empresa;
+
+          const role = getRoleFromNivelUsuario(usuario?.nivel_usuario_id);
+
           const appUser: AppUser = {
             id: session.user.id,
             email: session.user.email!,
             name: profileData?.nome || session.user.email!,
-            role: 'agent',
+            company: empresa?.nome,
+            role: role,
             createdAt: new Date(session.user.created_at),
             usuarioId: usuario?.id,
             empresaId: usuario?.empresa_id,
+            nivelUsuarioId: usuario?.nivel_usuario_id,
           };
 
           useAuthStore.setState({
