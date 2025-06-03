@@ -82,9 +82,16 @@ function App() {
             </ProtectedRoute>
           } />
           
-          <Route path="/dashboard/messages" element={
+          {/* Corrigindo rota para automação/agentes */}
+          <Route path="/dashboard/automations/agents" element={
             <ProtectedRoute>
-              <WhatsAppChat />
+              <AgentsPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dashboard/agents" element={
+            <ProtectedRoute>
+              <AgentsPage />
             </ProtectedRoute>
           } />
           
@@ -94,9 +101,16 @@ function App() {
             </ProtectedRoute>
           } />
           
-          <Route path="/dashboard/agents" element={
+          {/* Corrigindo rotas para mensagens/conversas */}
+          <Route path="/dashboard/messages" element={
             <ProtectedRoute>
-              <AgentsPage />
+              <WhatsAppChat />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dashboard/messages/whatsapp" element={
+            <ProtectedRoute>
+              <WhatsAppChat />
             </ProtectedRoute>
           } />
           
@@ -131,6 +145,32 @@ function App() {
             </ProtectedRoute>
           } />
           
+          {/* Corrigindo rotas para usuários */}
+          <Route path="/admin/usuarios" element={
+            <ProtectedRoute>
+              <AdminProtectedRoute>
+                <UsuariosCadastros />
+              </AdminProtectedRoute>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/usuarios/cadastros" element={
+            <ProtectedRoute>
+              <AdminProtectedRoute>
+                <UsuariosCadastros />
+              </AdminProtectedRoute>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/usuarios/tipos" element={
+            <ProtectedRoute>
+              <AdminProtectedRoute>
+                <UsuariosTipos />
+              </AdminProtectedRoute>
+            </ProtectedRoute>
+          } />
+          
+          {/* Manter rotas antigas para compatibilidade */}
           <Route path="/admin/usuarios-cadastros" element={
             <ProtectedRoute>
               <AdminProtectedRoute>
