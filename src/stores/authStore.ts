@@ -85,7 +85,10 @@ export const useAuthStore = create<AuthState>()(
               .eq('id', data.user.id)
               .single();
 
-            const usuario = profileData?.usuario;
+            // Fix: Access the first element of the usuario array
+            const usuario = Array.isArray(profileData?.usuario) 
+              ? profileData.usuario[0] 
+              : profileData?.usuario;
 
             const appUser: AppUser = {
               id: data.user.id,
@@ -246,7 +249,10 @@ supabase.auth.onAuthStateChange((event, session) => {
             .eq('id', session.user.id)
             .single();
 
-          const usuario = profileData?.usuario;
+          // Fix: Access the first element of the usuario array
+          const usuario = Array.isArray(profileData?.usuario) 
+            ? profileData.usuario[0] 
+            : profileData?.usuario;
 
           const appUser: AppUser = {
             id: session.user.id,
