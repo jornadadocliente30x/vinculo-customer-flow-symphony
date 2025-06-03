@@ -13,6 +13,9 @@ import { PatientHistoryPanel } from './PatientHistoryPanel';
 import { VideoCallSummaryModal } from './VideoCallSummaryModal';
 import { ChatMessage, Conversation, Contact, TransferRequest } from '@/types/messages';
 import { mockTransferRequests } from '@/data/mockTransferRequests';
+import { leadsService } from '@/services/leadsService';
+import { useToast } from '@/hooks/use-toast';
+import type { CreateLeadData } from '@/types/database';
 
 interface ChatAreaProps {
   conversation: Conversation | null;
@@ -44,6 +47,8 @@ export function ChatArea({
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [transferRequests, setTransferRequests] = useState<TransferRequest[]>(mockTransferRequests);
+  
+  const { toast } = useToast();
 
   const pendingTransferCount = transferRequests.filter(req => req.status === 'pending').length;
 
@@ -86,8 +91,50 @@ export function ChatArea({
     });
   };
 
-  const handleNewContact = (contactData: any) => {
-    console.log('Creating new contact:', contactData);
+  const handleNewContact = async (contactData: any) => {
+    try {
+      console.log('Creating new contact:', contactData);
+      
+      // Converter os dados do modal para o formato CreateLeadData
+      const leadData: CreateLeadData = {
+        nome: contactData.firstName + (contactData.lastName ? ` ${contactData.lastName}` : ''),
+        primeiro_nome: contactData.firstName,
+        ultimo_nome: contactData.lastName || '',
+        telefone: contactData.phone,
+        email: contactData.email || '',
+        endereco: contactData.address || '',
+        cidade: contactData.city || '',
+        estado: contactData.state || '',
+        cpf: contactData.cpf || '',
+        data_nascimento: contactData.birthDate ? new Date(contactData.birthDate) : undefined,
+        observacoes: contactData.description || '',
+        status_lead_id: 1, // Status padrão
+        origem_lead_id: 1, // Origem padrão
+        etapa_jornada_id: 1, // Etapa padrão
+      };
+
+      // Salvar no banco de dados usando o leadsService
+      const newLead = await leadsService.createLead(leadData);
+      
+      console.log('Lead created successfully:', newLead);
+      
+      toast({
+        title: "Contato criado",
+        description: `O contato ${leadData.nome} foi criado com sucesso.`,
+      });
+
+      // Fechar o modal
+      setIsNewContactModalOpen(false);
+      
+    } catch (error) {
+      console.error('Error creating contact:', error);
+      
+      toast({
+        title: "Erro ao criar contato",
+        description: "Não foi possível criar o contato. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditContact = (contact: Contact) => {
