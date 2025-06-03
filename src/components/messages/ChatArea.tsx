@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -106,7 +107,7 @@ export function ChatArea({
         cidade: contactData.city || '',
         estado: contactData.state || '',
         cpf: contactData.cpf || '',
-        data_nascimento: contactData.birthDate ? new Date(contactData.birthDate) : undefined,
+        data_nascimento: contactData.birthDate ? contactData.birthDate : undefined,
         observacoes: contactData.description || '',
         status_lead_id: 1, // Status padrão
         origem_lead_id: 1, // Origem padrão
