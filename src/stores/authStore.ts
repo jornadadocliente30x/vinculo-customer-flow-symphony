@@ -85,14 +85,16 @@ export const useAuthStore = create<AuthState>()(
               .eq('id', data.user.id)
               .single();
 
+            const usuario = profileData?.usuario;
+
             const appUser: AppUser = {
               id: data.user.id,
               email: data.user.email!,
-              name: profileData?.usuario?.nome || data.user.email!,
+              name: usuario?.nome || data.user.email!,
               role: 'agent', // Default role
               createdAt: new Date(data.user.created_at),
-              usuarioId: profileData?.usuario?.id,
-              empresaId: profileData?.usuario?.empresa_id,
+              usuarioId: usuario?.id,
+              empresaId: usuario?.empresa_id,
             };
 
             console.log('Login successful for user:', appUser.name);
@@ -244,14 +246,16 @@ supabase.auth.onAuthStateChange((event, session) => {
             .eq('id', session.user.id)
             .single();
 
+          const usuario = profileData?.usuario;
+
           const appUser: AppUser = {
             id: session.user.id,
             email: session.user.email!,
-            name: profileData?.usuario?.nome || session.user.email!,
+            name: usuario?.nome || session.user.email!,
             role: 'agent',
             createdAt: new Date(session.user.created_at),
-            usuarioId: profileData?.usuario?.id,
-            empresaId: profileData?.usuario?.empresa_id,
+            usuarioId: usuario?.id,
+            empresaId: usuario?.empresa_id,
           };
 
           useAuthStore.setState({
