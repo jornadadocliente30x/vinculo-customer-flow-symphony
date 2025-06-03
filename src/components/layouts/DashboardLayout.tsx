@@ -8,8 +8,7 @@ import {
   Bell, 
   Search, 
   User, 
-  LogOut,
-  Settings
+  LogOut
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -57,15 +56,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <div className="min-h-screen flex w-full">
+        <div className="min-h-screen flex w-full max-w-none">
           <AppSidebar />
           
-          <SidebarInset>
+          <SidebarInset className="w-full">
             {/* Top Bar */}
-            <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <SidebarTrigger />
+            <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 w-full">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-2">
+                  <SidebarTrigger className="mr-2" />
                   
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -109,15 +108,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         <User className="mr-2 h-4 w-4" />
                         <span>Perfil</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Configurações</span>
-                      </DropdownMenuItem>
                       {hasAdminAccess && (
                         <>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => navigate('/admin')}>
-                            <Settings className="mr-2 h-4 w-4" />
+                            <User className="mr-2 h-4 w-4" />
                             <span>Administração</span>
                           </DropdownMenuItem>
                         </>
@@ -134,7 +129,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-6 w-full max-w-none">
               {children}
             </main>
           </SidebarInset>

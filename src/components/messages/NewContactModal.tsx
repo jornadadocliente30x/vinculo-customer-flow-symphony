@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus } from 'lucide-react';
 import { CreateLeadData } from '@/types/database';
-import { useLeads } from '@/hooks/useLeads';
+import { leadsService } from '@/services/leadsService';
+import { useToast } from '@/hooks/use-toast';
 
 interface NewContactModalProps {
   isOpen: boolean;
@@ -17,7 +18,11 @@ interface NewContactModalProps {
 }
 
 export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProps) {
-  const { etapas, statusOptions, origens, isLoading } = useLeads();
+  const [statusChatOptions, setStatusChatOptions] = useState<any[]>([]);
+  const [origens, setOrigens] = useState<any[]>([]);
+  const [etapas, setEtapas] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
   const [formData, setFormData] = useState<Partial<CreateLeadData>>({
     nome: '',
@@ -36,20 +41,53 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
     etapa_jornada_id: undefined,
   });
 
-  // Set default values when data is loaded
-  useState(() => {
-    if (statusOptions.length > 0 && origens.length > 0 && etapas.length > 0) {
+  // Carregar dados quando o modal abrir
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
+    }
+  }, [isOpen]);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [statusChatData, origensData, etapasData] = await Promise.all([
+        leadsService.getStatusChat(),
+        leadsService.getOrigensLead(),
+        leadsService.getEtapasJornada()
+      ]);
+
+      setStatusChatOptions(statusChatData);
+      setOrigens(origensData);
+      setEtapas(etapasData);
+
+      // Set default values
       setFormData(prev => ({
         ...prev,
-        status_lead_id: prev.status_lead_id || statusOptions[0]?.id,
-        origem_lead_id: prev.origem_lead_id || origens.find(o => o.nome.toLowerCase().includes('whatsapp'))?.id || origens[0]?.id,
-        etapa_jornada_id: prev.etapa_jornada_id || etapas[0]?.id,
+        status_lead_id: prev.status_lead_id || statusChatData[0]?.id,
+        origem_lead_id: prev.origem_lead_id || origensData.find(o => o.nome.toLowerCase().includes('whatsapp'))?.id || origensData[0]?.id,
+        etapa_jornada_id: prev.etapa_jornada_id || etapasData[0]?.id,
       }));
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Não foi possível carregar as opções do formulário.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  });
+  };
 
   const handleSubmit = () => {
     if (!formData.nome || !formData.telefone || !formData.status_lead_id || !formData.origem_lead_id) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha os campos obrigatórios: Nome, Telefone, Status e Origem.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -88,7 +126,7 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
       cpf: '',
       data_nascimento: '',
       observacoes: '',
-      status_lead_id: statusOptions[0]?.id,
+      status_lead_id: statusChatOptions[0]?.id,
       origem_lead_id: origens.find(o => o.nome.toLowerCase().includes('whatsapp'))?.id || origens[0]?.id,
       etapa_jornada_id: etapas[0]?.id,
     });
@@ -121,7 +159,7 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
+          <DialogTitle className="flex items-center text-left">
             <UserPlus className="w-5 h-5 mr-2" />
             Novo Contato
           </DialogTitle>
@@ -259,7 +297,7 @@ export function NewContactModal({ isOpen, onClose, onSave }: NewContactModalProp
                 <SelectValue placeholder="Selecione um status" />
               </SelectTrigger>
               <SelectContent>
-                {statusOptions.map((status) => (
+                {statusChatOptions.map((status) => (
                   <SelectItem key={status.id} value={status.id.toString()}>
                     {status.nome}
                   </SelectItem>

@@ -8,7 +8,7 @@ import { Footer } from "@/components/ui/footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full max-w-none">
       <Navigation />
       <HeroSection />
       <FeaturesSection />

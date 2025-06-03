@@ -1,15 +1,70 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { Lead, CreateLeadData, UpdateLeadData } from '@/types/database';
+import type { CreateLeadData } from '@/types/database';
+
+export interface StatusChat {
+  id: number;
+  nome: string;
+  descricao?: string;
+  cor?: string;
+  icone?: string;
+  ordem?: number;
+  ativo?: boolean;
+}
+
+export interface StatusLead {
+  id: number;
+  nome: string;
+  descricao?: string;
+  cor?: string;
+  icone?: string;
+  ordem?: number;
+  ativo?: boolean;
+}
+
+export interface OrigemLead {
+  id: number;
+  nome: string;
+  descricao?: string;
+  cor?: string;
+  icone?: string;
+  ativo?: boolean;
+}
+
+export interface EtapaJornada {
+  id: number;
+  nome: string;
+  descricao?: string;
+  cor?: string;
+  icone?: string;
+  ordem?: number;
+  ativo?: boolean;
+}
 
 export const leadsService = {
-  async getAllLeads(): Promise<Lead[]> {
+  async getLeads() {
     const { data, error } = await supabase
       .from('lead')
-      .select('*')
+      .select(`
+        *,
+        status_lead:status_lead_id (
+          id,
+          nome,
+          cor
+        ),
+        origem_lead:origem_lead_id (
+          id,
+          nome,
+          cor
+        ),
+        etapa_jornada:etapa_jornada_id (
+          id,
+          nome,
+          cor
+        )
+      `)
       .eq('ativo', true)
-      .eq('deleted', false)
-      .order('created_at', { ascending: false });
+      .eq('deleted', false);
 
     if (error) {
       console.error('Error fetching leads:', error);
@@ -19,32 +74,48 @@ export const leadsService = {
     return data || [];
   },
 
-  async getLeadById(id: number): Promise<Lead | null> {
-    const { data, error } = await supabase
-      .from('lead')
-      .select('*')
-      .eq('id', id)
-      .eq('ativo', true)
-      .eq('deleted', false)
-      .single();
+  async createLead(leadData: CreateLeadData) {
+    console.log('Creating lead with data:', leadData);
 
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching lead:', error);
-      throw error;
+    // Validações básicas
+    if (!leadData.nome || leadData.nome.trim() === '') {
+      throw new Error('Nome é obrigatório');
     }
 
-    return data;
-  },
+    if (!leadData.telefone || leadData.telefone.trim() === '') {
+      throw new Error('Telefone é obrigatório');
+    }
 
-  async createLead(leadData: CreateLeadData): Promise<Lead> {
+    if (!leadData.status_lead_id) {
+      throw new Error('Status é obrigatório');
+    }
+
+    if (!leadData.origem_lead_id) {
+      throw new Error('Origem é obrigatória');
+    }
+
     const { data, error } = await supabase
       .from('lead')
-      .insert({
-        ...leadData,
-        empresa_id: 1, // Sempre empresa_id = 1
+      .insert([{
+        nome: leadData.nome.trim(),
+        primeiro_nome: leadData.primeiro_nome?.trim() || null,
+        ultimo_nome: leadData.ultimo_nome?.trim() || null,
+        telefone: leadData.telefone.trim(),
+        email: leadData.email?.trim() || null,
+        endereco: leadData.endereco?.trim() || null,
+        cidade: leadData.cidade?.trim() || null,
+        estado: leadData.estado?.trim() || null,
+        cpf: leadData.cpf?.trim() || null,
+        data_nascimento: leadData.data_nascimento || null,
+        observacoes: leadData.observacoes?.trim() || null,
+        status_lead_id: leadData.status_lead_id,
+        origem_lead_id: leadData.origem_lead_id,
+        etapa_jornada_id: leadData.etapa_jornada_id || null,
+        usuario_responsavel_id: leadData.usuario_responsavel_id || null,
+        empresa_id: 1, // Assumindo empresa padrão
         ativo: true,
         deleted: false
-      })
+      }])
       .select()
       .single();
 
@@ -56,50 +127,22 @@ export const leadsService = {
     return data;
   },
 
-  async updateLead(leadData: UpdateLeadData): Promise<Lead> {
+  async getStatusChat(): Promise<StatusChat[]> {
     const { data, error } = await supabase
-      .from('lead')
-      .update(leadData)
-      .eq('id', leadData.id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating lead:', error);
-      throw error;
-    }
-
-    return data;
-  },
-
-  async deleteLead(id: number): Promise<void> {
-    const { error } = await supabase
-      .from('lead')
-      .update({ deleted: true })
-      .eq('id', id);
-
-    if (error) {
-      console.error('Error deleting lead:', error);
-      throw error;
-    }
-  },
-
-  async getEtapasJornada() {
-    const { data, error } = await supabase
-      .from('etapa_jornada')
+      .from('status_chat')
       .select('*')
       .eq('ativo', true)
       .order('ordem');
 
     if (error) {
-      console.error('Error fetching etapas:', error);
+      console.error('Error fetching status_chat:', error);
       throw error;
     }
 
     return data || [];
   },
 
-  async getStatusLead() {
+  async getStatusLead(): Promise<StatusLead[]> {
     const { data, error } = await supabase
       .from('status_lead')
       .select('*')
@@ -107,21 +150,36 @@ export const leadsService = {
       .order('ordem');
 
     if (error) {
-      console.error('Error fetching status:', error);
+      console.error('Error fetching status_lead:', error);
       throw error;
     }
 
     return data || [];
   },
 
-  async getOrigensLead() {
+  async getOrigensLead(): Promise<OrigemLead[]> {
     const { data, error } = await supabase
       .from('origem_lead')
       .select('*')
       .eq('ativo', true);
 
     if (error) {
-      console.error('Error fetching origens:', error);
+      console.error('Error fetching origens_lead:', error);
+      throw error;
+    }
+
+    return data || [];
+  },
+
+  async getEtapasJornada(): Promise<EtapaJornada[]> {
+    const { data, error } = await supabase
+      .from('etapa_jornada')
+      .select('*')
+      .eq('ativo', true)
+      .order('ordem');
+
+    if (error) {
+      console.error('Error fetching etapas_jornada:', error);
       throw error;
     }
 
