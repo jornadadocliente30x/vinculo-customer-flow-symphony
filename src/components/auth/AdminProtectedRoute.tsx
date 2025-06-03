@@ -1,3 +1,4 @@
+
 import { useAuthStore } from '@/stores/authStore';
 import { Card } from '@/components/ui/card';
 import { ShieldAlert } from 'lucide-react';
@@ -7,10 +8,10 @@ interface AdminProtectedRouteProps {
 }
 
 export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
-  const { user, isAuthenticated } = useAuthStore();
+  const { userProfile, isAuthenticated } = useAuthStore();
 
   // Verificar se o usuário está logado
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated || !userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md mx-auto text-center">
@@ -25,9 +26,9 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   }
 
   // Verificar se o usuário é da empresa Odontomy
-  const isOdontomyUser = user.company?.toLowerCase().includes('odontomy') || 
-                       user.email.includes('@odontomy.com.br') ||
-                       user.role === 'admin';
+  const isOdontomyUser = userProfile.company?.toLowerCase().includes('odontomy') || 
+                       userProfile.email.includes('@odontomy.com.br') ||
+                       userProfile.role === 'admin';
 
   if (!isOdontomyUser) {
     return (
@@ -39,9 +40,9 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
             Esta área é exclusiva para usuários da empresa Odontomy.
           </p>
           <div className="text-sm text-gray-500 bg-gray-100 p-3 rounded-lg">
-            <p><strong>Usuário:</strong> {user.name}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Empresa:</strong> {user.company || 'Não informada'}</p>
+            <p><strong>Usuário:</strong> {userProfile.name}</p>
+            <p><strong>Email:</strong> {userProfile.email}</p>
+            <p><strong>Empresa:</strong> {userProfile.company || 'Não informada'}</p>
           </div>
         </Card>
       </div>

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,21 +8,20 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/use-toast';
-import { User, Lock, Camera, Save } from 'lucide-react';
-import { FileUpload } from '@/components/ui/file-upload';
+import { User, Lock, Save } from 'lucide-react';
 
 export default function Profile() {
-  const { user, updateUser } = useAuthStore();
+  const { userProfile, updateUser } = useAuthStore();
   const { toast } = useToast();
   
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   
   const [profile, setProfile] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    avatar: user?.avatar || ''
+    name: userProfile?.name || '',
+    email: userProfile?.email || '',
+    phone: userProfile?.phone || '',
+    avatar: userProfile?.avatar || ''
   });
   
   const [passwordForm, setPasswordForm] = useState({
@@ -92,23 +92,9 @@ export default function Profile() {
                 <Avatar className="h-20 w-20">
                   <AvatarImage src={profile.avatar} alt={profile.name} />
                   <AvatarFallback className="text-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                    {profile.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    {profile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                {isEditing && (
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Foto do Perfil
-                    </Label>
-                    <FileUpload
-                      value={profile.avatar}
-                      onChange={(file, url) => {
-                        setProfile(prev => ({ ...prev, avatar: url || '' }));
-                      }}
-                      placeholder="Selecionar nova foto..."
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Campos do formulário */}
@@ -165,10 +151,10 @@ export default function Profile() {
                       onClick={() => {
                         setIsEditing(false);
                         setProfile({
-                          name: user?.name || '',
-                          email: user?.email || '',
-                          phone: user?.phone || '',
-                          avatar: user?.avatar || ''
+                          name: userProfile?.name || '',
+                          email: userProfile?.email || '',
+                          phone: userProfile?.phone || '',
+                          avatar: userProfile?.avatar || ''
                         });
                       }}
                     >
