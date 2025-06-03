@@ -10,12 +10,8 @@ interface AdminProtectedRouteProps {
 export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   const { user, isAuthenticated } = useAuthStore();
 
-  console.log('AdminProtectedRoute - user:', user);
-  console.log('AdminProtectedRoute - isAuthenticated:', isAuthenticated);
-
   // Verificar se o usuário está logado
   if (!isAuthenticated || !user) {
-    console.log('User not authenticated or no user data');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md mx-auto text-center">
@@ -31,10 +27,8 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
 
   // Verificar se o usuário tem permissões de admin baseado no role
   const isAdmin = user.role === 'admin' || user.role === 'manager';
-  console.log('AdminProtectedRoute - isAdmin:', isAdmin, 'user.role:', user.role);
 
   if (!isAdmin) {
-    console.log('User does not have admin access');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md mx-auto text-center">
@@ -55,6 +49,5 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
     );
   }
 
-  console.log('AdminProtectedRoute - Access granted');
   return <>{children}</>;
 }
