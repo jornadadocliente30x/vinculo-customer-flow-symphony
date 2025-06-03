@@ -88,7 +88,10 @@ export const useAuthStore = create<AuthState>()(
 
             console.log('Profile data retrieved:', profileData);
 
-            const usuario = profileData?.usuario;
+            // Fix: Access the first element if it's an array, or use directly if it's an object
+            const usuario = Array.isArray(profileData?.usuario) 
+              ? profileData.usuario[0] 
+              : profileData?.usuario;
 
             const appUser: AppUser = {
               id: data.user.id,
@@ -252,7 +255,10 @@ supabase.auth.onAuthStateChange((event, session) => {
 
           console.log('Auth state change - Profile data:', profileData);
 
-          const usuario = profileData?.usuario;
+          // Fix: Access the first element if it's an array, or use directly if it's an object
+          const usuario = Array.isArray(profileData?.usuario) 
+            ? profileData.usuario[0] 
+            : profileData?.usuario;
 
           const appUser: AppUser = {
             id: session.user.id,
