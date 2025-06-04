@@ -1,14 +1,10 @@
 
-import { useState, useEffect } from 'react';
 import { KanbanLead, FunnelStage } from '@/types';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { LeadCard } from './LeadCard';
 import { formatBRLCurrency } from '@/utils/formatting';
 import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Plus, DollarSign } from 'lucide-react';
 
 interface KanbanColumnProps {
   stage: FunnelStage;
@@ -18,6 +14,7 @@ interface KanbanColumnProps {
   onMarkAsWon?: (leadId: string) => void;
   onMarkAsLost?: (leadId: string) => void;
   onDelete?: (leadId: string) => void;
+  onEditContact?: (lead: KanbanLead) => void;
 }
 
 export function KanbanColumn({ 
@@ -27,109 +24,50 @@ export function KanbanColumn({
   onOpenDetails, 
   onMarkAsWon, 
   onMarkAsLost, 
-  onDelete 
+  onDelete,
+  onEditContact
 }: KanbanColumnProps) {
-  const [visibleCount, setVisibleCount] = useState(20);
-  const [paginationSize, setPaginationSize] = useState(20);
-  const visibleLeads = leads.slice(0, visibleCount);
-  const hasMore = leads.length > visibleCount;
-
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
   });
 
-  // Reset visible count when leads change significantly
-  useEffect(() => {
-    if (leads.length < visibleCount) {
-      setVisibleCount(paginationSize);
-    }
-  }, [leads.length, paginationSize]);
-
-  const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + paginationSize, leads.length));
-  };
-
-  const handlePaginationChange = (size: string) => {
-    const newSize = parseInt(size);
-    setPaginationSize(newSize);
-    setVisibleCount(newSize);
-  };
-
   return (
-    <div className="flex-shrink-0 w-80">
-      <Card className="h-full bg-gray-50/50 border border-gray-200 rounded-xl">
-        {/* Novo Header Compacto com Gradiente */}
-        <div className={`bg-gradient-to-r ${stage.color} px-4 py-3 rounded-t-xl text-white`}>
-          <div className="space-y-2">
-            <h3 className="font-bold text-lg">{stage.name}</h3>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-1">
-                <div className="bg-white/20 rounded-full px-2 py-1">
-                  <span className="font-semibold text-sm">{leads.length}</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-1">
-                <DollarSign className="h-4 w-4 opacity-90" />
-                <span className="font-bold text-sm">{formatBRLCurrency(totalValue)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <CardContent className="pt-4 px-3">
-          <div
-            ref={setNodeRef}
-            className="min-h-[500px] max-h-[600px] overflow-y-auto pr-1"
+    <Card className={`w-80 flex-shrink-0 bg-gray-50 ${isOver ? 'ring-2 ring-blue-500' : ''}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold text-gray-700">
+            {stage.name}
+          </CardTitle>
+          <Badge 
+            variant="secondary" 
+            className={`${stage.color} text-white border-0`}
           >
-            <SortableContext items={visibleLeads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
-              {visibleLeads.map((lead) => (
-                <LeadCard 
-                  key={lead.id} 
-                  lead={lead} 
-                  onOpenDetails={onOpenDetails}
-                  onMarkAsWon={onMarkAsWon}
-                  onMarkAsLost={onMarkAsLost}
-                  onDelete={onDelete}
-                />
-              ))}
-            </SortableContext>
-            
-            {hasMore && (
-              <div className="flex justify-center mt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={handleLoadMore}
-                  className="w-full text-sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Carregar mais ({leads.length - visibleCount} restantes)
-                </Button>
-              </div>
-            )}
-          </div>
-          
-          {/* Pagination Controls in Footer */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">Exibir por página:</span>
-              <Select value={paginationSize.toString()} onValueChange={handlePaginationChange}>
-                <SelectTrigger className="w-20 h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="40">40</SelectItem>
-                  <SelectItem value="60">60</SelectItem>
-                  <SelectItem value="80">80</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            {leads.length}
+          </Badge>
+        </div>
+        <div className="text-lg font-bold text-emerald-600">
+          {formatBRLCurrency(totalValue)}
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-0">
+        <div 
+          ref={setNodeRef}
+          className="space-y-2 min-h-[500px]"
+        >
+          {leads.map((lead) => (
+            <LeadCard
+              key={lead.id}
+              lead={lead}
+              onOpenDetails={onOpenDetails}
+              onMarkAsWon={onMarkAsWon}
+              onMarkAsLost={onMarkAsLost}
+              onDelete={onDelete}
+              onEditContact={onEditContact}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

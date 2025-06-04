@@ -15,6 +15,7 @@ interface LeadCardProps {
   onMarkAsWon?: (leadId: string) => void;
   onMarkAsLost?: (leadId: string) => void;
   onDelete?: (leadId: string) => void;
+  onEditContact?: (lead: KanbanLead) => void;
 }
 
 export function LeadCard({ 
@@ -22,7 +23,8 @@ export function LeadCard({
   onOpenDetails, 
   onMarkAsWon, 
   onMarkAsLost, 
-  onDelete 
+  onDelete,
+  onEditContact
 }: LeadCardProps) {
   const navigate = useNavigate();
   const {
@@ -46,6 +48,13 @@ export function LeadCard({
     navigate(`/dashboard/messages/whatsapp?contact=${lead.id}`);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEditContact) {
+      onEditContact(lead);
+    }
+  };
+
   return (
     <Card
       ref={setNodeRef}
@@ -53,6 +62,7 @@ export function LeadCard({
       {...attributes}
       {...listeners}
       className="mb-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-all duration-200 bg-white border border-gray-200 rounded-lg overflow-hidden"
+      onClick={handleCardClick}
     >
       <CardContent className="p-3">
         {/* Nome e Telefone */}
