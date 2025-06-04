@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { CreateLeadData } from '@/types/database';
+import type { CreateLeadData, Lead, UpdateLeadData } from '@/types/database';
 
 export interface StatusChat {
   id: number;
@@ -74,6 +74,11 @@ export const leadsService = {
     return data || [];
   },
 
+  // Alias for getLeads to maintain compatibility
+  async getAllLeads() {
+    return this.getLeads();
+  },
+
   async createLead(leadData: CreateLeadData) {
     console.log('Creating lead with data:', leadData);
 
@@ -121,6 +126,67 @@ export const leadsService = {
 
     if (error) {
       console.error('Error creating lead:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  async updateLead(leadData: UpdateLeadData) {
+    console.log('Updating lead with data:', leadData);
+
+    if (!leadData.id) {
+      throw new Error('ID do lead é obrigatório para atualização');
+    }
+
+    const { data, error } = await supabase
+      .from('lead')
+      .update({
+        nome: leadData.nome?.trim(),
+        primeiro_nome: leadData.primeiro_nome?.trim() || null,
+        ultimo_nome: leadData.ultimo_nome?.trim() || null,
+        telefone: leadData.telefone?.trim(),
+        email: leadData.email?.trim() || null,
+        endereco: leadData.endereco?.trim() || null,
+        cidade: leadData.cidade?.trim() || null,
+        estado: leadData.estado?.trim() || null,
+        cpf: leadData.cpf?.trim() || null,
+        data_nascimento: leadData.data_nascimento || null,
+        observacoes: leadData.observacoes?.trim() || null,
+        status_lead_id: leadData.status_lead_id,
+        origem_lead_id: leadData.origem_lead_id,
+        etapa_jornada_id: leadData.etapa_jornada_id || null,
+        usuario_responsavel_id: leadData.usuario_responsavel_id || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', leadData.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating lead:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  async deleteLead(leadId: number) {
+    console.log('Deleting lead with id:', leadId);
+
+    const { data, error } = await supabase
+      .from('lead')
+      .update({
+        deleted: true,
+        ativo: false,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', leadId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error deleting lead:', error);
       throw error;
     }
 

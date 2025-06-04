@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadsService } from '@/services/leadsService';
 import { useToast } from '@/hooks/use-toast';
-import type { CreateLeadData, UpdateLeadData } from '@/types/database';
+import type { CreateLeadData, UpdateLeadData, Lead } from '@/types/database';
 
 export const useLeads = () => {
   const queryClient = useQueryClient();
@@ -87,7 +87,7 @@ export const useLeads = () => {
   });
 
   return {
-    leads: leadsQuery.data || [],
+    leads: (leadsQuery.data || []) as Lead[],
     etapas: etapasQuery.data || [],
     statusOptions: statusQuery.data || [],
     origens: origensQuery.data || [],
