@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { KanbanLead, FunnelStage } from '@/types';
 import { KanbanColumn } from './KanbanColumn';
@@ -122,10 +121,13 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
       cpf: '',
       data_nascimento: '',
       observacoes: '',
+      empresa_id: 1, // Default company ID
       status_lead_id: 1,
       origem_lead_id: 1,
       etapa_jornada_id: 1,
       usuario_responsavel_id: 1,
+      ativo: true,
+      deleted: false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
