@@ -1,3 +1,4 @@
+
 export type AgentType = 'Atendimento' | 'Agendamento' | 'Suporte';
 
 export type AgentStatus = 'Ativo' | 'Inativo';
@@ -8,6 +9,14 @@ export interface Schedule {
   endTime: string;
 }
 
+export interface PatientJourneyMessage {
+  subject: string;
+  description: string;
+  delayValue: string;
+  delayUnit: 'minutos' | 'horas' | 'dias';
+  files?: File[];
+}
+
 export interface PatientJourneyStep {
   id: string;
   title: string;
@@ -16,6 +25,7 @@ export interface PatientJourneyStep {
   files?: File[];
   delayValue?: string;
   delayUnit?: 'minutos' | 'horas' | 'dias';
+  messages?: PatientJourneyMessage[]; // For Expansão stage with multiple messages
 }
 
 export interface Agent {
