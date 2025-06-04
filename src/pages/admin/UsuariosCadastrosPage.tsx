@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute';
-import UsuariosCadastrosContent from './UsuariosCadastrosContent';
+import UsuariosCadastros from './UsuariosCadastros';
+import UsuariosTipos from './UsuariosTipos';
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +35,8 @@ import {
   Calendar,
   CheckCircle,
   AlertCircle,
-  Clock
+  Clock,
+  UserCog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +50,11 @@ const sidebarItems = [
     id: 'usuarios',
     title: 'Usuários',
     icon: Users,
+  },
+  {
+    id: 'tipos',
+    title: 'Tipos de Usuários',
+    icon: UserCog,
   },
   {
     id: 'pagamentos',
@@ -394,7 +402,10 @@ export default function UsuariosCadastrosPage() {
         );
 
       case 'usuarios':
-        return <UsuariosCadastrosContent />;
+        return <UsuariosCadastros />;
+
+      case 'tipos':
+        return <UsuariosTipos />;
 
       case 'pagamentos':
         return (
