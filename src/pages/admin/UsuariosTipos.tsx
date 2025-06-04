@@ -1,15 +1,13 @@
-
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute';
 import { MemberAccessDenied } from '@/components/auth/MemberAccessDenied';
 import { useAuthStore } from '@/stores/authStore';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Pencil, Plus, Trash2, Settings } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface UserType {
@@ -74,7 +72,7 @@ const availablePermissions = [
   { key: 'configuracoes', label: 'Configurações do Sistema' },
 ];
 
-function UsuariosTiposContent() {
+export function UsuariosTiposContent() {
   const [userTypes, setUserTypes] = useState<UserType[]>(initialUserTypes);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);

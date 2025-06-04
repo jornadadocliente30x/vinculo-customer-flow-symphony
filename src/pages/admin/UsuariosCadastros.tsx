@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute';
 import { MemberAccessDenied } from '@/components/auth/MemberAccessDenied';
 import { useAuthStore } from '@/stores/authStore';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -26,7 +24,7 @@ const initialUsers: User[] = [
   { id: 3, name: 'João Souza', email: 'joao@odontomy.com', phone: '(11) 77777-7777', type: 'Cliente' },
 ];
 
-function UsuariosCadastrosContent() {
+export function UsuariosCadastrosContent() {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
