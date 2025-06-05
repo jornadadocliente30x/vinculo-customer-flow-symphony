@@ -39,6 +39,7 @@ class LeadsService extends BaseService<Lead, CreateLeadData, UpdateLeadData> {
   }
 
   async updateEtapa(leadId: number, etapaId: number) {
+    // Agora passamos apenas os dados que queremos atualizar
     return this.update(leadId, { etapa_jornada_id: etapaId });
   }
 }

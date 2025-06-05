@@ -1,4 +1,3 @@
-
 // Interfaces alinhadas com a estrutura do banco Supabase
 
 export interface Lead {
