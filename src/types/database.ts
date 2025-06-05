@@ -1,3 +1,4 @@
+
 // Interfaces alinhadas com a estrutura do banco Supabase
 
 export interface Lead {
@@ -175,5 +176,5 @@ export interface CreateLeadData {
 }
 
 export interface UpdateLeadData extends Partial<CreateLeadData> {
-  id?: number; // Making id optional since BaseService.update() receives it as first parameter
+  id: number;
 }
