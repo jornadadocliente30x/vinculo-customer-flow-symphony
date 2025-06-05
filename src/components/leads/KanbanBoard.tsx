@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { KanbanLead, FunnelStage } from '@/types';
 import { KanbanColumn } from './KanbanColumn';
 import { LeadDetailsSheet } from './LeadDetailsSheet';
-import { EditLeadModal } from './EditLeadModal';
+import { EditContactModal } from '@/components/messages/EditContactModal';
 import { mockLeads, funnelStages } from '@/data/mockLeads';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { LeadCard } from './LeadCard';
 import { useToast } from '@/hooks/use-toast';
-import { Lead } from '@/types/database';
+import { Contact } from '@/types/messages';
 
 interface KanbanBoardProps {
   searchTerm: string;
@@ -20,8 +20,8 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<KanbanLead | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [editLead, setEditLead] = useState<Lead | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editContact, setEditContact] = useState<Contact | null>(null);
+  const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
   const { toast } = useToast();
 
   // Filter leads based on search and filters
@@ -72,7 +72,6 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
       return;
     }
 
-    // Show confirmation for moving to lost stage
     if (newStageId === 'lost') {
       const confirmed = window.confirm('Tem certeza que deseja mover este lead para "Perdas"?');
       if (!confirmed) {
@@ -88,7 +87,6 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
           : lead
       );
       
-      // Enhanced notification with more details
       toast({
         title: "Lead movido com sucesso! 🎉",
         description: `${oldLead.name} foi movido de "${oldLead.stage.name}" para "${newStage.name}"`,
@@ -107,33 +105,26 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
   };
 
   const handleEditContact = (lead: KanbanLead) => {
-    // Convert KanbanLead to Lead format for the edit modal
-    const leadData: Lead = {
-      id: parseInt(lead.id),
-      nome: lead.name,
-      primeiro_nome: lead.name.split(' ')[0] || '',
-      ultimo_nome: lead.name.split(' ').slice(1).join(' ') || '',
-      telefone: lead.phone,
+    // Convert KanbanLead to Contact format for the edit modal
+    const nameParts = lead.name.split(' ');
+    const contactData: Contact = {
+      id: lead.id,
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      phone: lead.phone,
       email: lead.email,
-      endereco: '',
-      cidade: '',
-      estado: '',
+      description: '',
+      services: [],
+      assignedUser: lead.responsible.name,
+      birthDate: '',
+      address: '',
+      city: '',
+      state: '',
       cpf: '',
-      data_nascimento: '',
-      observacoes: '',
-      empresa_id: 1, // Default company ID
-      status_lead_id: 1,
-      origem_lead_id: 1,
-      etapa_jornada_id: 1,
-      usuario_responsavel_id: 1,
-      ativo: true,
-      deleted: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     };
     
-    setEditLead(leadData);
-    setIsEditModalOpen(true);
+    setEditContact(contactData);
+    setIsEditContactModalOpen(true);
   };
 
   const handleUpdateLead = (updatedLead: KanbanLead) => {
@@ -148,16 +139,16 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
     });
   };
 
-  const handleSaveEditedLead = (updatedLead: Lead) => {
-    // Convert Lead back to KanbanLead format
+  const handleSaveEditedContact = (updatedContact: Contact) => {
+    // Convert Contact back to KanbanLead format
     setLeads(prevLeads => 
       prevLeads.map(lead => 
-        lead.id === updatedLead.id.toString() 
+        lead.id === updatedContact.id 
           ? {
               ...lead,
-              name: updatedLead.nome,
-              phone: updatedLead.telefone,
-              email: updatedLead.email || lead.email,
+              name: `${updatedContact.firstName} ${updatedContact.lastName}`.trim(),
+              phone: updatedContact.phone,
+              email: updatedContact.email || lead.email,
             }
           : lead
       )
@@ -165,11 +156,11 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
     
     toast({
       title: "Contato atualizado!",
-      description: `As informações de ${updatedLead.nome} foram atualizadas.`,
+      description: `As informações de ${updatedContact.firstName} ${updatedContact.lastName} foram atualizadas.`,
     });
     
-    setIsEditModalOpen(false);
-    setEditLead(null);
+    setIsEditContactModalOpen(false);
+    setEditContact(null);
   };
 
   const handleDeleteLead = (leadId: string) => {
@@ -273,14 +264,14 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
         onMarkAsLost={handleMarkAsLost}
       />
 
-      <EditLeadModal
-        isOpen={isEditModalOpen}
+      <EditContactModal
+        isOpen={isEditContactModalOpen}
         onClose={() => {
-          setIsEditModalOpen(false);
-          setEditLead(null);
+          setIsEditContactModalOpen(false);
+          setEditContact(null);
         }}
-        lead={editLead}
-        onSave={handleSaveEditedLead}
+        contact={editContact}
+        onSave={handleSaveEditedContact}
       />
     </>
   );
