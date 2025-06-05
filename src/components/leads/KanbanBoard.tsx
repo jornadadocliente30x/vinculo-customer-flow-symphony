@@ -271,7 +271,7 @@ export function KanbanBoard({ searchTerm, filterResponsible, filterValue }: Kanb
           setEditContact(null);
         }}
         contact={editContact}
-        onSave={handleSaveEditedContact}
+        onSaveContact={handleSaveEditedContact}
       />
     </>
   );
