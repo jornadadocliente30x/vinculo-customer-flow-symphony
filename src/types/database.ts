@@ -175,5 +175,5 @@ export interface CreateLeadData {
 }
 
 export interface UpdateLeadData extends Partial<CreateLeadData> {
-  id: number;
+  id?: number; // Making id optional since BaseService.update() receives it as first parameter
 }
